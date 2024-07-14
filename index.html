@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Empire Simulation</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="game">
+        <h1>Business Empire Simulation</h1>
+        <div id="stats">
+            <p>Cash: $<span id="cash">10000</span></p>
+        </div>
+        <div id="businesses">
+            <button onclick="buyBusiness('retail')">Buy Retail Store ($5000)</button>
+            <button onclick="buyBusiness('restaurant')">Buy Restaurant ($10000)</button>
+        </div>
+        <div id="investments">
+            <button onclick="invest('stock')">Invest in Stock ($2000)</button>
+            <button onclick="invest('realEstate')">Invest in Real Estate ($8000)</button>
+        </div>
+        <div id="income">
+            <p>Hourly Income: $<span id="hourlyIncome">0</span></p>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
