@@ -1,9 +1,10 @@
-let cash = 10000;
-let hourlyIncome = 0;
+let cash = parseFloat(localStorage.getItem('cash')) || 10000;
+let hourlyIncome = parseFloat(localStorage.getItem('hourlyIncome')) || 0;
+let lastUpdate = localStorage.getItem('lastUpdate') ? new Date(localStorage.getItem('lastUpdate')) : new Date();
 
 function updateStats() {
-    document.getElementById('cash').textContent = cash;
-    document.getElementById('hourlyIncome').textContent = hourlyIncome;
+    document.getElementById('cash').textContent = cash.toFixed(2);
+    document.getElementById('hourlyIncome').textContent = hourlyIncome.toFixed(2);
 }
 
 function buyBusiness(type) {
@@ -16,6 +17,7 @@ function buyBusiness(type) {
     } else {
         alert('Not enough cash!');
     }
+    saveProgress();
     updateStats();
 }
 
@@ -29,13 +31,31 @@ function invest(type) {
     } else {
         alert('Not enough cash!');
     }
+    saveProgress();
     updateStats();
 }
 
-// Calculate income every minute
+function saveProgress() {
+    localStorage.setItem('cash', cash);
+    localStorage.setItem('hourlyIncome', hourlyIncome);
+    localStorage.setItem('lastUpdate', new Date());
+}
+
+function calculateOfflineIncome() {
+    let now = new Date();
+    let diffInMinutes = (now - lastUpdate) / 60000;
+    let income = (hourlyIncome / 60) * diffInMinutes;
+    cash += income;
+    lastUpdate = now;
+    saveProgress();
+}
+
+calculateOfflineIncome();
+
 setInterval(() => {
     let minuteIncome = hourlyIncome / 60;
     cash += minuteIncome;
+    saveProgress();
     updateStats();
 }, 60000); // 60000 milliseconds = 1 minute
 
