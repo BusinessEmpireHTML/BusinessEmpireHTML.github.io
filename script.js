@@ -1,10 +1,13 @@
-let cash = parseFloat(localStorage.getItem('cash')) || 10000;
+let cash = parseFloat(localStorage.getItem('cash')) || 0;
 let hourlyIncome = parseFloat(localStorage.getItem('hourlyIncome')) || 0;
+let clickValue = parseFloat(localStorage.getItem('clickValue')) || 1;
+let clicks = parseInt(localStorage.getItem('clicks')) || 0;
 let lastUpdate = localStorage.getItem('lastUpdate') ? new Date(localStorage.getItem('lastUpdate')) : new Date();
 
 function updateStats() {
     document.getElementById('cash').textContent = cash.toFixed(2);
     document.getElementById('hourlyIncome').textContent = hourlyIncome.toFixed(2);
+    document.getElementById('clickValue').textContent = clickValue.toFixed(2);
 }
 
 function buyBusiness(type) {
@@ -37,9 +40,19 @@ function invest(type) {
     updateStats();
 }
 
+function earnMoney() {
+    cash += clickValue;
+    clicks++;
+    clickValue = Math.min(1 + Math.log(clicks + 1) * 10, 100); // Increase click value, max $100
+    saveProgress();
+    updateStats();
+}
+
 function saveProgress() {
     localStorage.setItem('cash', cash);
     localStorage.setItem('hourlyIncome', hourlyIncome);
+    localStorage.setItem('clickValue', clickValue);
+    localStorage.setItem('clicks', clicks);
     localStorage.setItem('lastUpdate', new Date());
 }
 
