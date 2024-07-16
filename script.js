@@ -43,7 +43,7 @@ function invest(type) {
 function earnMoney() {
     cash += clickValue;
     clicks++;
-    clickValue = Math.min(1 + Math.log(clicks + 1) * 10, 100); // Increase click value, max $100
+    clickValue = Math.min(1 + Math.sqrt(clicks) / 10, 100); // Increase click value at a slower rate
     saveProgress();
     updateStats();
 }
