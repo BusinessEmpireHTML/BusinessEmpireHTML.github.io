@@ -10,8 +10,11 @@
     <div id="game">
         <h1>Business Empire Simulation</h1>
         <div id="stats">
-            <p>Cash: $<span id="cash">10000</span></p>
+            <p>Cash: $<span id="cash">0</span></p>
+            <p>Hourly Income: $<span id="hourlyIncome">0</span></p>
+            <p>Click Value: $<span id="clickValue">1</span></p>
         </div>
+        <div id="click-area" onclick="earnMoney()">Click to Earn Money</div>
         <div id="businesses">
             <button onclick="buyBusiness('retail')">Buy Retail Store ($5000)</button>
             <button onclick="buyBusiness('restaurant')">Buy Restaurant ($10000)</button>
@@ -19,9 +22,6 @@
         <div id="investments">
             <button onclick="invest('stock')">Invest in Stock ($2000)</button>
             <button onclick="invest('realEstate')">Invest in Real Estate ($8000)</button>
-        </div>
-        <div id="income">
-            <p>Hourly Income: $<span id="hourlyIncome">0</span></p>
         </div>
     </div>
     <script src="script.js"></script>
