@@ -16,6 +16,7 @@ function buyBusiness(type) {
         hourlyIncome += 150; // $150 per hour
     } else {
         alert('Not enough cash!');
+        return;
     }
     saveProgress();
     updateStats();
@@ -30,6 +31,7 @@ function invest(type) {
         hourlyIncome += 120; // $120 per hour
     } else {
         alert('Not enough cash!');
+        return;
     }
     saveProgress();
     updateStats();
@@ -43,14 +45,14 @@ function saveProgress() {
 
 function calculateOfflineIncome() {
     let now = new Date();
-    let diffInMinutes = (now - lastUpdate) / 60000;
-    let income = (hourlyIncome / 60) * diffInMinutes;
+    let diffInMinutes = (now - lastUpdate) / 60000; // Difference in minutes
+    let income = (hourlyIncome / 60) * diffInMinutes; // Calculate income for the offline period
     cash += income;
     lastUpdate = now;
     saveProgress();
 }
 
-calculateOfflineIncome();
+calculateOfflineIncome(); // Calculate income from offline period
 
 setInterval(() => {
     let minuteIncome = hourlyIncome / 60;
