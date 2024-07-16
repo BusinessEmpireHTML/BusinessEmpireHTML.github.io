@@ -25,6 +25,12 @@ body {
     border-radius: 8px;
     cursor: pointer;
     user-select: none;
+    font-size: 18px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100px; /* Increase the height to make it more prominent */
 }
 
 button {
