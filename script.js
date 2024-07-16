@@ -9,10 +9,10 @@ function updateStats() {
 function buyBusiness(type) {
     if (type === 'retail' && cash >= 5000) {
         cash -= 5000;
-        hourlyIncome += 100;
+        hourlyIncome += 60; // $60 per hour
     } else if (type === 'restaurant' && cash >= 10000) {
         cash -= 10000;
-        hourlyIncome += 250;
+        hourlyIncome += 150; // $150 per hour
     } else {
         alert('Not enough cash!');
     }
@@ -22,17 +22,21 @@ function buyBusiness(type) {
 function invest(type) {
     if (type === 'stock' && cash >= 2000) {
         cash -= 2000;
-        hourlyIncome += 50;
+        hourlyIncome += 50; // $50 per hour
     } else if (type === 'realEstate' && cash >= 8000) {
         cash -= 8000;
-        hourlyIncome += 200;
+        hourlyIncome += 120; // $120 per hour
     } else {
         alert('Not enough cash!');
     }
     updateStats();
 }
 
+// Calculate income every minute
 setInterval(() => {
-    cash += hourlyIncome;
+    let minuteIncome = hourlyIncome / 60;
+    cash += minuteIncome;
     updateStats();
-}, 3600000); // Simulate hourly income
+}, 60000); // 60000 milliseconds = 1 minute
+
+updateStats();
