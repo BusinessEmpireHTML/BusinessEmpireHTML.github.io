@@ -3,47 +3,17 @@ let hourlyIncome = parseFloat(localStorage.getItem('hourlyIncome')) || 0;
 let clickValue = parseFloat(localStorage.getItem('clickValue')) || 1;
 let clicks = parseInt(localStorage.getItem('clicks')) || 0;
 let lastUpdate = localStorage.getItem('lastUpdate') ? new Date(localStorage.getItem('lastUpdate')) : new Date();
+let businesses = JSON.parse(localStorage.getItem('businesses')) || [];
 
 function updateStats() {
     document.querySelectorAll('#cash').forEach(el => el.textContent = cash.toFixed(2));
     document.getElementById('hourlyIncome').textContent = hourlyIncome.toFixed(2);
-    document.getElementById('clickValue').textContent = clickValue.toFixed(2);
-}
-
-function buyBusiness(type) {
-    if (type === 'retail' && cash >= 5000) {
-        cash -= 5000;
-        hourlyIncome += 60; // $60 per hour
-    } else if (type === 'restaurant' && cash >= 10000) {
-        cash -= 10000;
-        hourlyIncome += 150; // $150 per hour
-    } else {
-        alert('Not enough cash!');
-        return;
-    }
-    saveProgress();
-    updateStats();
-}
-
-function invest(type) {
-    if (type === 'stock' && cash >= 2000) {
-        cash -= 2000;
-        hourlyIncome += 50; // $50 per hour
-    } else if (type === 'realEstate' && cash >= 8000) {
-        cash -= 8000;
-        hourlyIncome += 120; // $120 per hour
-    } else {
-        alert('Not enough cash!');
-        return;
-    }
-    saveProgress();
-    updateStats();
 }
 
 function earnMoney() {
     cash += clickValue;
     clicks++;
-    clickValue = Math.min(1 + Math.sqrt(clicks) / 10, 100); // Increase click value at a slower rate
+    clickValue = Math.min(1 + Math.sqrt(clicks) / 10, 100);
     saveProgress();
     updateStats();
 }
@@ -54,12 +24,13 @@ function saveProgress() {
     localStorage.setItem('clickValue', clickValue);
     localStorage.setItem('clicks', clicks);
     localStorage.setItem('lastUpdate', new Date());
+    localStorage.setItem('businesses', JSON.stringify(businesses));
 }
 
 function calculateOfflineIncome() {
     let now = new Date();
-    let diffInMinutes = (now - lastUpdate) / 60000; // Difference in minutes
-    let income = (hourlyIncome / 60) * diffInMinutes; // Calculate income for the offline period
+    let diffInMinutes = (now - lastUpdate) / 60000;
+    let income = (hourlyIncome / 60) * diffInMinutes;
     cash += income;
     lastUpdate = now;
     saveProgress();
@@ -73,15 +44,67 @@ function openTab(tabName) {
     document.getElementById(tabName).style.display = 'block';
 }
 
-calculateOfflineIncome(); // Calculate income from offline period
+function openBuyBusinessPopup() {
+    document.getElementById('buy-business-popup').style.display = 'block';
+}
 
-setInterval(() => {
-    let minuteIncome = hourlyIncome / 60;
-    cash += minuteIncome;
-    saveProgress();
-    updateStats();
-}, 60000); // 60000 milliseconds = 1 minute
+function closeBuyBusinessPopup() {
+    document.getElementById('buy-business-popup').style.display = 'none';
+}
 
-// Show the clicker tab by default
-openTab('clicker');
-updateStats();
+function openUpgradeBusinessPopup(index) {
+    const business = businesses[index];
+    document.getElementById('business-name').textContent = business.name;
+    document.getElementById('business-level').textContent = business.level;
+    document.getElementById('business-income').textContent = (business.income).toFixed(2);
+    document.getElementById('upgrade-button').setAttribute('onclick', `upgradeBusiness(${index})`);
+    document.getElementById('upgrade-business-popup').style.display = 'block';
+}
+
+function closeUpgradeBusinessPopup() {
+    document.getElementById('upgrade-business-popup').style.display = 'none';
+}
+
+function buyBusiness(type) {
+    if (type === 'lemonadeStand' && cash >= 500) {
+        cash -= 500;
+        const business = {
+            name: 'Lemonade Stand',
+            level: 1,
+            income: 100
+        };
+        businesses.push(business);
+        hourlyIncome += business.income;
+        saveProgress();
+        updateStats();
+        renderBusinesses();
+        closeBuyBusinessPopup();
+    } else {
+        alert('Not enough cash!');
+    }
+}
+
+function upgradeBusiness(index) {
+    const business = businesses[index];
+    if (cash >= (business.level * 1000) && business.level < 10) {
+        cash -= business.level * 1000;
+        hourlyIncome -= business.income;
+        business.level += 1;
+        business.income *= 1.5;
+        hourlyIncome += business.income;
+        saveProgress();
+        updateStats();
+        renderBusinesses();
+        closeUpgradeBusinessPopup();
+    } else {
+        alert('Not enough cash or max level reached!');
+    }
+}
+
+function renderBusinesses() {
+    const businessList = document.getElementById('business-list');
+    businessList.innerHTML = '';
+    businesses.forEach((business, index) => {
+        const businessButton = document.createElement('button');
+        businessButton.textContent = `${business.name} (Level ${business.level}) - $${business.income.toFixed(2)} per hour`;
+        businessButton.onclick =
