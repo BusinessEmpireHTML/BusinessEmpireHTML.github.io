@@ -17,6 +17,30 @@ body {
     width: 300px;
 }
 
+.tabs {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.tab-button {
+    padding: 10px;
+    font-size: 14px;
+    background-color: #ddd;
+    border: none;
+    cursor: pointer;
+    flex: 1;
+    margin: 0 2px;
+}
+
+.tab-button:hover {
+    background-color: #bbb;
+}
+
+.tab-content {
+    display: none;
+}
+
 #click-area {
     background-color: #4CAF50;
     color: white;
@@ -30,13 +54,5 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 100px; /* Increase the height to make it more prominent */
-}
-
-button {
-    display: block;
-    margin: 10px auto;
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
+    height: 100px;
 }
