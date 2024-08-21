@@ -9,19 +9,39 @@
 <body>
     <div id="game">
         <h1>Business Empire Simulation</h1>
-        <div id="stats">
+        <div class="tabs">
+            <button class="tab-button" onclick="openTab('clicker')">Clicker</button>
+            <button class="tab-button" onclick="openTab('investments')">Investing</button>
+            <button class="tab-button" onclick="openTab('businesses')">Businesses</button>
+            <button class="tab-button" onclick="openTab('items')">Items</button>
+            <button class="tab-button" onclick="openTab('profile')">Profile</button>
+        </div>
+
+        <div id="clicker" class="tab-content">
+            <div id="click-area" onclick="earnMoney()">Click to Earn Money</div>
             <p>Cash: $<span id="cash">0</span></p>
-            <p>Hourly Income: $<span id="hourlyIncome">0</span></p>
             <p>Click Value: $<span id="clickValue">1</span></p>
         </div>
-        <div id="click-area" onclick="earnMoney()">Click to Earn Money</div>
-        <div id="businesses">
+
+        <div id="investments" class="tab-content">
+            <button onclick="invest('stock')">Invest in Stock ($2000)</button>
+            <button onclick="invest('realEstate')">Invest in Real Estate ($8000)</button>
+        </div>
+
+        <div id="businesses" class="tab-content">
             <button onclick="buyBusiness('retail')">Buy Retail Store ($5000)</button>
             <button onclick="buyBusiness('restaurant')">Buy Restaurant ($10000)</button>
         </div>
-        <div id="investments">
-            <button onclick="invest('stock')">Invest in Stock ($2000)</button>
-            <button onclick="invest('realEstate')">Invest in Real Estate ($8000)</button>
+
+        <div id="items" class="tab-content">
+            <p>Items like cars, houses, boats, islands, etc. can be listed here.</p>
+            <!-- Add buttons or UI for purchasing items here -->
+        </div>
+
+        <div id="profile" class="tab-content">
+            <p>Your total fortune: $<span id="cash">0</span></p>
+            <p>Hourly Income: $<span id="hourlyIncome">0</span></p>
+            <!-- Add more profile-related information here -->
         </div>
     </div>
     <script src="script.js"></script>
