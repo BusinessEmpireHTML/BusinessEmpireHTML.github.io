@@ -5,7 +5,7 @@ let clicks = parseInt(localStorage.getItem('clicks')) || 0;
 let lastUpdate = localStorage.getItem('lastUpdate') ? new Date(localStorage.getItem('lastUpdate')) : new Date();
 
 function updateStats() {
-    document.getElementById('cash').textContent = cash.toFixed(2);
+    document.querySelectorAll('#cash').forEach(el => el.textContent = cash.toFixed(2));
     document.getElementById('hourlyIncome').textContent = hourlyIncome.toFixed(2);
     document.getElementById('clickValue').textContent = clickValue.toFixed(2);
 }
@@ -65,6 +65,14 @@ function calculateOfflineIncome() {
     saveProgress();
 }
 
+function openTab(tabName) {
+    const tabContents = document.querySelectorAll('.tab-content');
+    tabContents.forEach(content => {
+        content.style.display = 'none';
+    });
+    document.getElementById(tabName).style.display = 'block';
+}
+
 calculateOfflineIncome(); // Calculate income from offline period
 
 setInterval(() => {
@@ -74,4 +82,6 @@ setInterval(() => {
     updateStats();
 }, 60000); // 60000 milliseconds = 1 minute
 
+// Show the clicker tab by default
+openTab('clicker');
 updateStats();
