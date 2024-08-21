@@ -107,4 +107,23 @@ function renderBusinesses() {
     businesses.forEach((business, index) => {
         const businessButton = document.createElement('button');
         businessButton.textContent = `${business.name} (Level ${business.level}) - $${business.income.toFixed(2)} per hour`;
-        businessButton.onclick =
+        businessButton.onclick = () => openUpgradeBusinessPopup(index);
+        businessList.appendChild(businessButton);
+        });
+        }
+        
+        calculateOfflineIncome();
+        
+        setInterval(() => {
+        let minuteIncome = hourlyIncome / 60;
+        cash += minuteIncome;
+        saveProgress();
+        updateStats();
+        }, 60000);
+        
+        openTab('clicker');
+        updateStats();
+        renderBusinesses();
+
+
+        
