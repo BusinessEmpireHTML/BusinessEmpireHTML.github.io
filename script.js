@@ -8,6 +8,7 @@ let businesses = JSON.parse(localStorage.getItem('businesses')) || [];
 function updateStats() {
     document.querySelectorAll('#cash').forEach(el => el.textContent = cash.toFixed(2));
     document.getElementById('hourlyIncome').textContent = hourlyIncome.toFixed(2);
+    document.getElementById('clickValue').textContent = clickValue.toFixed(2); // Update click value display
 }
 
 function earnMoney() {
@@ -109,21 +110,18 @@ function renderBusinesses() {
         businessButton.textContent = `${business.name} (Level ${business.level}) - $${business.income.toFixed(2)} per hour`;
         businessButton.onclick = () => openUpgradeBusinessPopup(index);
         businessList.appendChild(businessButton);
-        });
-        }
-        
-        calculateOfflineIncome();
-        
-        setInterval(() => {
-        let minuteIncome = hourlyIncome / 60;
-        cash += minuteIncome;
-        saveProgress();
-        updateStats();
-        }, 60000);
-        
-        openTab('clicker');
-        updateStats();
-        renderBusinesses();
+    });
+}
 
+calculateOfflineIncome();
 
-        
+setInterval(() => {
+    let minuteIncome = hourlyIncome / 60;
+    cash += minuteIncome;
+    saveProgress();
+    updateStats();
+}, 60000);
+
+openTab('clicker');
+updateStats();
+renderBusinesses();
