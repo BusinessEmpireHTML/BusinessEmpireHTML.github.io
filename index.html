@@ -47,9 +47,10 @@
         <div id="buy-business-popup" class="popup">
             <h2>Buy a New Business</h2>
             <button onclick="buyBusiness('lemonadeStand')">Lemonade Stand - $500</button>
-            <button onclick="buyBusiness('carWash')">Car Wash - $12,500</button> <!-- Car Wash added -->
-            <button onclick="closeUpgradeBusinessPopup()">Close</button>
+            <button onclick="buyBusiness('carWash')">Car Wash - $12,500</button>
+            <button onclick="closeBuyBusinessPopup()">Close</button> <!-- Correct function here -->
         </div>
+        
         
 
         <div id="upgrade-business-popup" class="popup">
@@ -60,8 +61,9 @@
             <p>Money Business Has Generated: $<span id="business-total-generated"></span></p> <!-- Show total generated income -->
             <button id="upgrade-button">Upgrade</button>
             <button id="close-button">Close Business</button> <!-- Close business button -->
-            <button onclick="closeUpgradeBusinessPopup()">Close</button>
+            <button onclick="closeUpgradeBusinessPopup()">Close</button> <!-- Correct function here -->
         </div>
+        
         
         
     </div>
