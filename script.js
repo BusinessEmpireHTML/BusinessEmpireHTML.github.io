@@ -148,7 +148,7 @@ function renderBusinesses() {
         if (business.name === 'Lemonade Stand') {
             businessImage = 'images/LemonadeStand.jpg'; // Replace with your actual image path
         } else if (business.name === 'Car Wash') {
-            businessImage = 'path/to/car-wash-image.png'; // Replace with your actual image path
+            businessImage = 'images/CarWash.jpg'; // Replace with your actual image path
         }
 
         businessCard.innerHTML = `
