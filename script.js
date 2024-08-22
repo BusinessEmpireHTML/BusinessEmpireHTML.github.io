@@ -85,7 +85,7 @@ function buyBusiness(type) {
         const business = {
             name: 'Car Wash',
             level: 1,
-            income: 4000 / 30 / 24 // Converting monthly income to hourly income
+            income: 4000
         };
         businesses.push(business);
         hourlyIncome += business.income;
