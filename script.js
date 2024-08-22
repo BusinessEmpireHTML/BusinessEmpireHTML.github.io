@@ -149,7 +149,7 @@ function renderBusinesses() {
 
 function calculateIncome() {
     businesses.forEach(business => {
-        business.totalGenerated += business.income / 60;
+        business.totalGenerated += business.income;
     });
     saveProgress();
     updateStats();
