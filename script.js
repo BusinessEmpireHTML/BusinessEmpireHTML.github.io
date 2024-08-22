@@ -8,7 +8,7 @@ let businesses = JSON.parse(localStorage.getItem('businesses')) || [];
 function updateStats() {
     document.querySelectorAll('#cash').forEach(el => el.textContent = cash.toFixed(2));
     document.getElementById('hourlyIncome').textContent = hourlyIncome.toFixed(2);
-    document.getElementById('clickValue').textContent = clickValue.toFixed(2); // Update click value display
+    document.getElementById('clickValue').textContent = clickValue.toFixed(2);
 }
 
 function earnMoney() {
@@ -39,9 +39,7 @@ function calculateOfflineIncome() {
 
 function openTab(tabName) {
     const tabContents = document.querySelectorAll('.tab-content');
-    tabContents.forEach(content => {
-        content.style.display = 'none';
-    });
+    tabContents.forEach(content => content.style.display = 'none');
     document.getElementById(tabName).style.display = 'block';
 }
 
@@ -51,19 +49,6 @@ function openBuyBusinessPopup() {
 
 function closeBuyBusinessPopup() {
     document.getElementById('buy-business-popup').style.display = 'none';
-}
-
-function openUpgradeBusinessPopup(index) {
-    const business = businesses[index];
-    document.getElementById('business-name').textContent = business.name;
-    document.getElementById('business-level').textContent = business.level;
-    document.getElementById('business-income').textContent = (business.income).toFixed(2);
-    document.getElementById('upgrade-button').setAttribute('onclick', `upgradeBusiness(${index})`);
-    document.getElementById('upgrade-business-popup').style.display = 'block';
-}
-
-function closeUpgradeBusinessPopup() {
-    document.getElementById('upgrade-business-popup').style.display = 'none';
 }
 
 function buyBusiness(type) {
@@ -77,7 +62,7 @@ function buyBusiness(type) {
             upgradeCost: 500 * 0.5,
             upgradeMultiplier: 1.5,
             maxLevel: 10,
-            totalGenerated: 0 // Track total generated income
+            totalGenerated: 0
         };
         businesses.push(business);
         hourlyIncome += business.income;
@@ -91,7 +76,7 @@ function buyBusiness(type) {
             upgradeCost: 12500 * 0.5,
             upgradeMultiplier: 1.25,
             maxLevel: 10,
-            totalGenerated: 0 // Track total generated income
+            totalGenerated: 0
         };
         businesses.push(business);
         hourlyIncome += business.income;
@@ -141,9 +126,9 @@ function openUpgradeBusinessPopup(index) {
     document.getElementById('business-level').textContent = business.level;
     document.getElementById('business-income').textContent = business.income.toFixed(2);
     document.getElementById('business-upgrade-cost').textContent = business.upgradeCost.toFixed(2);
-    document.getElementById('business-total-generated').textContent = business.totalGenerated.toFixed(2); // Display total generated
+    document.getElementById('business-total-generated').textContent = business.totalGenerated.toFixed(2);
     document.getElementById('upgrade-button').setAttribute('onclick', `upgradeBusiness(${index})`);
-    document.getElementById('close-button').setAttribute('onclick', `closeBusiness(${index})`); // Set close button action
+    document.getElementById('close-button').setAttribute('onclick', `closeBusiness(${index})`);
     document.getElementById('upgrade-business-popup').style.display = 'block';
 }
 
