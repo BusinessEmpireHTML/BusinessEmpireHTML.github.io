@@ -146,7 +146,7 @@ function renderBusinesses() {
         // Set the business image based on the type
         let businessImage = '';
         if (business.name === 'Lemonade Stand') {
-            businessImage = 'path/to/lemonade-stand-image.png'; // Replace with your actual image path
+            businessImage = 'images/LemonadeStand.jpg'; // Replace with your actual image path
         } else if (business.name === 'Car Wash') {
             businessImage = 'path/to/car-wash-image.png'; // Replace with your actual image path
         }
