@@ -98,43 +98,55 @@ function buyBusiness(type) {
     }
 }
 
+function calculateUpgradeCost(business) {
+    const basePrice = business.name === 'Lemonade Stand' ? 500 : 12500;
+    const initialUpgradeCost = basePrice * 0.5;
+    return initialUpgradeCost * Math.pow(1.2, business.level - 1);
+}
+
 function upgradeBusiness(index) {
     const business = businesses[index];
-    let upgradeCost = 0;
-    let incomeIncreaseFactor = 0;
+    const upgradeCost = calculateUpgradeCost(business);
 
-    function buyBusiness(type) {
-        if (type === 'lemonadeStand' && cash >= 500) {
-            cash -= 500;
-            const business = {
-                name: 'Lemonade Stand',
-                level: 1,
-                income: 100
-            };
-            businesses.push(business);
+    function upgradeBusiness(index) {
+        const business = businesses[index];
+        const upgradeCost = calculateUpgradeCost(business);
+    
+        if (cash >= upgradeCost && business.level < 10) {
+            cash -= upgradeCost;
+            hourlyIncome -= business.income;
+    
+            // Separate logic for each business
+            if (business.name === 'Lemonade Stand') {
+                business.level += 1;
+                business.income *= 1.5; // 50% increase for Lemonade Stand
+            } else if (business.name === 'Car Wash') {
+                business.level += 1;
+                business.income *= 1.25; // 25% increase for Car Wash
+            }
+    
             hourlyIncome += business.income;
             saveProgress();
             updateStats();
             renderBusinesses();
-            closeBuyBusinessPopup();
-        } else if (type === 'carWash' && cash >= 12500) {
-            cash -= 12500;
-            const business = {
-                name: 'Car Wash',
-                level: 1,
-                income: 4000
-            };
-            businesses.push(business);
-            hourlyIncome += business.income;
-            saveProgress();
-            updateStats();
-            renderBusinesses();
-            closeBuyBusinessPopup();
+            closeUpgradeBusinessPopup();
         } else {
-            alert('Not enough cash!');
+            alert('Not enough cash or max level reached!');
         }
     }
     
+}
+
+function openUpgradeBusinessPopup(index) {
+    const business = businesses[index];
+    const upgradeCost = calculateUpgradeCost(business);
+
+    document.getElementById('business-name').textContent = business.name;
+    document.getElementById('business-level').textContent = business.level;
+    document.getElementById('business-income').textContent = (business.income).toFixed(2);
+    document.getElementById('upgrade-cost').textContent = upgradeCost.toFixed(2); // Show upgrade cost
+    document.getElementById('upgrade-button').setAttribute('onclick', `upgradeBusiness(${index})`);
+    document.getElementById('upgrade-business-popup').style.display = 'block';
 }
 
 function renderBusinesses() {
@@ -147,6 +159,7 @@ function renderBusinesses() {
         businessList.appendChild(businessButton);
     });
 }
+
 
 calculateOfflineIncome();
 
