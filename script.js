@@ -80,6 +80,19 @@ function buyBusiness(type) {
         updateStats();
         renderBusinesses();
         closeBuyBusinessPopup();
+    } else if (type === 'carWash' && cash >= 12500) {
+        cash -= 12500;
+        const business = {
+            name: 'Car Wash',
+            level: 1,
+            income: 4000 / 30 / 24 // Converting monthly income to hourly income
+        };
+        businesses.push(business);
+        hourlyIncome += business.income;
+        saveProgress();
+        updateStats();
+        renderBusinesses();
+        closeBuyBusinessPopup();
     } else {
         alert('Not enough cash!');
     }
@@ -87,11 +100,22 @@ function buyBusiness(type) {
 
 function upgradeBusiness(index) {
     const business = businesses[index];
-    if (cash >= (business.level * 1000) && business.level < 10) {
-        cash -= business.level * 1000;
+    let upgradeCost = 0;
+    let incomeIncreaseFactor = 0;
+
+    if (business.name === 'Lemonade Stand') {
+        upgradeCost = business.level * 1000;
+        incomeIncreaseFactor = 1.5; // 50% increase per level
+    } else if (business.name === 'Car Wash') {
+        upgradeCost = business.level * 5000;
+        incomeIncreaseFactor = 1.25; // 25% increase per level
+    }
+
+    if (cash >= upgradeCost && business.level < 10) {
+        cash -= upgradeCost;
         hourlyIncome -= business.income;
         business.level += 1;
-        business.income *= 1.5;
+        business.income *= incomeIncreaseFactor;
         hourlyIncome += business.income;
         saveProgress();
         updateStats();
