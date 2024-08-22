@@ -73,7 +73,8 @@ function buyBusiness(type) {
             name: 'Lemonade Stand',
             level: 1,
             income: 100,
-            upgradeCost: 1000,
+            baseCost: 500,
+            upgradeCost: 500 * 0.5, // 50% of the original price
             upgradeMultiplier: 1.5,
             maxLevel: 10
         };
@@ -85,7 +86,8 @@ function buyBusiness(type) {
             name: 'Car Wash',
             level: 1,
             income: 4000,
-            upgradeCost: 12500,
+            baseCost: 12500,
+            upgradeCost: 12500 * 0.5, // 50% of the original price
             upgradeMultiplier: 1.25,
             maxLevel: 10
         };
@@ -103,11 +105,12 @@ function buyBusiness(type) {
 
 function upgradeBusiness(index) {
     const business = businesses[index];
-    if (cash >= (business.level * business.upgradeCost) && business.level < business.maxLevel) {
-        cash -= business.level * business.upgradeCost;
+    if (cash >= business.upgradeCost && business.level < business.maxLevel) {
+        cash -= business.upgradeCost;
         hourlyIncome -= business.income;
         business.level += 1;
         business.income *= business.upgradeMultiplier;
+        business.upgradeCost = business.baseCost * 0.5 * Math.pow(1.2, business.level - 1); // Update cost
         hourlyIncome += business.income;
         saveProgress();
         updateStats();
@@ -116,6 +119,16 @@ function upgradeBusiness(index) {
     } else {
         alert('Not enough cash or max level reached!');
     }
+}
+
+function openUpgradeBusinessPopup(index) {
+    const business = businesses[index];
+    document.getElementById('business-name').textContent = business.name;
+    document.getElementById('business-level').textContent = business.level;
+    document.getElementById('business-income').textContent = business.income.toFixed(2);
+    document.getElementById('business-upgrade-cost').textContent = business.upgradeCost.toFixed(2); // Display upgrade cost
+    document.getElementById('upgrade-button').setAttribute('onclick', `upgradeBusiness(${index})`);
+    document.getElementById('upgrade-business-popup').style.display = 'block';
 }
 
 function renderBusinesses() {
