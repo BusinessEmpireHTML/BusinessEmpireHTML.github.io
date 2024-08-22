@@ -8,7 +8,7 @@ let businesses = JSON.parse(localStorage.getItem('businesses')) || [];
 function updateStats() {
     document.querySelectorAll('#cash').forEach(el => el.textContent = cash.toFixed(2));
     document.getElementById('hourlyIncome').textContent = hourlyIncome.toFixed(2);
-    document.getElementById('clickValue').textContent = clickValue.toFixed(2);
+    document.getElementById('clickValue').textContent = clickValue.toFixed(2); // Update click value display
 }
 
 function earnMoney() {
@@ -55,12 +55,9 @@ function closeBuyBusinessPopup() {
 
 function openUpgradeBusinessPopup(index) {
     const business = businesses[index];
-    const upgradeCost = calculateUpgradeCost(business);
-
     document.getElementById('business-name').textContent = business.name;
     document.getElementById('business-level').textContent = business.level;
     document.getElementById('business-income').textContent = (business.income).toFixed(2);
-    document.getElementById('upgrade-cost').textContent = upgradeCost.toFixed(2);
     document.getElementById('upgrade-button').setAttribute('onclick', `upgradeBusiness(${index})`);
     document.getElementById('upgrade-business-popup').style.display = 'block';
 }
@@ -83,47 +80,18 @@ function buyBusiness(type) {
         updateStats();
         renderBusinesses();
         closeBuyBusinessPopup();
-    } else if (type === 'carWash' && cash >= 12500) {
-        cash -= 12500;
-        const business = {
-            name: 'Car Wash',
-            level: 1,
-            income: 4000
-        };
-        businesses.push(business);
-        hourlyIncome += business.income;
-        saveProgress();
-        updateStats();
-        renderBusinesses();
-        closeBuyBusinessPopup();
     } else {
         alert('Not enough cash!');
     }
 }
 
-function calculateUpgradeCost(business) {
-    const basePrice = business.name === 'Lemonade Stand' ? 500 : 12500;
-    const initialUpgradeCost = basePrice * 0.5;
-    return initialUpgradeCost * Math.pow(1.2, business.level - 1);
-}
-
 function upgradeBusiness(index) {
     const business = businesses[index];
-    const upgradeCost = calculateUpgradeCost(business);
-
-    if (cash >= upgradeCost && business.level < 10) {
-        cash -= upgradeCost;
+    if (cash >= (business.level * 1000) && business.level < 10) {
+        cash -= business.level * 1000;
         hourlyIncome -= business.income;
-
-        // Separate logic for each business
-        if (business.name === 'Lemonade Stand') {
-            business.level += 1;
-            business.income *= 1.5; // 50% increase for Lemonade Stand
-        } else if (business.name === 'Car Wash') {
-            business.level += 1;
-            business.income *= 1.25; // 25% increase for Car Wash
-        }
-
+        business.level += 1;
+        business.income *= 1.5;
         hourlyIncome += business.income;
         saveProgress();
         updateStats();
