@@ -65,7 +65,8 @@ function buyBusiness(type) {
             baseCost: 500,
             upgradeCost: 500 * 0.5,
             upgradeMultiplier: 1.5,
-            maxLevel: 10
+            maxLevel: 10,
+            imageSrc: 'lemonade.png'
         };
         businesses.push(business);
         hourlyIncome += business.income;
@@ -78,7 +79,22 @@ function buyBusiness(type) {
             baseCost: 12500,
             upgradeCost: 12500 * 0.5,
             upgradeMultiplier: 1.25,
-            maxLevel: 10
+            maxLevel: 10,
+            imageSrc: 'carwash.png'
+        };
+        businesses.push(business);
+        hourlyIncome += business.income;
+    } else if (type === 'localShop' && cash >= 45000) {
+        cash -= 45000;
+        const business = {
+            name: 'Local Shop',
+            level: 1,
+            income: 32500,
+            baseCost: 45000,
+            upgradeCost: 45000 * 0.5,
+            upgradeMultiplier: 1.25,
+            maxLevel: 20,
+            imageSrc: 'localshop.png'
         };
         businesses.push(business);
         hourlyIncome += business.income;
@@ -91,6 +107,31 @@ function buyBusiness(type) {
     renderBusinesses();
     closeBuyBusinessPopup();
 }
+
+function renderBusinesses() {
+    const businessList = document.getElementById('business-list');
+    businessList.innerHTML = '';
+    businesses.forEach((business, index) => {
+        const businessDiv = document.createElement('div');
+        businessDiv.className = 'business-card';
+        
+        const businessImg = document.createElement('img');
+        businessImg.src = business.imageSrc;
+        businessImg.alt = `${business.name} Image`;
+        businessImg.className = 'business-image';
+        
+        const businessInfo = document.createElement('div');
+        businessInfo.className = 'business-info';
+        businessInfo.innerHTML = `<strong>${business.name}</strong><br>$${business.income.toFixed(2)} per hour`;
+        
+        businessDiv.appendChild(businessImg);
+        businessDiv.appendChild(businessInfo);
+        businessDiv.onclick = () => openUpgradeBusinessPopup(index);
+        
+        businessList.appendChild(businessDiv);
+    });
+}
+
 
 function upgradeBusiness(index) {
     const business = businesses[index];
@@ -136,33 +177,7 @@ function openUpgradeBusinessPopup(index) {
     document.getElementById('upgrade-button').style.backgroundColor = cash >= business.upgradeCost ? 'blue' : 'grey';
 }
 
-function renderBusinesses() {
-    const businessList = document.getElementById('business-list');
-    businessList.innerHTML = '';
-    businesses.forEach((business, index) => {
-        const businessCard = document.createElement('div');
-        businessCard.className = 'business-card';
 
-        // Set the business image based on the type
-        let businessImage = '';
-        if (business.name === 'Lemonade Stand') {
-            businessImage = 'images/LemonadeStand.jpg'; // Replace with your actual image path
-        } else if (business.name === 'Car Wash') {
-            businessImage = 'images/CarWash.jpg'; // Replace with your actual image path
-        }
-
-        businessCard.innerHTML = `
-            <div class="business-image" style="background-image: url(${businessImage});"></div>
-            <div class="business-details">
-                <p>${business.name}</p>
-                <p>$${business.income.toFixed(2)}</p>
-            </div>
-        `;
-        businessCard.onclick = () => openUpgradeBusinessPopup(index);
-        businessList.appendChild(businessCard);
-    });
-
-}
 
 function calculateIncome() {
     saveProgress();
