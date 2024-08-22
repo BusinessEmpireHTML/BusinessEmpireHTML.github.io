@@ -72,26 +72,42 @@ function buyBusiness(type) {
         const business = {
             name: 'Lemonade Stand',
             level: 1,
-            income: 100
+            income: 100,
+            upgradeCost: 1000,
+            upgradeMultiplier: 1.5,
+            maxLevel: 10
         };
         businesses.push(business);
         hourlyIncome += business.income;
-        saveProgress();
-        updateStats();
-        renderBusinesses();
-        closeBuyBusinessPopup();
+    } else if (type === 'carWash' && cash >= 12500) {
+        cash -= 12500;
+        const business = {
+            name: 'Car Wash',
+            level: 1,
+            income: 4000,
+            upgradeCost: 12500,
+            upgradeMultiplier: 1.25,
+            maxLevel: 10
+        };
+        businesses.push(business);
+        hourlyIncome += business.income;
     } else {
         alert('Not enough cash!');
+        return;
     }
+    saveProgress();
+    updateStats();
+    renderBusinesses();
+    closeBuyBusinessPopup();
 }
 
 function upgradeBusiness(index) {
     const business = businesses[index];
-    if (cash >= (business.level * 1000) && business.level < 10) {
-        cash -= business.level * 1000;
+    if (cash >= (business.level * business.upgradeCost) && business.level < business.maxLevel) {
+        cash -= business.level * business.upgradeCost;
         hourlyIncome -= business.income;
         business.level += 1;
-        business.income *= 1.5;
+        business.income *= business.upgradeMultiplier;
         hourlyIncome += business.income;
         saveProgress();
         updateStats();
