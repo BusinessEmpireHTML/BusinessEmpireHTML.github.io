@@ -8,7 +8,7 @@ let businesses = JSON.parse(localStorage.getItem('businesses')) || [];
 function updateStats() {
     document.querySelectorAll('#cash').forEach(el => el.textContent = cash.toFixed(2));
     document.getElementById('hourlyIncome').textContent = hourlyIncome.toFixed(2);
-    document.getElementById('clickValue').textContent = clickValue.toFixed(2); // Update click value display
+    document.getElementById('clickValue').textContent = clickValue.toFixed(2);
 }
 
 function earnMoney() {
@@ -55,9 +55,12 @@ function closeBuyBusinessPopup() {
 
 function openUpgradeBusinessPopup(index) {
     const business = businesses[index];
+    const upgradeCost = calculateUpgradeCost(business);
+
     document.getElementById('business-name').textContent = business.name;
     document.getElementById('business-level').textContent = business.level;
     document.getElementById('business-income').textContent = (business.income).toFixed(2);
+    document.getElementById('upgrade-cost').textContent = upgradeCost.toFixed(2);
     document.getElementById('upgrade-button').setAttribute('onclick', `upgradeBusiness(${index})`);
     document.getElementById('upgrade-business-popup').style.display = 'block';
 }
@@ -108,45 +111,27 @@ function upgradeBusiness(index) {
     const business = businesses[index];
     const upgradeCost = calculateUpgradeCost(business);
 
-    function upgradeBusiness(index) {
-        const business = businesses[index];
-        const upgradeCost = calculateUpgradeCost(business);
-    
-        if (cash >= upgradeCost && business.level < 10) {
-            cash -= upgradeCost;
-            hourlyIncome -= business.income;
-    
-            // Separate logic for each business
-            if (business.name === 'Lemonade Stand') {
-                business.level += 1;
-                business.income *= 1.5; // 50% increase for Lemonade Stand
-            } else if (business.name === 'Car Wash') {
-                business.level += 1;
-                business.income *= 1.25; // 25% increase for Car Wash
-            }
-    
-            hourlyIncome += business.income;
-            saveProgress();
-            updateStats();
-            renderBusinesses();
-            closeUpgradeBusinessPopup();
-        } else {
-            alert('Not enough cash or max level reached!');
+    if (cash >= upgradeCost && business.level < 10) {
+        cash -= upgradeCost;
+        hourlyIncome -= business.income;
+
+        // Separate logic for each business
+        if (business.name === 'Lemonade Stand') {
+            business.level += 1;
+            business.income *= 1.5; // 50% increase for Lemonade Stand
+        } else if (business.name === 'Car Wash') {
+            business.level += 1;
+            business.income *= 1.25; // 25% increase for Car Wash
         }
+
+        hourlyIncome += business.income;
+        saveProgress();
+        updateStats();
+        renderBusinesses();
+        closeUpgradeBusinessPopup();
+    } else {
+        alert('Not enough cash or max level reached!');
     }
-    
-}
-
-function openUpgradeBusinessPopup(index) {
-    const business = businesses[index];
-    const upgradeCost = calculateUpgradeCost(business);
-
-    document.getElementById('business-name').textContent = business.name;
-    document.getElementById('business-level').textContent = business.level;
-    document.getElementById('business-income').textContent = (business.income).toFixed(2);
-    document.getElementById('upgrade-cost').textContent = upgradeCost.toFixed(2); // Show upgrade cost
-    document.getElementById('upgrade-button').setAttribute('onclick', `upgradeBusiness(${index})`);
-    document.getElementById('upgrade-business-popup').style.display = 'block';
 }
 
 function renderBusinesses() {
@@ -159,7 +144,6 @@ function renderBusinesses() {
         businessList.appendChild(businessButton);
     });
 }
-
 
 calculateOfflineIncome();
 
