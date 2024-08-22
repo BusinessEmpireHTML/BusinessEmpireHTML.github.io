@@ -82,6 +82,8 @@ body {
     height: 50px;
     background-color: #ddd;
     border-radius: 50%;
+    background-size: cover; /* Ensure the image covers the entire slot */
+    background-position: center; /* Center the image within the slot */
 }
 
 .business-details {

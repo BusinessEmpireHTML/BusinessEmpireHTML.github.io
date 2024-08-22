@@ -142,8 +142,17 @@ function renderBusinesses() {
     businesses.forEach((business, index) => {
         const businessCard = document.createElement('div');
         businessCard.className = 'business-card';
+
+        // Set the business image based on the type
+        let businessImage = '';
+        if (business.name === 'Lemonade Stand') {
+            businessImage = 'path/to/lemonade-stand-image.png'; // Replace with your actual image path
+        } else if (business.name === 'Car Wash') {
+            businessImage = 'path/to/car-wash-image.png'; // Replace with your actual image path
+        }
+
         businessCard.innerHTML = `
-            <div class="business-image"></div>
+            <div class="business-image" style="background-image: url(${businessImage});"></div>
             <div class="business-details">
                 <p>${business.name}</p>
                 <p>$${business.income.toFixed(2)}</p>
@@ -152,6 +161,7 @@ function renderBusinesses() {
         businessCard.onclick = () => openUpgradeBusinessPopup(index);
         businessList.appendChild(businessCard);
     });
+
 }
 
 function calculateIncome() {
