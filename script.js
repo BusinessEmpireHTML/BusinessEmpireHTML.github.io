@@ -51,6 +51,10 @@ function closeBuyBusinessPopup() {
     document.getElementById('buy-business-popup').style.display = 'none';
 }
 
+function closeUpgradeBusinessPopup() {
+    document.getElementById('upgrade-business-popup').style.display = 'none';
+}
+
 function buyBusiness(type) {
     if (type === 'lemonadeStand' && cash >= 500) {
         cash -= 500;
