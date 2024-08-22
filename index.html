@@ -53,14 +53,15 @@
 </div>
 
 
-        <!-- Upgrade Business Popup -->
-        <div id="upgrade-business-popup" class="popup">
-            <h2 id="business-name"></h2>
-            <p>Level: <span id="business-level"></span></p>
-            <p>Income per hour: $<span id="business-income"></span></p>
-            <button id="upgrade-button" onclick="upgradeBusiness()">Upgrade</button>
-            <button onclick="closeUpgradeBusinessPopup()">Close</button>
-        </div>
+<div id="upgrade-business-popup" class="popup">
+    <h2 id="business-name">Business Name</h2>
+    <p>Level: <span id="business-level"></span></p>
+    <p>Income: $<span id="business-income"></span> per hour</p>
+    <p>Upgrade Cost: $<span id="upgrade-cost"></span></p> <!-- Display upgrade cost -->
+    <button id="upgrade-button">Upgrade</button>
+    <button onclick="closeUpgradeBusinessPopup()">Close</button>
+</div>
+
     </div>
     <script src="script.js"></script>
 </body>
