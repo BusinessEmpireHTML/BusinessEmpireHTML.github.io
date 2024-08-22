@@ -63,27 +63,30 @@ body {
 }
 
 .business-card {
-    background-color: white;
-    padding: 10px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    background-color: white;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 10px 0;
     cursor: pointer;
-}
-
-.business-card:hover {
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .business-image {
     width: 50px;
     height: 50px;
-    background-color: #ddd;
+    margin-right: 10px;
     border-radius: 50%;
-    background-size: cover; /* Ensure the image covers the entire slot */
-    background-position: center; /* Center the image within the slot */
+}
+
+.business-info {
+    flex-grow: 1;
+}
+
+
+.business-card:hover {
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
 }
 
 .business-details {
