@@ -65,8 +65,7 @@ function buyBusiness(type) {
             baseCost: 500,
             upgradeCost: 500 * 0.5,
             upgradeMultiplier: 1.5,
-            maxLevel: 10,
-            totalGenerated: 0
+            maxLevel: 10
         };
         businesses.push(business);
         hourlyIncome += business.income;
@@ -79,8 +78,7 @@ function buyBusiness(type) {
             baseCost: 12500,
             upgradeCost: 12500 * 0.5,
             upgradeMultiplier: 1.25,
-            maxLevel: 10,
-            totalGenerated: 0
+            maxLevel: 10
         };
         businesses.push(business);
         hourlyIncome += business.income;
@@ -130,27 +128,33 @@ function openUpgradeBusinessPopup(index) {
     document.getElementById('business-level').textContent = business.level;
     document.getElementById('business-income').textContent = business.income.toFixed(2);
     document.getElementById('business-upgrade-cost').textContent = business.upgradeCost.toFixed(2);
-    document.getElementById('business-total-generated').textContent = business.totalGenerated.toFixed(2);
     document.getElementById('upgrade-button').setAttribute('onclick', `upgradeBusiness(${index})`);
     document.getElementById('close-button').setAttribute('onclick', `closeBusiness(${index})`);
     document.getElementById('upgrade-business-popup').style.display = 'block';
+
+    // Make the upgrade button blue if enough money
+    document.getElementById('upgrade-button').style.backgroundColor = cash >= business.upgradeCost ? 'blue' : 'grey';
 }
 
 function renderBusinesses() {
     const businessList = document.getElementById('business-list');
     businessList.innerHTML = '';
     businesses.forEach((business, index) => {
-        const businessButton = document.createElement('button');
-        businessButton.textContent = `${business.name} (Level ${business.level}) - $${business.income.toFixed(2)} per hour`;
-        businessButton.onclick = () => openUpgradeBusinessPopup(index);
-        businessList.appendChild(businessButton);
+        const businessCard = document.createElement('div');
+        businessCard.className = 'business-card';
+        businessCard.innerHTML = `
+            <div class="business-image"></div>
+            <div class="business-details">
+                <p>${business.name}</p>
+                <p>$${business.income.toFixed(2)}</p>
+            </div>
+        `;
+        businessCard.onclick = () => openUpgradeBusinessPopup(index);
+        businessList.appendChild(businessCard);
     });
 }
 
 function calculateIncome() {
-    businesses.forEach(business => {
-        business.totalGenerated += business.income;
-    });
     saveProgress();
     updateStats();
 }

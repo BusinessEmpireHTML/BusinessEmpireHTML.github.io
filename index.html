@@ -21,9 +21,8 @@
             <div id="click-area" onclick="earnMoney()">Click to Earn Money</div>
             <p>Cash: $<span id="cash">0</span></p>
             <p>Click Value: $<span id="clickValue">1</span></p>
-            <p>Hourly Income: $<span id="hourlyIncome">0</span></p> <!-- Hourly income added here -->
+            <p>Hourly Income: $<span id="hourlyIncome">0</span></p>
         </div>
-        
 
         <div id="investments" class="tab-content">
             <button onclick="invest('stock')">Invest in Stock ($2000)</button>
@@ -31,7 +30,7 @@
         </div>
 
         <div id="businesses" class="tab-content">
-            <button onclick="openBuyBusinessPopup()">Buy A New Business</button>
+            <button class="button-rounded" onclick="openBuyBusinessPopup()">Buy A New Business</button>
             <div id="business-list"></div>
         </div>
 
@@ -46,26 +45,20 @@
 
         <div id="buy-business-popup" class="popup">
             <h2>Buy a New Business</h2>
-            <button onclick="buyBusiness('lemonadeStand')">Lemonade Stand - $500</button>
-            <button onclick="buyBusiness('carWash')">Car Wash - $12,500</button>
-            <button onclick="closeBuyBusinessPopup()">Close</button> <!-- Correct function here -->
+            <button class="button-rounded" onclick="buyBusiness('lemonadeStand')">Lemonade Stand - $500</button>
+            <button class="button-rounded" onclick="buyBusiness('carWash')">Car Wash - $12,500</button>
+            <button class="button-rounded" onclick="closeBuyBusinessPopup()">Close</button>
         </div>
-        
-        
 
         <div id="upgrade-business-popup" class="popup">
             <h2>Upgrade <span id="business-name"></span></h2>
             <p>Current Level: <span id="business-level"></span></p>
             <p>Current Income: $<span id="business-income"></span> per hour</p>
             <p>Upgrade Cost: $<span id="business-upgrade-cost"></span></p>
-            <p>Money Business Has Generated: $<span id="business-total-generated"></span></p> <!-- Show total generated income -->
-            <button id="upgrade-button">Upgrade</button>
-            <button id="close-button">Close Business</button> <!-- Close business button -->
-            <button onclick="closeUpgradeBusinessPopup()">Close</button> <!-- Correct function here -->
+            <button id="upgrade-button" class="button-rounded">Upgrade</button>
+            <button id="close-button" class="button-rounded button-red">Close Business</button>
+            <button class="button-rounded button-white" onclick="closeUpgradeBusinessPopup()">Close</button>
         </div>
-        
-        
-        
     </div>
     <script src="script.js"></script>
 </body>
