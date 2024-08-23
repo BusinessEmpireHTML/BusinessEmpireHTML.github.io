@@ -66,7 +66,7 @@ function buyBusiness(type) {
             upgradeCost: 500 * 0.5,
             upgradeMultiplier: 1.5,
             maxLevel: 10,
-            imageSrc: 'lemonade.png'
+            imageSrc: 'LemonadeStand.jpg'
         };
         businesses.push(business);
         hourlyIncome += business.income;
@@ -80,7 +80,7 @@ function buyBusiness(type) {
             upgradeCost: 12500 * 0.5,
             upgradeMultiplier: 1.25,
             maxLevel: 10,
-            imageSrc: 'carwash.png'
+            imageSrc: 'CarWash.jpg'
         };
         businesses.push(business);
         hourlyIncome += business.income;
@@ -93,8 +93,8 @@ function buyBusiness(type) {
             baseCost: 45000,
             upgradeCost: 45000 * 0.5,
             upgradeMultiplier: 1.25,
-            maxLevel: 20,
-            imageSrc: 'localshop.png'
+            maxLevel: 10,
+            imageSrc: 'LocalShop.jpg'
         };
         businesses.push(business);
         hourlyIncome += business.income;
