@@ -25,32 +25,17 @@ function saveProgress() {
     localStorage.setItem('clickValue', clickValue);
     localStorage.setItem('clicks', clicks);
     localStorage.setItem('lastUpdate', new Date());
-    localStorage.setItem('businesses', JSON.stringify(businesses.map(b => ({
-        ...b,
-        upgrading: b.upgrading || false,
-        upgradeStartTime: b.upgradeStartTime || null,
-        upgradeEndTime: b.upgradeEndTime || null
-    }))));
+    localStorage.setItem('businesses', JSON.stringify(businesses));
 }
-
 
 function calculateOfflineIncome() {
-    let now = Date.now();
-    let diffInMinutes = (now - lastUpdate.getTime()) / 60000;
+    let now = new Date();
+    let diffInMinutes = (now - lastUpdate) / 60000;
     let income = (hourlyIncome / 60) * diffInMinutes;
     cash += income;
-
-    // Check for any upgrades that should be completed
-    businesses.forEach((business, index) => {
-        if (business.upgrading && now >= business.upgradeEndTime) {
-            completeUpgrade(index);
-        }
-    });
-
-    lastUpdate = new Date(now);
+    lastUpdate = now;
     saveProgress();
 }
-
 
 function openTab(tabName) {
     const tabContents = document.querySelectorAll('.tab-content');
@@ -150,74 +135,21 @@ function renderBusinesses() {
 
 function upgradeBusiness(index) {
     const business = businesses[index];
-    
-    // Check if the business is eligible for an upgrade
-    if (business.upgrading) {
-        alert('This business is already being upgraded!');
-        return;
-    }
-
     if (cash >= business.upgradeCost && business.level < business.maxLevel) {
         cash -= business.upgradeCost;
-        business.upgrading = true; // Mark the business as being upgraded
+        hourlyIncome -= business.income;
+        business.level += 1;
+        business.income *= business.upgradeMultiplier;
+        business.upgradeCost = business.baseCost * 0.5 * Math.pow(1.2, business.level - 1);
+        hourlyIncome += business.income;
         saveProgress();
         updateStats();
         renderBusinesses();
-
-        // Set upgrade time based on business type
-        let upgradeTime; // in milliseconds
-        if (business.name === 'Lemonade Stand') {
-            upgradeTime = 30 * 60 * 1000; // 30 minutes
-        } else if (business.name === 'Car Wash') {
-            upgradeTime = 60 * 60 * 1000; // 1 hour
-        } else if (business.name === 'Local Shop') {
-            upgradeTime = 120 * 60 * 1000; // 2 hours
-        }
-
-        // Save the upgrade start time
-        business.upgradeStartTime = Date.now();
-        business.upgradeEndTime = business.upgradeStartTime + upgradeTime;
-
-        // Update the localStorage
-        saveProgress();
-
-        // Schedule the upgrade completion
-        setTimeout(() => completeUpgrade(index), upgradeTime);
+        closeUpgradeBusinessPopup();
     } else {
         alert('Not enough cash or max level reached!');
     }
 }
-
-// New function to complete the upgrade
-function completeUpgrade(index) {
-    const business = businesses[index];
-    if (!business.upgrading) return; // If the business is not upgrading, do nothing
-
-    business.upgrading = false; // Mark the business as not upgrading
-    business.level += 1;
-    business.income *= business.upgradeMultiplier;
-    business.upgradeCost = business.baseCost * 0.5 * Math.pow(1.2, business.level - 1);
-
-    hourlyIncome = businesses.reduce((total, b) => total + b.income, 0);
-
-    saveProgress();
-    updateStats();
-    renderBusinesses();
-}
-
-// When loading the game, check if any upgrades need to be completed
-function checkUpgradeCompletion() {
-    const now = Date.now();
-    businesses.forEach((business, index) => {
-        if (business.upgrading && now >= business.upgradeEndTime) {
-            completeUpgrade(index);
-        }
-    });
-}
-
-// Call this function on game load
-checkUpgradeCompletion();
-
 
 function closeBusiness(index) {
     const business = businesses[index];
