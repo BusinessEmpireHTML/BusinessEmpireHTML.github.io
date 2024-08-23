@@ -172,6 +172,8 @@ function openUpgradeBusinessPopup(index) {
     document.getElementById('upgrade-button').setAttribute('onclick', `upgradeBusiness(${index})`);
     document.getElementById('close-button').setAttribute('onclick', `closeBusiness(${index})`);
     document.getElementById('upgrade-business-popup').style.display = 'block';
+    document.getElementById('upgrade-button').disabled = cash < business.upgradeCost;
+
 
     // Make the upgrade button blue if enough money
     document.getElementById('upgrade-button').style.backgroundColor = cash >= business.upgradeCost ? 'blue' : 'grey';
