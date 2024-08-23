@@ -119,6 +119,9 @@ function renderBusinesses() {
         businessImg.src = business.imageSrc;
         businessImg.alt = `${business.name} Image`;
         businessImg.className = 'business-image';
+
+        // Debugging: Log the image path to the console
+        console.log(`Loading image for ${business.name}: ${business.imageSrc}`);
         
         const businessInfo = document.createElement('div');
         businessInfo.className = 'business-info';
