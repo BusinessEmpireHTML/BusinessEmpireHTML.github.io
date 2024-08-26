@@ -121,6 +121,20 @@ function buyBusiness(type) {
         };
         businesses.push(business);
         hourlyIncome += business.income;
+    } else if (type === 'legalClinic' && cash >= 200000) { // New Factory Business
+        cash -= 200000;
+        const business = {
+            name: 'Legal Clinic',
+            level: 1,
+            income: 12000,
+            baseCost: 200000,
+            upgradeCost: 100000, // 50% of base cost
+            upgradeMultiplier: 1.1,
+            maxLevel: 10,
+            imageSrc: 'images/LegalClinic.jpg'
+        };
+        businesses.push(business);
+        hourlyIncome += business.income;
     } else {
         alert('Not enough cash!');
         return;
