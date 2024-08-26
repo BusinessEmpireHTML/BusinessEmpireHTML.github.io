@@ -5,6 +5,13 @@ let clicks = parseInt(localStorage.getItem('clicks')) || 0;
 let lastUpdate = localStorage.getItem('lastUpdate') ? new Date(localStorage.getItem('lastUpdate')) : new Date();
 let businesses = JSON.parse(localStorage.getItem('businesses')) || [];
 
+window.onload = function() {
+    loadProgress();
+    openTab('clicker');
+    updateStats();
+    renderBusinesses();
+};
+
 function roundToHundredths(value) {
     return parseFloat(value.toFixed(2));
 }
@@ -27,16 +34,33 @@ function earnMoney() {
     saveProgress();
     updateStats();
 }
-
-function saveProgress() {
-    localStorage.setItem('cash', cash);
-    localStorage.setItem('hourlyIncome', hourlyIncome);
-    localStorage.setItem('clickValue', clickValue);
-    localStorage.setItem('clicks', clicks);
-    localStorage.setItem('lastUpdate', new Date());
-    localStorage.setItem('businesses', JSON.stringify(businesses));
-}
-
+    function saveProgress() {
+        localStorage.setItem('cash', cash);
+        localStorage.setItem('hourlyIncome', hourlyIncome);
+        localStorage.setItem('clickValue', clickValue);
+        localStorage.setItem('clicks', clicks);
+        localStorage.setItem('lastUpdate', new Date());
+        localStorage.setItem('businesses', JSON.stringify(businesses));
+    }
+    
+    function loadProgress() {
+        cash = parseFloat(localStorage.getItem('cash')) || 0;
+        hourlyIncome = parseFloat(localStorage.getItem('hourlyIncome')) || 0;
+        clickValue = parseFloat(localStorage.getItem('clickValue')) || 1;
+        clicks = parseInt(localStorage.getItem('clicks')) || 0;
+        lastUpdate = localStorage.getItem('lastUpdate') ? new Date(localStorage.getItem('lastUpdate')) : new Date();
+        businesses = JSON.parse(localStorage.getItem('businesses')) || [];
+    
+        // Ensure backward compatibility
+        businesses.forEach(business => {
+            if (!business.merged) business.merged = false;
+        });
+    
+        calculateOfflineIncome();
+        updateStats();
+        renderBusinesses();
+    }
+    
 function calculateOfflineIncome() {
     let now = new Date();
     let diffInMinutes = (now - lastUpdate) / 60000;
@@ -63,6 +87,19 @@ function closeBuyBusinessPopup() {
 function closeUpgradeBusinessPopup() {
     document.getElementById('upgrade-business-popup').style.display = 'none';
 }
+
+const mergedBusinesses = [
+    {
+        name: 'Lemonade Factory',
+        income: 600000,
+        imageSrc: 'images/LemonadeFactory.jpg',
+    },
+    {
+        name: 'Restaurant',
+        income: 800000,
+        imageSrc: 'images/Restaurant.jpg',
+    }
+];
 
 function buyBusiness(type) {
     if (type === 'lemonadeStand' && cash >= 500) {
@@ -165,7 +202,14 @@ function renderBusinesses() {
 
         businessDiv.appendChild(businessImg);
         businessDiv.appendChild(businessInfo);
-        businessDiv.onclick = () => openUpgradeBusinessPopup(index);
+
+        if (business.merged) {
+            // If the business is a merged business, only allow closure
+            businessDiv.onclick = () => closeMergedBusiness(index);
+        } else {
+            // Otherwise, allow upgrade and closure
+            businessDiv.onclick = () => openUpgradeBusinessPopup(index);
+        }
 
         businessList.appendChild(businessDiv);
     });
@@ -225,6 +269,108 @@ function closeBusiness(index) {
     }
 }
 
+let selectedBusinesses = [];
+
+function openMergerPopup() {
+    document.getElementById('merger-business-list').innerHTML = '';
+    businesses.forEach((business, index) => {
+        if (business.level === business.maxLevel && !business.merged) {
+            const businessDiv = document.createElement('div');
+            businessDiv.className = 'business-card merger-card';
+            businessDiv.textContent = business.name;
+            businessDiv.onclick = () => toggleBusinessSelection(index);
+            document.getElementById('merger-business-list').appendChild(businessDiv);
+        }
+    });
+    document.getElementById('business-merger-popup').style.display = 'block';
+}
+
+function closeMergerPopup() {
+    document.getElementById('business-merger-popup').style.display = 'none';
+    selectedBusinesses = [];
+    document.getElementById('merge-button').disabled = true;
+}
+
+function toggleBusinessSelection(index) {
+    const businessIndex = selectedBusinesses.indexOf(index);
+    if (businessIndex === -1) {
+        if (selectedBusinesses.length < 2) {
+            selectedBusinesses.push(index);
+        }
+    } else {
+        selectedBusinesses.splice(businessIndex, 1);
+    }
+
+    document.querySelectorAll('.merger-card').forEach((card, i) => {
+        if (selectedBusinesses.includes(i)) {
+            card.style.border = '2px solid green';
+        } else {
+            card.style.border = 'none';
+        }
+    });
+
+    document.getElementById('merge-button').disabled = selectedBusinesses.length !== 2;
+}
+
+function mergeSelectedBusinesses() {
+    const [index1, index2] = selectedBusinesses.map(index => businesses[index]);
+
+    if (isMergeCompatible(index1, index2)) {
+        performMerge(index1, index2);
+        alert('Businesses merged successfully!');
+    } else {
+        alert('Selected businesses are not compatible for merging!');
+    }
+
+    closeMergerPopup();
+    saveProgress();
+    updateStats();
+    renderBusinesses();
+}
+
+function isMergeCompatible(business1, business2) {
+    const mergedCombinations = {
+        'Lemonade Stand+Factory': 'Lemonade Factory',
+        'Local Shop+Factory': 'Restaurant'
+    };
+
+    const combination1 = `${business1.name}+${business2.name}`;
+    const combination2 = `${business2.name}+${business1.name}`;
+
+    return mergedCombinations[combination1] || mergedCombinations[combination2];
+}
+
+function performMerge(business1, business2) {
+    const mergedName = isMergeCompatible(business1, business2);
+    const newBusiness = mergedBusinesses.find(b => b.name === mergedName);
+
+    if (newBusiness) {
+        // Remove the merged businesses from the businesses array
+        businesses = businesses.filter(b => b !== business1 && b !== business2);
+
+        // Add the new merged business
+        businesses.push({
+            name: newBusiness.name,
+            income: newBusiness.income,
+            imageSrc: newBusiness.imageSrc,
+            merged: true
+        });
+
+        // Update hourly income
+        hourlyIncome = businesses.reduce((total, business) => total + business.income, 0);
+    }
+}
+
+function closeMergedBusiness(index) {
+    const business = businesses[index];
+    if (confirm(`Are you sure you want to close the ${business.name}?`)) {
+        hourlyIncome -= business.income;
+        businesses.splice(index, 1);
+        saveProgress();
+        updateStats();
+        renderBusinesses();
+    }
+}
 
 
 

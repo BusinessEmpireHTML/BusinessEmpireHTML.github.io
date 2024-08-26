@@ -31,6 +31,7 @@
 
         <div id="businesses" class="tab-content">
             <button class="button-rounded" onclick="openBuyBusinessPopup()">Buy A New Business</button>
+            <button class="button-rounded" onclick="openMergerPopup()">Merge Businesses</button>
             <div id="business-list"></div>
         </div>
 
@@ -53,7 +54,13 @@
             <button onclick="buyBusiness('legalClinic')">Buy Legal Clinic - $200,000</button>
             <button onclick="closeBuyBusinessPopup()">Close</button>
         </div>
-
+        <div id="business-merger-popup" class="popup">
+            <h2>Business Merger</h2>
+            <p>Select two max-level businesses to merge them.</p>
+            <div id="merger-business-list"></div>
+            <button id="merge-button" onclick="mergeSelectedBusinesses()" disabled>Merge</button>
+            <button onclick="closeMergerPopup()">Close</button>
+        </div>        
         <div id="upgrade-business-popup" class="popup">
             <h2>Upgrade <span id="business-name"></span></h2>
             <p>Current Level: <span id="business-level"></span></p>
