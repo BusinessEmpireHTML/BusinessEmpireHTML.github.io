@@ -6,12 +6,18 @@ let lastUpdate = localStorage.getItem('lastUpdate') ? new Date(localStorage.getI
 let businesses = JSON.parse(localStorage.getItem('businesses')) || [];
 
 function updateStats() {
-    document.getElementById('cash-clicker').textContent = cash.toFixed(2); // Updated ID
-    document.getElementById('cash-profile').textContent = cash.toFixed(2); // Updated ID
-    document.getElementById('hourlyIncome-clicker').textContent = hourlyIncome.toFixed(2); // Updated ID
-    document.getElementById('hourlyIncome-profile').textContent = hourlyIncome.toFixed(2); // Updated ID
-    document.getElementById('clickValue').textContent = clickValue.toFixed(2);
+    // Updating cash display with comma formatting
+    document.getElementById('cash-clicker').textContent = cash.toLocaleString(undefined, {minimumFractionDigits: 2});
+    document.getElementById('cash-profile').textContent = cash.toLocaleString(undefined, {minimumFractionDigits: 2});
+    
+    // Updating hourly income display with comma formatting
+    document.getElementById('hourlyIncome-clicker').textContent = hourlyIncome.toLocaleString(undefined, {minimumFractionDigits: 2});
+    document.getElementById('hourlyIncome-profile').textContent = hourlyIncome.toLocaleString(undefined, {minimumFractionDigits: 2});
+    
+    // Updating click value display with comma formatting
+    document.getElementById('clickValue').textContent = clickValue.toLocaleString(undefined, {minimumFractionDigits: 2});
 }
+
 
 // ...rest of your script...
 
@@ -141,12 +147,9 @@ function renderBusinesses() {
         businessImg.alt = `${business.name} Image`;
         businessImg.className = 'business-image';
 
-        // Debugging: Log the image path to the console
-        console.log(`Loading image for ${business.name}: ${business.imageSrc}`);
-        
         const businessInfo = document.createElement('div');
         businessInfo.className = 'business-info';
-        businessInfo.innerHTML = `<strong>${business.name}</strong><br>$${business.income.toFixed(2)} per hour`;
+        businessInfo.innerHTML = `<strong>${business.name}</strong><br>$${business.income.toLocaleString(undefined, {minimumFractionDigits: 2})} per hour`;
         
         businessDiv.appendChild(businessImg);
         businessDiv.appendChild(businessInfo);
@@ -155,6 +158,7 @@ function renderBusinesses() {
         businessList.appendChild(businessDiv);
     });
 }
+
 
 
 function upgradeBusiness(index) {
@@ -191,7 +195,7 @@ function openUpgradeBusinessPopup(index) {
     const business = businesses[index];
     document.getElementById('business-name').textContent = business.name;
     document.getElementById('business-level').textContent = business.level;
-    document.getElementById('business-income').textContent = business.income.toFixed(2);
+    document.getElementById('business-income').textContent = business.income.toLocaleString(undefined, {minimumFractionDigits: 2});
 
     // Check if the business is at max level
     if (business.level >= business.maxLevel) {
@@ -199,7 +203,7 @@ function openUpgradeBusinessPopup(index) {
         document.getElementById('upgrade-button').disabled = true; // Disable the upgrade button
         document.getElementById('upgrade-button').style.backgroundColor = 'grey'; // Grey out the button
     } else {
-        document.getElementById('business-upgrade-cost').textContent = business.upgradeCost.toFixed(2);
+        document.getElementById('business-upgrade-cost').textContent = business.upgradeCost.toLocaleString(undefined, {minimumFractionDigits: 2});
         document.getElementById('upgrade-button').disabled = cash < business.upgradeCost;
         document.getElementById('upgrade-button').style.backgroundColor = cash >= business.upgradeCost ? 'blue' : 'grey';
     }
@@ -208,6 +212,7 @@ function openUpgradeBusinessPopup(index) {
     document.getElementById('close-button').setAttribute('onclick', `closeBusiness(${index})`);
     document.getElementById('upgrade-business-popup').style.display = 'block';
 }
+
 
 
 function calculateIncome() {
