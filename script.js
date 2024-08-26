@@ -121,7 +121,7 @@ function buyBusiness(type) {
         };
         businesses.push(business);
         hourlyIncome += business.income;
-    } else if (type === 'legalClinic' && cash >= 200000) { // New Factory Business
+    } else if (type === 'legalClinic' && cash >= 200000) {
         cash -= 200000;
         const business = {
             name: 'Legal Clinic',
