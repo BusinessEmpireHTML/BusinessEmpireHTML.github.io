@@ -322,7 +322,7 @@ function upgradeBankVault(index) {
 function calculateBankIncome() {
     businesses.forEach(business => {
         if (business.type === 'bank') {
-            let vaultFillRate = 1000000; // 1 million per hour fill rate
+            let vaultFillRate = 1000000000; // 1 billion per hour fill rate
             if (business.currentMoneyInVault < business.maxVaultStorage) {
                 business.currentMoneyInVault = Math.min(business.maxVaultStorage, business.currentMoneyInVault + vaultFillRate);
             }
