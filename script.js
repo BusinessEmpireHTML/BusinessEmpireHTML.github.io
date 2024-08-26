@@ -5,27 +5,25 @@ let clicks = parseInt(localStorage.getItem('clicks')) || 0;
 let lastUpdate = localStorage.getItem('lastUpdate') ? new Date(localStorage.getItem('lastUpdate')) : new Date();
 let businesses = JSON.parse(localStorage.getItem('businesses')) || [];
 
-function updateStats() {
-    // Updating cash display with comma formatting
-    document.getElementById('cash-clicker').textContent = cash.toLocaleString(undefined, {minimumFractionDigits: 2});
-    document.getElementById('cash-profile').textContent = cash.toLocaleString(undefined, {minimumFractionDigits: 2});
-    
-    // Updating hourly income display with comma formatting
-    document.getElementById('hourlyIncome-clicker').textContent = hourlyIncome.toLocaleString(undefined, {minimumFractionDigits: 2});
-    document.getElementById('hourlyIncome-profile').textContent = hourlyIncome.toLocaleString(undefined, {minimumFractionDigits: 2});
-    
-    // Updating click value display with comma formatting
-    document.getElementById('clickValue').textContent = clickValue.toLocaleString(undefined, {minimumFractionDigits: 2});
+function roundToHundredths(value) {
+    return parseFloat(value.toFixed(2));
 }
 
+function updateStats() {
+    // Round and format cash, hourlyIncome, and clickValue
+    document.getElementById('cash-clicker').textContent = roundToHundredths(cash).toLocaleString(undefined, { minimumFractionDigits: 2 });
+    document.getElementById('cash-profile').textContent = roundToHundredths(cash).toLocaleString(undefined, { minimumFractionDigits: 2 });
 
-// ...rest of your script...
+    document.getElementById('hourlyIncome-clicker').textContent = roundToHundredths(hourlyIncome).toLocaleString(undefined, { minimumFractionDigits: 2 });
+    document.getElementById('hourlyIncome-profile').textContent = roundToHundredths(hourlyIncome).toLocaleString(undefined, { minimumFractionDigits: 2 });
 
+    document.getElementById('clickValue').textContent = roundToHundredths(clickValue).toLocaleString(undefined, { minimumFractionDigits: 2 });
+}
 
 function earnMoney() {
-    cash += clickValue;
+    cash = roundToHundredths(cash + clickValue);
     clicks++;
-    clickValue = Math.min(1 + Math.sqrt(clicks) / 10, 100);
+    clickValue = roundToHundredths(Math.min(1 + Math.sqrt(clicks) / 10, 100));
     saveProgress();
     updateStats();
 }
@@ -42,8 +40,8 @@ function saveProgress() {
 function calculateOfflineIncome() {
     let now = new Date();
     let diffInMinutes = (now - lastUpdate) / 60000;
-    let income = (hourlyIncome / 60) * diffInMinutes;
-    cash += income;
+    let income = roundToHundredths((hourlyIncome / 60) * diffInMinutes);
+    cash = roundToHundredths(cash + income);
     lastUpdate = now;
     saveProgress();
 }
@@ -141,7 +139,7 @@ function renderBusinesses() {
     businesses.forEach((business, index) => {
         const businessDiv = document.createElement('div');
         businessDiv.className = 'business-card';
-        
+
         const businessImg = document.createElement('img');
         businessImg.src = business.imageSrc;
         businessImg.alt = `${business.name} Image`;
@@ -149,12 +147,12 @@ function renderBusinesses() {
 
         const businessInfo = document.createElement('div');
         businessInfo.className = 'business-info';
-        businessInfo.innerHTML = `<strong>${business.name}</strong><br>$${business.income.toLocaleString(undefined, {minimumFractionDigits: 2})} per hour`;
-        
+        businessInfo.innerHTML = `<strong>${business.name}</strong><br>$${roundToHundredths(business.income).toLocaleString(undefined, { minimumFractionDigits: 2 })} per hour`;
+
         businessDiv.appendChild(businessImg);
         businessDiv.appendChild(businessInfo);
         businessDiv.onclick = () => openUpgradeBusinessPopup(index);
-        
+
         businessList.appendChild(businessDiv);
     });
 }
@@ -164,12 +162,12 @@ function renderBusinesses() {
 function upgradeBusiness(index) {
     const business = businesses[index];
     if (cash >= business.upgradeCost && business.level < business.maxLevel) {
-        cash -= business.upgradeCost;
-        hourlyIncome -= business.income;
+        cash = roundToHundredths(cash - business.upgradeCost);
+        hourlyIncome = roundToHundredths(hourlyIncome - business.income);
         business.level += 1;
-        business.income *= business.upgradeMultiplier;
-        business.upgradeCost *= 1.15; // Increase upgrade cost by 15% per level
-        hourlyIncome += business.income;
+        business.income = roundToHundredths(business.income * business.upgradeMultiplier);
+        business.upgradeCost = roundToHundredths(business.upgradeCost * 1.15);
+        hourlyIncome = roundToHundredths(hourlyIncome + business.income);
         saveProgress();
         updateStats();
         renderBusinesses();
@@ -177,6 +175,28 @@ function upgradeBusiness(index) {
     } else {
         alert('Not enough cash or max level reached!');
     }
+}
+
+function openUpgradeBusinessPopup(index) {
+    const business = businesses[index];
+    document.getElementById('business-name').textContent = business.name;
+    document.getElementById('business-level').textContent = business.level;
+    document.getElementById('business-income').textContent = roundToHundredths(business.income).toLocaleString(undefined, { minimumFractionDigits: 2 });
+
+    // Check if the business is at max level
+    if (business.level >= business.maxLevel) {
+        document.getElementById('business-upgrade-cost').textContent = 'MAX';
+        document.getElementById('upgrade-button').disabled = true;
+        document.getElementById('upgrade-button').style.backgroundColor = 'grey';
+    } else {
+        document.getElementById('business-upgrade-cost').textContent = roundToHundredths(business.upgradeCost).toLocaleString(undefined, { minimumFractionDigits: 2 });
+        document.getElementById('upgrade-button').disabled = cash < business.upgradeCost;
+        document.getElementById('upgrade-button').style.backgroundColor = cash >= business.upgradeCost ? 'blue' : 'grey';
+    }
+
+    document.getElementById('upgrade-button').setAttribute('onclick', `upgradeBusiness(${index})`);
+    document.getElementById('close-button').setAttribute('onclick', `closeBusiness(${index})`);
+    document.getElementById('upgrade-business-popup').style.display = 'block';
 }
 
 function closeBusiness(index) {
@@ -191,27 +211,6 @@ function closeBusiness(index) {
     }
 }
 
-function openUpgradeBusinessPopup(index) {
-    const business = businesses[index];
-    document.getElementById('business-name').textContent = business.name;
-    document.getElementById('business-level').textContent = business.level;
-    document.getElementById('business-income').textContent = business.income.toLocaleString(undefined, {minimumFractionDigits: 2});
-
-    // Check if the business is at max level
-    if (business.level >= business.maxLevel) {
-        document.getElementById('business-upgrade-cost').textContent = 'MAX';
-        document.getElementById('upgrade-button').disabled = true; // Disable the upgrade button
-        document.getElementById('upgrade-button').style.backgroundColor = 'grey'; // Grey out the button
-    } else {
-        document.getElementById('business-upgrade-cost').textContent = business.upgradeCost.toLocaleString(undefined, {minimumFractionDigits: 2});
-        document.getElementById('upgrade-button').disabled = cash < business.upgradeCost;
-        document.getElementById('upgrade-button').style.backgroundColor = cash >= business.upgradeCost ? 'blue' : 'grey';
-    }
-
-    document.getElementById('upgrade-button').setAttribute('onclick', `upgradeBusiness(${index})`);
-    document.getElementById('close-button').setAttribute('onclick', `closeBusiness(${index})`);
-    document.getElementById('upgrade-business-popup').style.display = 'block';
-}
 
 
 
@@ -222,7 +221,7 @@ function calculateIncome() {
 
 setInterval(() => {
     let minuteIncome = hourlyIncome / 60;
-    cash += minuteIncome;
+    cash = roundToHundredths(cash + minuteIncome);
     calculateIncome();
 }, 60000);
 
