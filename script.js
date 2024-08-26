@@ -471,21 +471,33 @@ function performMerge(business1, business2) {
     const newBusiness = mergedBusinesses.find(b => b.name === mergedName);
 
     if (newBusiness) {
-        // Remove the merged businesses from the businesses array
-        businesses = businesses.filter(b => b !== business1 && b !== business2);
+        // Remove the old businesses from the array
+        const index1 = businesses.indexOf(business1);
+        const index2 = businesses.indexOf(business2);
+        businesses.splice(index1, 1);
+        businesses.splice(index2 > index1 ? index2 - 1 : index2, 1);
 
-        // Add the new merged business
+        // Add the merged business
         businesses.push({
             name: newBusiness.name,
+            level: 1,
             income: newBusiness.income,
+            baseCost: 0,  // Merged businesses may not have an initial cost
+            upgradeCost: 0,  // Similarly, no upgrade costs if merged
+            upgradeMultiplier: 1,
+            maxLevel: 1,  // Assuming merged businesses do not upgrade further
             imageSrc: newBusiness.imageSrc,
             merged: true
         });
 
         // Update hourly income
         hourlyIncome = businesses.reduce((total, business) => total + business.income, 0);
+        saveProgress();
+        updateStats();
+        renderBusinesses();
     }
 }
+
 
 
 
