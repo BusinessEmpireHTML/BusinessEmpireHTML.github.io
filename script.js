@@ -301,7 +301,6 @@ function mergeSelectedBusinesses() {
     renderBusinesses();
 }
 
-// Define merged businesses including new "Chain of Restaurants"
 const mergedBusinesses = [
     {
         name: 'Lemonade Factory',
@@ -317,6 +316,11 @@ const mergedBusinesses = [
         name: 'Chain of Restaurants',
         income: 2400000,  // Triple the income of "Restaurant"
         imageSrc: 'images/ChainOfRestaurants.jpg',
+    },
+    {
+        name: 'Car Dealership',
+        income: 500000,  // New Car Dealership business income
+        imageSrc: 'images/CarDealership.jpg',
     }
 ];
 
@@ -344,7 +348,8 @@ function isMergeCompatible(business1, business2) {
     const mergedCombinations = {
         'Lemonade Stand+Factory': 'Lemonade Factory',
         'Local Shop+Factory': 'Restaurant',
-        'Restaurant+Factory': 'Chain of Restaurants'
+        'Restaurant+Factory': 'Chain of Restaurants',
+        'Car Wash+Factory': 'Car Dealership'  // New merge combination for Car Dealership
     };
 
     const combination1 = `${business1.name}+${business2.name}`;
@@ -373,6 +378,7 @@ function performMerge(business1, business2) {
         hourlyIncome = businesses.reduce((total, business) => total + business.income, 0);
     }
 }
+
 
 
 function closeMergedBusiness(index) {
