@@ -159,6 +159,14 @@ function buyBusiness(type) {
         };
         businesses.push(business);
         hourlyIncome += business.income;
+    } else if (type === 'bank' && cash >= bank.baseCost) {
+        cash -= bank.baseCost;
+        businesses.push(bank);
+        hourlyIncome += bank.hourlyIncome;
+        saveProgress();
+        updateStats();
+        renderBusinesses();
+        closeBuyBusinessPopup();
     } else {
         alert('Not enough cash!');
         return;
@@ -185,16 +193,23 @@ function renderBusinesses() {
 
         const businessInfo = document.createElement('div');
         businessInfo.className = 'business-info';
-        businessInfo.innerHTML = `<strong>${business.name}</strong><br>$${roundToHundredths(business.income).toLocaleString(undefined, { minimumFractionDigits: 2 })} per hour`;
+
+        if (business.type === 'bank') {
+            businessInfo.innerHTML = `<strong>${business.name}</strong><br>
+                $${roundToHundredths(business.hourlyIncome).toLocaleString(undefined, { minimumFractionDigits: 2 })} per hour<br>
+                Vault: $${roundToHundredths(business.currentMoneyInVault).toLocaleString(undefined, { minimumFractionDigits: 2 })} / $${roundToHundredths(business.maxVaultStorage).toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+        } else {
+            businessInfo.innerHTML = `<strong>${business.name}</strong><br>$${roundToHundredths(business.income).toLocaleString(undefined, { minimumFractionDigits: 2 })} per hour`;
+        }
 
         businessDiv.appendChild(businessImg);
         businessDiv.appendChild(businessInfo);
 
-        if (business.merged) {
-            // If the business is a merged business, only allow closure
+        if (business.type === 'bank') {
+            businessDiv.onclick = () => openBankPopup(index);
+        } else if (business.merged) {
             businessDiv.onclick = () => closeMergedBusiness(index);
         } else {
-            // Otherwise, allow upgrade and closure
             businessDiv.onclick = () => openUpgradeBusinessPopup(index);
         }
 
@@ -257,6 +272,68 @@ function closeBusiness(index) {
 }
 
 let selectedBusinesses = [];
+
+let bank = {
+    name: 'Bank',
+    level: 1,
+    baseCost: 10000000,
+    currentMoneyInVault: 10000000,
+    maxVaultStorage: 10000000,
+    upgradeCost: 5000000, // 50% of base cost
+    upgradeMultiplier: 1.5,
+    maxLevel: 10, // Max level corresponds to 1 trillion vault storage
+    hourlyIncome: 100000, // Starting income for a full vault
+    imageSrc: 'images/Bank.jpg',
+    type: 'bank'
+};
+
+function openBankPopup(index) {
+    const bank = businesses[index];
+    document.getElementById('bank-upgrade-cost').textContent = roundToHundredths(bank.upgradeCost).toLocaleString(undefined, { minimumFractionDigits: 2 });
+    document.getElementById('bank-hourly-income').textContent = roundToHundredths(bank.hourlyIncome).toLocaleString(undefined, { minimumFractionDigits: 2 });
+    document.getElementById('bank-vault-storage').textContent = `$${roundToHundredths(bank.currentMoneyInVault).toLocaleString(undefined, { minimumFractionDigits: 2 })} / $${roundToHundredths(bank.maxVaultStorage).toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+    
+    document.getElementById('bank-upgrade-button').disabled = cash < bank.upgradeCost;
+    document.getElementById('bank-upgrade-button').onclick = () => upgradeBankVault(index);
+    document.getElementById('bank-popup').style.display = 'block';
+}
+
+// Function to upgrade the Bank's vault storage
+function upgradeBankVault(index) {
+    const bank = businesses[index];
+    if (cash >= bank.upgradeCost && bank.maxVaultStorage < 1e12) {
+        cash = roundToHundredths(cash - bank.upgradeCost);
+        bank.maxVaultStorage = roundToHundredths(bank.maxVaultStorage * bank.upgradeMultiplier);
+        bank.upgradeCost = roundToHundredths(bank.upgradeCost * 1.15);
+        saveProgress();
+        updateStats();
+        renderBusinesses();
+        openBankPopup(index); // Refresh popup with new values
+    } else {
+        alert('Not enough cash or max storage reached!');
+    }
+}
+
+// Function to calculate the hourly income for the bank
+function calculateBankIncome() {
+    businesses.forEach(business => {
+        if (business.type === 'bank') {
+            let vaultFillRate = 1000000; // 1 million per hour fill rate
+            if (business.currentMoneyInVault < business.maxVaultStorage) {
+                business.currentMoneyInVault = Math.min(business.maxVaultStorage, business.currentMoneyInVault + vaultFillRate);
+            }
+            business.hourlyIncome = Math.floor(business.currentMoneyInVault / 100); // $1 per $100 in vault
+            hourlyIncome = businesses.reduce((total, business) => total + business.income, 0);
+            saveProgress();
+        }
+    });
+}
+
+// Call calculateBankIncome every hour
+setInterval(() => {
+    calculateBankIncome();
+    calculateIncome();
+}, 3600000); // 1 hour in milliseconds
 
 function closeMergerPopup() {
     document.getElementById('business-merger-popup').style.display = 'none';

@@ -54,6 +54,17 @@
             <button onclick="buyBusiness('legalClinic')">Buy Legal Clinic - $200,000</button>
             <button onclick="closeBuyBusinessPopup()">Close</button>
         </div>
+        <div id="bank-popup" class="popup">
+            <div class="popup-content">
+                <h2>Bank</h2>
+                <p>Hourly Income: $<span id="bank-hourly-income">100,000</span></p>
+                <p>Vault Storage: <span id="bank-vault-storage">$10,000,000 / $10,000,000</span></p>
+                <p>Upgrade Cost: $<span id="bank-upgrade-cost">5,000,000</span></p>
+                <button id="bank-upgrade-button" onclick="upgradeBankVault()">Upgrade Vault</button>
+                <button onclick="closeBankPopup()">Close</button>
+            </div>
+        </div>
+        
         <div id="business-merger-popup" class="popup">
             <h2>Business Merger</h2>
             <p>Select two max-level businesses to merge them.</p>
