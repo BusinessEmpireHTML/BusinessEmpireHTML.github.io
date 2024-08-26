@@ -276,7 +276,9 @@ function closeBusiness(index) {
 }
 
 let selectedBusinesses = [];
-
+let vaultCapacity = 1000000; // Example initial capacity; adjust as needed
+let vaultCurrent = 0;        // Current amount in the vault
+let bankBalance = 10000000;  // Example bank balance; adjust as needed
 let bank = {
     name: 'Bank',
     level: 1,
@@ -332,6 +334,31 @@ function calculateBankIncome() {
         }
     });
 }
+const MAX_VAULT_CAPACITY = 1000000000000; // Maximum vault capacity of 1 trillion
+
+function fillVault() {
+    let amountNeeded = vaultCapacity - vaultCurrent;
+
+    if (bankBalance >= amountNeeded) {
+        vaultCurrent = vaultCapacity;
+        bankBalance -= amountNeeded;
+    } else {
+        vaultCurrent += bankBalance;
+        bankBalance = 0;
+    }
+
+    // Ensure vaultCurrent does not exceed vaultCapacity
+    if (vaultCurrent > vaultCapacity) {
+        vaultCurrent = vaultCapacity;
+    }
+
+    console.log(`Vault filled to ${vaultCurrent}, Bank balance is now ${bankBalance}`);
+}
+
+// Call fillVault() on an interval or in your game loop
+setInterval(() => {
+    fillVault();
+}, 3600000); // Example: fill every hour
 
 // Call calculateBankIncome every hour
 setInterval(() => {
