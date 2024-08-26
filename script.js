@@ -89,95 +89,41 @@ function closeUpgradeBusinessPopup() {
 }
 
 function buyBusiness(type) {
-    if (type === 'lemonadeStand' && cash >= 500) {
-        cash -= 500;
-        const business = {
-            name: 'Lemonade Stand',
+    let businessDetails = {
+        lemonadeStand: { cost: 500, income: 100, upgradeMultiplier: 1.5, maxLevel: 10, imageSrc: 'images/LemonadeStand.jpg' },
+        carWash: { cost: 12500, income: 4000, upgradeMultiplier: 1.25, maxLevel: 10, imageSrc: 'images/CarWash.jpg' },
+        localShop: { cost: 45000, income: 6000, upgradeMultiplier: 1.25, maxLevel: 15, imageSrc: 'images/LocalShop.jpg' },
+        factory: { cost: 150000, income: 15000, upgradeMultiplier: 1.2, maxLevel: 20, imageSrc: 'images/Factory.jpg' },
+        legalClinic: { cost: 200000, income: 12000, upgradeMultiplier: 1.15, maxLevel: 10, imageSrc: 'images/LegalClinic.jpg' },
+        bank: { cost: bank.baseCost, income: bank.hourlyIncome, upgradeMultiplier: 1.5, maxLevel: 10, imageSrc: 'images/Bank.jpg', type: 'bank' }
+    };
+
+    let selectedBusiness = businessDetails[type];
+
+    if (cash >= selectedBusiness.cost) {
+        cash -= selectedBusiness.cost;
+        const newBusiness = {
+            name: capitalizeFirstLetter(type.replace(/([A-Z])/g, ' $1')),
             level: 1,
-            income: 100,
-            baseCost: 500,
-            upgradeCost: 250, // 50% of base cost
-            upgradeMultiplier: 1.5,
-            maxLevel: 10,
-            imageSrc: 'images/LemonadeStand.jpg'
+            income: selectedBusiness.income,
+            baseCost: selectedBusiness.cost,
+            upgradeCost: selectedBusiness.cost / 2,
+            upgradeMultiplier: selectedBusiness.upgradeMultiplier,
+            maxLevel: selectedBusiness.maxLevel,
+            imageSrc: selectedBusiness.imageSrc,
+            type: selectedBusiness.type || type
         };
-        businesses.push(business);
-        hourlyIncome += business.income;
-    } else if (type === 'carWash' && cash >= 12500) {
-        cash -= 12500;
-        const business = {
-            name: 'Car Wash',
-            level: 1,
-            income: 4000,
-            baseCost: 12500,
-            upgradeCost: 6250, // 50% of base cost
-            upgradeMultiplier: 1.25,
-            maxLevel: 10,
-            imageSrc: 'images/CarWash.jpg'
-        };
-        businesses.push(business);
-        hourlyIncome += business.income;
-    } else if (type === 'localShop' && cash >= 45000) {
-        cash -= 45000;
-        const business = {
-            name: 'Local Shop',
-            level: 1,
-            income: 6000,
-            baseCost: 45000,
-            upgradeCost: 22500, // 50% of base cost
-            upgradeMultiplier: 1.25,
-            maxLevel: 15,
-            imageSrc: 'images/LocalShop.jpg'
-        };
-        businesses.push(business);
-        hourlyIncome += business.income;
-    } else if (type === 'factory' && cash >= 150000) { // New Factory Business
-        cash -= 150000;
-        const business = {
-            name: 'Factory',
-            level: 1,
-            income: 15000,
-            baseCost: 150000,
-            upgradeCost: 75000, // 50% of base cost
-            upgradeMultiplier: 1.2,
-            maxLevel: 20,
-            imageSrc: 'images/Factory.jpg'
-        };
-        businesses.push(business);
-        hourlyIncome += business.income;
-    } else if (type === 'legalClinic' && cash >= 200000) {
-        cash -= 200000;
-        const business = {
-            name: 'Legal Clinic',
-            level: 1,
-            income: 12000,
-            baseCost: 200000,
-            upgradeCost: 100000, // 50% of base cost
-            upgradeMultiplier: 1.15,
-            maxLevel: 10,
-            imageSrc: 'images/LegalClinic.jpg'
-        };
-        businesses.push(business);
-        hourlyIncome += business.income;
-    } else if (type === 'bank' && cash >= bank.baseCost) {
-        cash -= bank.baseCost;
-        businesses.push(bank);
-        hourlyIncome += bank.hourlyIncome;
+
+        businesses.push(newBusiness);
+        hourlyIncome += newBusiness.income;
         saveProgress();
         updateStats();
         renderBusinesses();
         closeBuyBusinessPopup();
     } else {
-        alert('Not enough cash!');
-        return;
+        showAlert('Not enough cash!'); // Replace alert with a game-themed modal or div.
     }
-    saveProgress();
-    updateStats();
-    renderBusinesses();
-    closeBuyBusinessPopup();
 }
-
-
 
 function renderBusinesses() {
     const businessList = document.getElementById('business-list');
