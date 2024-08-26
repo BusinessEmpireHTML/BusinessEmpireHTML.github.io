@@ -84,6 +84,10 @@ function closeBuyBusinessPopup() {
     document.getElementById('buy-business-popup').style.display = 'none';
 }
 
+function closeBankPopup() {
+    document.getElementById('bank-popup').style.display = 'none';
+}
+
 function closeUpgradeBusinessPopup() {
     document.getElementById('upgrade-business-popup').style.display = 'none';
 }
