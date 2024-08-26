@@ -61,40 +61,54 @@ function buyBusiness(type) {
         const business = {
             name: 'Lemonade Stand',
             level: 1,
-            income: 50, // Reduced base income
+            income: 100,
             baseCost: 500,
-            upgradeCost: 500 * 0.25, // Changed upgrade cost percentage
-            upgradeMultiplier: 1.25, // Reduced income increase per upgrade
+            upgradeCost: 250, // 50% of base cost
+            upgradeMultiplier: 1.5,
             maxLevel: 10,
             imageSrc: 'images/LemonadeStand.jpg'
         };
         businesses.push(business);
         hourlyIncome += business.income;
-    } else if (type === 'carWash' && cash >= 10000) {
-        cash -= 10000;
+    } else if (type === 'carWash' && cash >= 12500) {
+        cash -= 12500;
         const business = {
             name: 'Car Wash',
             level: 1,
-            income: 1000, // Reduced base income
-            baseCost: 10000,
-            upgradeCost: 10000 * 0.30, // Changed upgrade cost percentage
-            upgradeMultiplier: 1.20, // Reduced income increase per upgrade
+            income: 4000,
+            baseCost: 12500,
+            upgradeCost: 6250, // 50% of base cost
+            upgradeMultiplier: 1.25,
             maxLevel: 10,
             imageSrc: 'images/CarWash.jpg'
         };
         businesses.push(business);
         hourlyIncome += business.income;
-    } else if (type === 'localShop' && cash >= 100000) {
-        cash -= 100000;
+    } else if (type === 'localShop' && cash >= 45000) {
+        cash -= 45000;
         const business = {
             name: 'Local Shop',
             level: 1,
-            income: 5000, // Reduced base income
-            baseCost: 100000,
-            upgradeCost: 100000 * 0.40, // Changed upgrade cost percentage
-            upgradeMultiplier: 1.20, // Same income increase per upgrade
+            income: 6000,
+            baseCost: 45000,
+            upgradeCost: 22500, // 50% of base cost
+            upgradeMultiplier: 1.25,
             maxLevel: 10,
             imageSrc: 'images/LocalShop.jpg'
+        };
+        businesses.push(business);
+        hourlyIncome += business.income;
+    } else if (type === 'factory' && cash >= 150000) { // New Factory Business
+        cash -= 150000;
+        const business = {
+            name: 'Factory',
+            level: 1,
+            income: 15000,
+            baseCost: 150000,
+            upgradeCost: 75000, // 50% of base cost
+            upgradeMultiplier: 1.2,
+            maxLevel: 10,
+            imageSrc: 'images/Factory.jpg'
         };
         businesses.push(business);
         hourlyIncome += business.income;
@@ -107,6 +121,8 @@ function buyBusiness(type) {
     renderBusinesses();
     closeBuyBusinessPopup();
 }
+
+
 
 function renderBusinesses() {
     const businessList = document.getElementById('business-list');
