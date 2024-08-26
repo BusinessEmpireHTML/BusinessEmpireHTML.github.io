@@ -19,9 +19,9 @@
 
         <div id="clicker" class="tab-content">
             <div id="click-area" onclick="earnMoney()">Click to Earn Money</div>
-            <p>Cash: $<span id="cash">0</span></p>
+            <p>Cash: $<span id="cash-clicker">0</span></p> <!-- Updated ID -->
             <p>Click Value: $<span id="clickValue">1</span></p>
-            <p>Hourly Income: $<span id="hourlyIncome">0</span></p>
+            <p>Hourly Income: $<span id="hourlyIncome-clicker">0</span></p> <!-- Updated ID -->
         </div>
 
         <div id="investments" class="tab-content">
@@ -39,20 +39,19 @@
         </div>
 
         <div id="profile" class="tab-content">
-            <p>Your total fortune: $<span id="cash">0</span></p>
-            <p>Hourly Income: $<span id="hourlyIncome">0</span></p>
+            <p>Your total fortune: $<span id="cash-profile">0</span></p> <!-- Updated ID -->
+            <p>Hourly Income: $<span id="hourlyIncome-profile">0</span></p> <!-- Updated ID -->
         </div>
 
         <div id="buy-business-popup" class="popup">
-    <h2>Buy a New Business</h2>
-    <!-- Updated prices for businesses -->
-<button onclick="buyBusiness('lemonadeStand')">Buy Lemonade Stand - $500</button>
-<button onclick="buyBusiness('carWash')">Buy Car Wash - $10,000</button>
-<button onclick="buyBusiness('localShop')">Buy Local Shop - $30,000</button>
-<button onclick="buyBusiness('factory')">Buy Factory - $150,000</button>
-    <button onclick="closeBuyBusinessPopup()">Close</button>
-</div>
-
+            <h2>Buy a New Business</h2>
+            <!-- Updated prices for businesses -->
+            <button onclick="buyBusiness('lemonadeStand')">Buy Lemonade Stand - $500</button>
+            <button onclick="buyBusiness('carWash')">Buy Car Wash - $12,500</button>
+            <button onclick="buyBusiness('localShop')">Buy Local Shop - $45,000</button>
+            <button onclick="buyBusiness('factory')">Buy Factory - $150,000</button>
+            <button onclick="closeBuyBusinessPopup()">Close</button>
+        </div>
 
         <div id="upgrade-business-popup" class="popup">
             <h2>Upgrade <span id="business-name"></span></h2>

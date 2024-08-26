@@ -6,10 +6,15 @@ let lastUpdate = localStorage.getItem('lastUpdate') ? new Date(localStorage.getI
 let businesses = JSON.parse(localStorage.getItem('businesses')) || [];
 
 function updateStats() {
-    document.querySelectorAll('#cash').forEach(el => el.textContent = cash.toFixed(2));
-    document.getElementById('hourlyIncome').textContent = hourlyIncome.toFixed(2);
+    document.getElementById('cash-clicker').textContent = cash.toFixed(2); // Updated ID
+    document.getElementById('cash-profile').textContent = cash.toFixed(2); // Updated ID
+    document.getElementById('hourlyIncome-clicker').textContent = hourlyIncome.toFixed(2); // Updated ID
+    document.getElementById('hourlyIncome-profile').textContent = hourlyIncome.toFixed(2); // Updated ID
     document.getElementById('clickValue').textContent = clickValue.toFixed(2);
 }
+
+// ...rest of your script...
+
 
 function earnMoney() {
     cash += clickValue;
