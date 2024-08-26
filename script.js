@@ -192,17 +192,22 @@ function openUpgradeBusinessPopup(index) {
     document.getElementById('business-name').textContent = business.name;
     document.getElementById('business-level').textContent = business.level;
     document.getElementById('business-income').textContent = business.income.toFixed(2);
-    document.getElementById('business-upgrade-cost').textContent = business.upgradeCost.toFixed(2);
+
+    // Check if the business is at max level
+    if (business.level >= business.maxLevel) {
+        document.getElementById('business-upgrade-cost').textContent = 'MAX';
+        document.getElementById('upgrade-button').disabled = true; // Disable the upgrade button
+        document.getElementById('upgrade-button').style.backgroundColor = 'grey'; // Grey out the button
+    } else {
+        document.getElementById('business-upgrade-cost').textContent = business.upgradeCost.toFixed(2);
+        document.getElementById('upgrade-button').disabled = cash < business.upgradeCost;
+        document.getElementById('upgrade-button').style.backgroundColor = cash >= business.upgradeCost ? 'blue' : 'grey';
+    }
+
     document.getElementById('upgrade-button').setAttribute('onclick', `upgradeBusiness(${index})`);
     document.getElementById('close-button').setAttribute('onclick', `closeBusiness(${index})`);
     document.getElementById('upgrade-business-popup').style.display = 'block';
-    document.getElementById('upgrade-button').disabled = cash < business.upgradeCost;
-
-
-    // Make the upgrade button blue if enough money
-    document.getElementById('upgrade-button').style.backgroundColor = cash >= business.upgradeCost ? 'blue' : 'grey';
 }
-
 
 
 function calculateIncome() {
