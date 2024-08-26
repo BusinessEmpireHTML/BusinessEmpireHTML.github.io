@@ -129,7 +129,7 @@ function buyBusiness(type) {
             income: 12000,
             baseCost: 200000,
             upgradeCost: 100000, // 50% of base cost
-            upgradeMultiplier: 1.1,
+            upgradeMultiplier: 1.15,
             maxLevel: 10,
             imageSrc: 'images/LegalClinic.jpg'
         };
