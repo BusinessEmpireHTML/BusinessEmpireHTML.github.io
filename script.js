@@ -102,7 +102,7 @@ function buyBusiness(type) {
             baseCost: 45000,
             upgradeCost: 22500, // 50% of base cost
             upgradeMultiplier: 1.25,
-            maxLevel: 10,
+            maxLevel: 15,
             imageSrc: 'images/LocalShop.jpg'
         };
         businesses.push(business);
