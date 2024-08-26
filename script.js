@@ -88,19 +88,6 @@ function closeUpgradeBusinessPopup() {
     document.getElementById('upgrade-business-popup').style.display = 'none';
 }
 
-const mergedBusinesses = [
-    {
-        name: 'Lemonade Factory',
-        income: 600000,
-        imageSrc: 'images/LemonadeFactory.jpg',
-    },
-    {
-        name: 'Restaurant',
-        income: 800000,
-        imageSrc: 'images/Restaurant.jpg',
-    }
-];
-
 function buyBusiness(type) {
     if (type === 'lemonadeStand' && cash >= 500) {
         cash -= 500;
@@ -271,20 +258,6 @@ function closeBusiness(index) {
 
 let selectedBusinesses = [];
 
-function openMergerPopup() {
-    document.getElementById('merger-business-list').innerHTML = '';
-    businesses.forEach((business, index) => {
-        if (business.level === business.maxLevel && !business.merged) {
-            const businessDiv = document.createElement('div');
-            businessDiv.className = 'business-card merger-card';
-            businessDiv.textContent = business.name;
-            businessDiv.onclick = () => toggleBusinessSelection(index);
-            document.getElementById('merger-business-list').appendChild(businessDiv);
-        }
-    });
-    document.getElementById('business-merger-popup').style.display = 'block';
-}
-
 function closeMergerPopup() {
     document.getElementById('business-merger-popup').style.display = 'none';
     selectedBusinesses = [];
@@ -328,10 +301,50 @@ function mergeSelectedBusinesses() {
     renderBusinesses();
 }
 
+// Define merged businesses including new "Chain of Restaurants"
+const mergedBusinesses = [
+    {
+        name: 'Lemonade Factory',
+        income: 600000,
+        imageSrc: 'images/LemonadeFactory.jpg',
+    },
+    {
+        name: 'Restaurant',
+        income: 800000,
+        imageSrc: 'images/Restaurant.jpg',
+    },
+    {
+        name: 'Chain of Restaurants',
+        income: 2400000,  // Triple the income of "Restaurant"
+        imageSrc: 'images/ChainOfRestaurants.jpg',
+    }
+];
+
+function openMergerPopup() {
+    document.getElementById('merger-business-list').innerHTML = '';
+    businesses.forEach((business, index) => {
+        // Allow both max-level and merged businesses to be shown in merger popup
+        if ((business.level === business.maxLevel && !business.merged) || (business.merged && canMergeAgain(business))) {
+            const businessDiv = document.createElement('div');
+            businessDiv.className = 'business-card merger-card';
+            businessDiv.textContent = business.name;
+            businessDiv.onclick = () => toggleBusinessSelection(index);
+            document.getElementById('merger-business-list').appendChild(businessDiv);
+        }
+    });
+    document.getElementById('business-merger-popup').style.display = 'block';
+}
+
+// Helper function to check if a merged business can merge again
+function canMergeAgain(business) {
+    return business.name === 'Restaurant';  // Currently, only 'Restaurant' can merge further
+}
+
 function isMergeCompatible(business1, business2) {
     const mergedCombinations = {
         'Lemonade Stand+Factory': 'Lemonade Factory',
-        'Local Shop+Factory': 'Restaurant'
+        'Local Shop+Factory': 'Restaurant',
+        'Restaurant+Factory': 'Chain of Restaurants'
     };
 
     const combination1 = `${business1.name}+${business2.name}`;
@@ -360,6 +373,7 @@ function performMerge(business1, business2) {
         hourlyIncome = businesses.reduce((total, business) => total + business.income, 0);
     }
 }
+
 
 function closeMergedBusiness(index) {
     const business = businesses[index];
