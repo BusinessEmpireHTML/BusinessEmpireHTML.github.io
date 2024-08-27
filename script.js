@@ -443,7 +443,7 @@ let selectedBusinesses = []; // Initialize outside of the function
 
 function toggleBusinessSelection(index) {
     const card = document.querySelectorAll('.merger-card')[index];
-    
+
     if (selectedBusinesses.includes(index)) {
         // Deselect the business
         selectedBusinesses = selectedBusinesses.filter(i => i !== index);
@@ -451,11 +451,10 @@ function toggleBusinessSelection(index) {
     } else if (selectedBusinesses.length < 2) {
         // Select the business if less than 2 are selected
         selectedBusinesses.push(index);
-        card.style.border = '2px solid green';
+        card.style.border = '2px solid blue'; // Highlight the card
     }
 
-    // Enable or disable the merge button based on selection
-    document.getElementById('merge-button').disabled = selectedBusinesses.length !== 2;
+    document.getElementById('merge-button').disabled = selectedBusinesses.length < 2; // Enable merge button only if two businesses are selected
 }
 
 function mergeSelectedBusinesses() {
@@ -571,21 +570,28 @@ function performMerge(business1, business2) {
     }
 }
 
-function renderMergerBusinesses() {
-    const mergerList = document.getElementById('merger-business-list');
-    mergerList.innerHTML = ''; // Clear previous list
+function renderMergedBusinesses() {
+    const mergerList = document.getElementById('merged-business-list');
+    mergerList.innerHTML = '';
 
     businesses.forEach((business, index) => {
-        if (business.level === business.maxLevel || (business.type === 'bank' && isVaultMaxed())) {
+        if (business.merged || (business.type === 'bank' && isVaultMaxed())) {
+            // This ensures that the bank shows up in the merged list if its vault is maxed
             const mergerCard = document.createElement('div');
             mergerCard.className = 'merger-card';
-            mergerCard.textContent = `${business.name} (Level ${business.level})`;
+            mergerCard.innerHTML = `<strong>${business.name}</strong>`;
+
             mergerCard.onclick = () => toggleBusinessSelection(index);
+
+            if (selectedBusinesses.includes(index)) {
+                mergerCard.style.border = '2px solid blue'; // Highlight selected businesses
+            }
 
             mergerList.appendChild(mergerCard);
         }
     });
 }
+
 
 
 
