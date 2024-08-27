@@ -7,6 +7,7 @@ let businesses = JSON.parse(localStorage.getItem('businesses')) || [];
 
 window.onload = function() {
     loadProgress();
+    calculateOfflineEarnings(); // Calculate offline earnings first
     openTab('clicker');
     updateStats();
     renderBusinesses();
@@ -51,15 +52,18 @@ function earnMoney() {
         lastUpdate = localStorage.getItem('lastUpdate') ? new Date(localStorage.getItem('lastUpdate')) : new Date();
         businesses = JSON.parse(localStorage.getItem('businesses')) || [];
     
-        // Ensure backward compatibility
         businesses.forEach(business => {
             if (!business.merged) business.merged = false;
+            if (business.type === 'bank' && !business.currentMoneyInVault) {
+                business.currentMoneyInVault = 0; // Initialize if missing
+            }
         });
     
-        calculateOfflineIncome();
+        calculateOfflineIncome(); // Moved to be before calculateOfflineEarnings
         updateStats();
         renderBusinesses();
     }
+    
     
 function calculateOfflineIncome() {
     let now = new Date();
@@ -384,7 +388,6 @@ setInterval(() => {
     fillVault();
 }, 1000); // Example: fill every hour
 
-// Function to calculate offline earnings and fill the vault
 function calculateOfflineEarnings() {
     const lastOnline = localStorage.getItem('lastOnline');
     if (!lastOnline) return; // Exit if no last online time is found
@@ -393,20 +396,29 @@ function calculateOfflineEarnings() {
     const elapsedTime = now - parseInt(lastOnline, 10); // Calculate elapsed time in milliseconds
     const elapsedHours = elapsedTime / (1000 * 60 * 60); // Convert to hours
 
+    let totalOfflineIncome = hourlyIncome * elapsedHours; // Calculate potential earnings
+
+    // Update cash with offline income
+    cash = roundToHundredths(cash + totalOfflineIncome);
+
+    // Fill the bank's vault
     const bank = businesses.find(business => business.type === 'bank');
-    if (!bank) return; // Exit if no bank is found
+    if (bank) {
+        let amountNeeded = bank.maxVaultStorage - bank.currentMoneyInVault;
 
-    const potentialEarnings = bank.hourlyIncome * elapsedHours; // Calculate potential earnings
-    let amountNeeded = bank.maxVaultStorage - bank.currentMoneyInVault; // Amount needed to fill the vault
+        if (totalOfflineIncome >= amountNeeded) {
+            bank.currentMoneyInVault = bank.maxVaultStorage;
+        } else {
+            bank.currentMoneyInVault += totalOfflineIncome;
+        }
 
-    if (potentialEarnings >= amountNeeded) {
-        bank.currentMoneyInVault = bank.maxVaultStorage;
-        console.log(`Vault filled to maximum with offline earnings. Earnings: ${potentialEarnings}, Needed: ${amountNeeded}`);
-    } else {
-        bank.currentMoneyInVault += potentialEarnings;
-        console.log(`Vault partially filled with offline earnings. Earnings: ${potentialEarnings}, Current in Vault: ${bank.currentMoneyInVault}`);
+        // Deduct the amount filled into the vault from totalOfflineIncome
+        totalOfflineIncome = Math.max(totalOfflineIncome - amountNeeded, 0);
     }
+
+    saveProgress(); // Save the progress after calculating offline earnings
 }
+
 
 // Save the current timestamp when going offline
 window.addEventListener('beforeunload', function() {
