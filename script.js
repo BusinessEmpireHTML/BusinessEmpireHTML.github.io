@@ -275,10 +275,7 @@ function closeBusiness(index) {
     }
 }
 
-let selectedBusinesses = [];
-let vaultCapacity = 1000000; // Example initial capacity; adjust as needed
-let vaultCurrent = 0;        // Current amount in the vault
-let bankBalance = 10000000;  // Example bank balance; adjust as needed
+let bankBalance = 10000000; // Example bank balance; adjust as needed
 let bank = {
     name: 'Bank',
     level: 1,
@@ -341,7 +338,7 @@ setInterval(() => {
     calculateIncome();
 }, 1000); // 1 second in milliseconds
 
-// Adjust the fillVault function to manage the bank vault correctly
+// Function to fill the vault with money from the bank balance
 function fillVault() {
     const bank = businesses.find(business => business.type === 'bank');
     if (!bank) return; // Exit if no bank is found
@@ -364,9 +361,18 @@ function fillVault() {
     console.log(`Vault filled to ${bank.currentMoneyInVault}, Bank balance is now ${bankBalance}`);
 }
 
+// Function to check if the vault is maxed out
 function isVaultMaxed() {
-    return vault.currentCapacity === vault.maxCapacity;
+    const bank = businesses.find(business => business.type === 'bank');
+    return bank && bank.currentMoneyInVault === bank.maxVaultStorage;
 }
+
+// Assume `businesses` is an array holding all businesses
+let businesses = [bank];
+
+// Example of using these functions
+fillVault();
+console.log(isVaultMaxed());
 
 // Call fillVault on an interval or in your game loop
 setInterval(() => {
