@@ -44,7 +44,6 @@ function upgradeBankVault(index) {
 }
 
 // Function to calculate the hourly income for the bank
-// Function to calculate the hourly income for the bank
 function calculateBankIncome() {
     businesses.forEach(business => {
         if (business.type === 'bank') {
@@ -55,13 +54,14 @@ function calculateBankIncome() {
             business.hourlyIncome = Math.floor(business.currentMoneyInVault / 100); // $1 per $100 in vault
         }
     });
+
     saveProgress(); // It's better to call saveProgress() after the loop
 }
 
 // Ensure all relevant intervals and game loops are correctly defined
 setInterval(() => {
-    calculateBankIncome();
-    calculateIncome();
+    calculateBankIncome(); // Calculate bank's income first
+    calculateIncome(); // Then update total income
 }, 1000); // 1 second in milliseconds
 
 // Adjust the fillVault function to manage the bank vault correctly

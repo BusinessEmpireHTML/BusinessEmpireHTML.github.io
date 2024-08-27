@@ -161,7 +161,23 @@ function closeMergedBusiness(index) {
 
 
 
+// Global variable for total hourly income
+let hourlyIncome = 0;
+
+// Function to calculate income for all businesses
 function calculateIncome() {
+    hourlyIncome = 0; // Reset before recalculating
+
+    // Loop through all businesses to calculate their income
+    businesses.forEach(business => {
+        if (business.type === 'bank') {
+            // Bank income should already be calculated in calculateBankIncome()
+            hourlyIncome += business.hourlyIncome;
+        } else {
+            hourlyIncome += business.hourlyIncome; // Include other businesses as needed
+        }
+    });
+
     saveProgress();
     updateStats();
 }
