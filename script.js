@@ -339,7 +339,7 @@ function calculateBankIncome() {
 setInterval(() => {
     calculateBankIncome();
     calculateIncome();
-}, 3600000); // 1 second in milliseconds
+}, 1000); // 1 second in milliseconds
 
 // Adjust the fillVault function to manage the bank vault correctly
 function fillVault() {
@@ -362,6 +362,10 @@ function fillVault() {
     }
 
     console.log(`Vault filled to ${bank.currentMoneyInVault}, Bank balance is now ${bankBalance}`);
+}
+
+function isVaultMaxed() {
+    return vault.currentCapacity === vault.maxCapacity;
 }
 
 // Call fillVault on an interval or in your game loop
@@ -433,6 +437,11 @@ const mergedBusinesses = [
         name: 'Car Dealership',
         income: 500000,  // New Car Dealership business income
         imageSrc: 'images/CarDealership.jpg',
+    },
+    {
+        name: 'Law Firm',
+        income: 25000000000,  // New Car Dealership business income
+        imageSrc: 'images/LawFirm.jpg',
     }
 ];
 
@@ -461,7 +470,8 @@ function isMergeCompatible(business1, business2) {
         'Lemonade Stand+Factory': 'Lemonade Factory',
         'Local Shop+Factory': 'Restaurant',
         'Restaurant+Factory': 'Chain of Restaurants',
-        'Car Wash+Factory': 'Car Dealership'  // New merge combination for Car Dealership
+        'Car Wash+Factory': 'Car Dealership',
+        'Legal Clinic+Bank': 'Law Firm'
     };
 
     const combination1 = `${business1.name}+${business2.name}`;
