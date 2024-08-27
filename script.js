@@ -367,9 +367,6 @@ function isVaultMaxed() {
     return bank && bank.currentMoneyInVault === bank.maxVaultStorage;
 }
 
-// Assume `businesses` is an array holding all businesses
-let businesses = [bank];
-
 // Example of using these functions
 fillVault();
 console.log(isVaultMaxed());
