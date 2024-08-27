@@ -329,7 +329,7 @@ function calculateBankIncome() {
             if (business.currentMoneyInVault < business.maxVaultStorage) {
                 business.currentMoneyInVault = Math.min(business.maxVaultStorage, business.currentMoneyInVault + vaultFillRate);
             }
-            business.hourlyIncome = Math.floor(business.currentMoneyInVault / 100); // $1 per $100 in vault
+            business.hourlyIncome = Math.floor(business.currentMoneyInVault / 1000); // $1 per $1000 in vault
         }
     });
     saveProgress(); // It's better to call saveProgress() after the loop
