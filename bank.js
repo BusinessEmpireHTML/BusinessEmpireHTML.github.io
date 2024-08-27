@@ -41,65 +41,9 @@ function upgradeBankVault(index) {
     } else {
         alert('Not enough cash or max storage reached!');
     }
-    
-}function renderBusinesses() {
-    const businessList = document.getElementById('business-list');
-    businessList.innerHTML = '';
-    businesses.forEach((business, index) => {
-        const businessDiv = document.createElement('div');
-        businessDiv.className = 'business-card';
-
-        const businessImg = document.createElement('img');
-        businessImg.src = business.imageSrc;
-        businessImg.alt = `${business.name} Image`;
-        businessImg.className = 'business-image';
-
-        const businessInfo = document.createElement('div');
-        businessInfo.className = 'business-info';
-
-        if (business.type === 'bank') {
-            businessInfo.innerHTML = `<strong>${business.name}</strong><br>
-                $${roundToHundredths(business.hourlyIncome).toLocaleString(undefined, { minimumFractionDigits: 2 })} per hour<br>
-                Vault: $${roundToHundredths(business.currentMoneyInVault).toLocaleString(undefined, { minimumFractionDigits: 2 })} / $${roundToHundredths(business.maxVaultStorage).toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
-        } else {
-            businessInfo.innerHTML = `<strong>${business.name}</strong><br>$${roundToHundredths(business.income).toLocaleString(undefined, { minimumFractionDigits: 2 })} per hour`;
-        }
-
-        businessDiv.appendChild(businessImg);
-        businessDiv.appendChild(businessInfo);
-
-        if (business.type === 'bank') {
-            businessDiv.onclick = () => openBankPopup(index);
-        } else if (business.merged) {
-            businessDiv.onclick = () => closeMergedBusiness(index);
-        } else {
-            businessDiv.onclick = () => openUpgradeBusinessPopup(index);
-        }
-
-        businessList.appendChild(businessDiv);
-    });
 }
 
-// Global variable for total hourly income
-let hourlyIncome = 0;
-
-// Function to calculate income for all businesses
-function calculateIncome() {
-    hourlyIncome = 0; // Reset before recalculating
-
-    // Loop through all businesses to calculate their income
-    businesses.forEach(business => {
-        if (business.type === 'bank') {
-            // Bank income should already be calculated in calculateBankIncome()
-            hourlyIncome += business.hourlyIncome;
-        } else {
-            hourlyIncome += business.hourlyIncome; // Include other businesses as needed
-        }
-    });
-
-    saveProgress();
-    updateStats();
-}
+// Function to calculate the hourly income for the bank
 // Function to calculate the hourly income for the bank
 function calculateBankIncome() {
     businesses.forEach(business => {
@@ -111,14 +55,13 @@ function calculateBankIncome() {
             business.hourlyIncome = Math.floor(business.currentMoneyInVault / 100); // $1 per $100 in vault
         }
     });
-
     saveProgress(); // It's better to call saveProgress() after the loop
 }
 
 // Ensure all relevant intervals and game loops are correctly defined
 setInterval(() => {
-    calculateBankIncome(); // Calculate bank's income first
-    calculateIncome(); // Then update total income
+    calculateBankIncome();
+    calculateIncome();
 }, 1000); // 1 second in milliseconds
 
 // Adjust the fillVault function to manage the bank vault correctly

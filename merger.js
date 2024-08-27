@@ -159,6 +159,13 @@ function closeMergedBusiness(index) {
     }
 }
 
+
+
+function calculateIncome() {
+    saveProgress();
+    updateStats();
+}
+
 setInterval(() => {
     let minuteIncome = hourlyIncome / 60;
     cash = roundToHundredths(cash + minuteIncome);
