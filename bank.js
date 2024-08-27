@@ -41,6 +41,43 @@ function upgradeBankVault(index) {
     } else {
         alert('Not enough cash or max storage reached!');
     }
+    
+}function renderBusinesses() {
+    const businessList = document.getElementById('business-list');
+    businessList.innerHTML = '';
+    businesses.forEach((business, index) => {
+        const businessDiv = document.createElement('div');
+        businessDiv.className = 'business-card';
+
+        const businessImg = document.createElement('img');
+        businessImg.src = business.imageSrc;
+        businessImg.alt = `${business.name} Image`;
+        businessImg.className = 'business-image';
+
+        const businessInfo = document.createElement('div');
+        businessInfo.className = 'business-info';
+
+        if (business.type === 'bank') {
+            businessInfo.innerHTML = `<strong>${business.name}</strong><br>
+                $${roundToHundredths(business.hourlyIncome).toLocaleString(undefined, { minimumFractionDigits: 2 })} per hour<br>
+                Vault: $${roundToHundredths(business.currentMoneyInVault).toLocaleString(undefined, { minimumFractionDigits: 2 })} / $${roundToHundredths(business.maxVaultStorage).toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+        } else {
+            businessInfo.innerHTML = `<strong>${business.name}</strong><br>$${roundToHundredths(business.income).toLocaleString(undefined, { minimumFractionDigits: 2 })} per hour`;
+        }
+
+        businessDiv.appendChild(businessImg);
+        businessDiv.appendChild(businessInfo);
+
+        if (business.type === 'bank') {
+            businessDiv.onclick = () => openBankPopup(index);
+        } else if (business.merged) {
+            businessDiv.onclick = () => closeMergedBusiness(index);
+        } else {
+            businessDiv.onclick = () => openUpgradeBusinessPopup(index);
+        }
+
+        businessList.appendChild(businessDiv);
+    });
 }
 
 // Global variable for total hourly income
