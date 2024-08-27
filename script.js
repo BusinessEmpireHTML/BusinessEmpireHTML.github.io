@@ -371,7 +371,7 @@ function isVaultMaxed() {
 // Call fillVault on an interval or in your game loop
 setInterval(() => {
     fillVault();
-}, 3600000); // Example: fill every hour
+}, 1000); // Example: fill every hour
 
 
 function closeMergerPopup() {
