@@ -7,7 +7,6 @@ let businesses = JSON.parse(localStorage.getItem('businesses')) || [];
 
 window.onload = function() {
     loadProgress();
-    calculateOfflineEarnings(); // Calculate offline earnings first
     openTab('clicker');
     updateStats();
     renderBusinesses();
@@ -52,18 +51,15 @@ function earnMoney() {
         lastUpdate = localStorage.getItem('lastUpdate') ? new Date(localStorage.getItem('lastUpdate')) : new Date();
         businesses = JSON.parse(localStorage.getItem('businesses')) || [];
     
+        // Ensure backward compatibility
         businesses.forEach(business => {
             if (!business.merged) business.merged = false;
-            if (business.type === 'bank' && !business.currentMoneyInVault) {
-                business.currentMoneyInVault = 0; // Initialize if missing
-            }
         });
     
-        calculateOfflineIncome(); // Moved to be before calculateOfflineEarnings
+        calculateOfflineIncome();
         updateStats();
         renderBusinesses();
     }
-    
     
 function calculateOfflineIncome() {
     let now = new Date();
@@ -279,6 +275,10 @@ function closeBusiness(index) {
     }
 }
 
+let selectedBusinesses = [];
+let vaultCapacity = 1000000; // Example initial capacity; adjust as needed
+let vaultCurrent = 0;        // Current amount in the vault
+let bankBalance = 10000000;  // Example bank balance; adjust as needed
 let bank = {
     name: 'Bank',
     level: 1,
@@ -292,38 +292,6 @@ let bank = {
     imageSrc: 'images/Bank.jpg',
     type: 'bank'
 };
-
-let bankBalance = 10000000; // Example bank balance; adjust as needed
-
-// Function to fill the vault with money from the bank balance
-function fillVault() {
-    const bank = businesses.find(business => business.type === 'bank');
-    if (!bank) return; // Exit if no bank is found
-
-    let amountNeeded = bank.maxVaultStorage - bank.currentMoneyInVault;
-
-    if (bankBalance >= amountNeeded) {
-        bank.currentMoneyInVault = bank.maxVaultStorage;
-        bankBalance -= amountNeeded;
-    } else {
-        bank.currentMoneyInVault += bankBalance;
-        bankBalance = 0;
-    }
-
-    // Ensure currentMoneyInVault does not exceed maxVaultStorage
-    if (bank.currentMoneyInVault > bank.maxVaultStorage) {
-        bank.currentMoneyInVault = bank.maxVaultStorage;
-    }
-
-    console.log(`Vault filled to ${bank.currentMoneyInVault}, Bank balance is now ${bankBalance}`);
-}
-
-// Function to check if the vault is maxed out
-function isVaultMaxed() {
-    const bank = businesses.find(business => business.type === 'bank');
-    return bank && bank.currentMoneyInVault === bank.maxVaultStorage;
-}
-
 
 function openBankPopup(index) {
     const bank = businesses[index];
@@ -361,7 +329,7 @@ function calculateBankIncome() {
             if (business.currentMoneyInVault < business.maxVaultStorage) {
                 business.currentMoneyInVault = Math.min(business.maxVaultStorage, business.currentMoneyInVault + vaultFillRate);
             }
-            business.hourlyIncome = Math.floor(business.currentMoneyInVault / 1000); // $1 per $1000 in vault
+            business.hourlyIncome = Math.floor(business.currentMoneyInVault / 100); // $1 per $100 in vault
         }
     });
     saveProgress(); // It's better to call saveProgress() after the loop
@@ -373,64 +341,38 @@ setInterval(() => {
     calculateIncome();
 }, 1000); // 1 second in milliseconds
 
-// Function to check if the vault is maxed out
-function isVaultMaxed() {
+// Adjust the fillVault function to manage the bank vault correctly
+function fillVault() {
     const bank = businesses.find(business => business.type === 'bank');
-    return bank && bank.currentMoneyInVault === bank.maxVaultStorage;
+    if (!bank) return; // Exit if no bank is found
+
+    let amountNeeded = bank.maxVaultStorage - bank.currentMoneyInVault;
+
+    if (bankBalance >= amountNeeded) {
+        bank.currentMoneyInVault = bank.maxVaultStorage;
+        bankBalance -= amountNeeded;
+    } else {
+        bank.currentMoneyInVault += bankBalance;
+        bankBalance = 0;
+    }
+
+    // Ensure currentMoneyInVault does not exceed maxVaultStorage
+    if (bank.currentMoneyInVault > bank.maxVaultStorage) {
+        bank.currentMoneyInVault = bank.maxVaultStorage;
+    }
+
+    console.log(`Vault filled to ${bank.currentMoneyInVault}, Bank balance is now ${bankBalance}`);
 }
 
-// Example of using these functions
-fillVault();
-console.log(isVaultMaxed());
+function isVaultMaxed() {
+    return vault.currentCapacity === vault.maxCapacity;
+}
 
 // Call fillVault on an interval or in your game loop
 setInterval(() => {
     fillVault();
-}, 1000); // Example: fill every hour
+}, 3600000); // Example: fill every hour
 
-function calculateOfflineEarnings() {
-    const lastOnline = localStorage.getItem('lastOnline');
-    if (!lastOnline) return; // Exit if no last online time is found
-
-    const now = Date.now();
-    const elapsedTime = now - parseInt(lastOnline, 10); // Calculate elapsed time in milliseconds
-    const elapsedHours = elapsedTime / (1000 * 60 * 60); // Convert to hours
-
-    let totalOfflineIncome = hourlyIncome * elapsedHours; // Calculate potential earnings
-
-    // Update cash with offline income
-    cash = roundToHundredths(cash + totalOfflineIncome);
-
-    // Fill the bank's vault
-    const bank = businesses.find(business => business.type === 'bank');
-    if (bank) {
-        let amountNeeded = bank.maxVaultStorage - bank.currentMoneyInVault;
-
-        if (totalOfflineIncome >= amountNeeded) {
-            bank.currentMoneyInVault = bank.maxVaultStorage;
-        } else {
-            bank.currentMoneyInVault += totalOfflineIncome;
-        }
-
-        // Deduct the amount filled into the vault from totalOfflineIncome
-        totalOfflineIncome = Math.max(totalOfflineIncome - amountNeeded, 0);
-    }
-
-    saveProgress(); // Save the progress after calculating offline earnings
-}
-
-
-// Save the current timestamp when going offline
-window.addEventListener('beforeunload', function() {
-    localStorage.setItem('lastOnline', Date.now());
-});
-
-// Calculate offline earnings when the player returns
-calculateOfflineEarnings();
-
-// Example of using these functions
-fillVault();
-console.log(isVaultMaxed());
 
 function closeMergerPopup() {
     document.getElementById('business-merger-popup').style.display = 'none';
