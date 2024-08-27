@@ -43,6 +43,27 @@ function upgradeBankVault(index) {
     }
 }
 
+// Global variable for total hourly income
+let hourlyIncome = 0;
+
+// Function to calculate income for all businesses
+function calculateIncome() {
+    hourlyIncome = 0; // Reset before recalculating
+
+    // Loop through all businesses to calculate their income
+    businesses.forEach(business => {
+        if (business.type === 'bank') {
+            // Bank income should already be calculated in calculateBankIncome()
+            hourlyIncome += business.hourlyIncome;
+        } else {
+            hourlyIncome += business.hourlyIncome; // Include other businesses as needed
+        }
+    });
+
+    saveProgress();
+    updateStats();
+}
+
 // Function to calculate the hourly income for the bank
 function calculateBankIncome() {
     businesses.forEach(business => {
@@ -51,7 +72,7 @@ function calculateBankIncome() {
             if (business.currentMoneyInVault < business.maxVaultStorage) {
                 business.currentMoneyInVault = Math.min(business.maxVaultStorage, business.currentMoneyInVault + vaultFillRate);
             }
-            business.hourlyIncome = Math.floor(business.currentMoneyInVault / 100); // $1 per $100 in vault
+            business.hourlyIncome = Math.floor(business.currentMoneyInVault / 1000); // $1 per $1000 in vault
         }
     });
 
