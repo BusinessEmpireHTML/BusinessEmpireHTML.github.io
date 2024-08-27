@@ -1,15 +1,17 @@
-// main.js
-
-// Variables
 let cash = parseFloat(localStorage.getItem('cash')) || 0;
 let hourlyIncome = parseFloat(localStorage.getItem('hourlyIncome')) || 0;
 let clickValue = parseFloat(localStorage.getItem('clickValue')) || 1;
 let clicks = parseInt(localStorage.getItem('clicks')) || 0;
 let lastUpdate = localStorage.getItem('lastUpdate') ? new Date(localStorage.getItem('lastUpdate')) : new Date();
 let businesses = JSON.parse(localStorage.getItem('businesses')) || [];
-let selectedBusinesses = [];
 
-// Functions
+window.onload = function() {
+    loadProgress();
+    openTab('clicker');
+    updateStats();
+    renderBusinesses();
+};
+
 function roundToHundredths(value) {
     return parseFloat(value.toFixed(2));
 }
@@ -32,34 +34,33 @@ function earnMoney() {
     saveProgress();
     updateStats();
 }
-
-function saveProgress() {
-    localStorage.setItem('cash', cash);
-    localStorage.setItem('hourlyIncome', hourlyIncome);
-    localStorage.setItem('clickValue', clickValue);
-    localStorage.setItem('clicks', clicks);
-    localStorage.setItem('lastUpdate', new Date());
-    localStorage.setItem('businesses', JSON.stringify(businesses));
-}
-
-function loadProgress() {
-    cash = parseFloat(localStorage.getItem('cash')) || 0;
-    hourlyIncome = parseFloat(localStorage.getItem('hourlyIncome')) || 0;
-    clickValue = parseFloat(localStorage.getItem('clickValue')) || 1;
-    clicks = parseInt(localStorage.getItem('clicks')) || 0;
-    lastUpdate = localStorage.getItem('lastUpdate') ? new Date(localStorage.getItem('lastUpdate')) : new Date();
-    businesses = JSON.parse(localStorage.getItem('businesses')) || [];
-
-    // Ensure backward compatibility
-    businesses.forEach(business => {
-        if (!business.merged) business.merged = false;
-    });
-
-    calculateOfflineIncome();
-    updateStats();
-    renderBusinesses();
-}
-
+    function saveProgress() {
+        localStorage.setItem('cash', cash);
+        localStorage.setItem('hourlyIncome', hourlyIncome);
+        localStorage.setItem('clickValue', clickValue);
+        localStorage.setItem('clicks', clicks);
+        localStorage.setItem('lastUpdate', new Date());
+        localStorage.setItem('businesses', JSON.stringify(businesses));
+    }
+    
+    function loadProgress() {
+        cash = parseFloat(localStorage.getItem('cash')) || 0;
+        hourlyIncome = parseFloat(localStorage.getItem('hourlyIncome')) || 0;
+        clickValue = parseFloat(localStorage.getItem('clickValue')) || 1;
+        clicks = parseInt(localStorage.getItem('clicks')) || 0;
+        lastUpdate = localStorage.getItem('lastUpdate') ? new Date(localStorage.getItem('lastUpdate')) : new Date();
+        businesses = JSON.parse(localStorage.getItem('businesses')) || [];
+    
+        // Ensure backward compatibility
+        businesses.forEach(business => {
+            if (!business.merged) business.merged = false;
+        });
+    
+        calculateOfflineIncome();
+        updateStats();
+        renderBusinesses();
+    }
+    
 function calculateOfflineIncome() {
     let now = new Date();
     let diffInMinutes = (now - lastUpdate) / 60000;
@@ -75,23 +76,18 @@ function openTab(tabName) {
     document.getElementById(tabName).style.display = 'block';
 }
 
-function calculateIncome() {
-    saveProgress();
-    updateStats();
+function openBuyBusinessPopup() {
+    document.getElementById('buy-business-popup').style.display = 'block';
 }
 
-// Set intervals for automatic income calculation
-setInterval(() => {
-    let minuteIncome = hourlyIncome / 60;
-    cash = roundToHundredths(cash + minuteIncome);
-    calculateIncome();
-}, 60000); // 1 minute in milliseconds
+function closeBuyBusinessPopup() {
+    document.getElementById('buy-business-popup').style.display = 'none';
+}
 
-// Initialize game on load
-window.onload = function() {
-    loadProgress();
-    openTab('clicker');
-    updateStats();
-    renderBusinesses();
-    calculateOfflineIncome();
-};
+function closeBankPopup() {
+    document.getElementById('bank-popup').style.display = 'none';
+}
+
+function closeUpgradeBusinessPopup() {
+    document.getElementById('upgrade-business-popup').style.display = 'none';
+}
