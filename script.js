@@ -376,6 +376,41 @@ setInterval(() => {
     fillVault();
 }, 1000); // Example: fill every hour
 
+// Function to calculate offline earnings and fill the vault
+function calculateOfflineEarnings() {
+    const lastOnline = localStorage.getItem('lastOnline');
+    if (!lastOnline) return; // Exit if no last online time is found
+
+    const now = Date.now();
+    const elapsedTime = now - parseInt(lastOnline, 10); // Calculate elapsed time in milliseconds
+    const elapsedHours = elapsedTime / (1000 * 60 * 60); // Convert to hours
+
+    const bank = businesses.find(business => business.type === 'bank');
+    if (!bank) return; // Exit if no bank is found
+
+    const potentialEarnings = bank.hourlyIncome * elapsedHours; // Calculate potential earnings
+    let amountNeeded = bank.maxVaultStorage - bank.currentMoneyInVault; // Amount needed to fill the vault
+
+    if (potentialEarnings >= amountNeeded) {
+        bank.currentMoneyInVault = bank.maxVaultStorage;
+        console.log(`Vault filled to maximum with offline earnings. Earnings: ${potentialEarnings}, Needed: ${amountNeeded}`);
+    } else {
+        bank.currentMoneyInVault += potentialEarnings;
+        console.log(`Vault partially filled with offline earnings. Earnings: ${potentialEarnings}, Current in Vault: ${bank.currentMoneyInVault}`);
+    }
+}
+
+// Save the current timestamp when going offline
+window.addEventListener('beforeunload', function() {
+    localStorage.setItem('lastOnline', Date.now());
+});
+
+// Calculate offline earnings when the player returns
+calculateOfflineEarnings();
+
+// Example of using these functions
+fillVault();
+console.log(isVaultMaxed());
 
 function closeMergerPopup() {
     document.getElementById('business-merger-popup').style.display = 'none';
