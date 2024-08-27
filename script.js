@@ -339,7 +339,7 @@ function calculateBankIncome() {
 setInterval(() => {
     calculateBankIncome();
     calculateIncome();
-}, 1000); // 1 second in milliseconds
+}, 3600000); // 1 second in milliseconds
 
 // Adjust the fillVault function to manage the bank vault correctly
 function fillVault() {
@@ -367,7 +367,7 @@ function fillVault() {
 // Call fillVault on an interval or in your game loop
 setInterval(() => {
     fillVault();
-}, 360000); // Example: fill every hour
+}, 3600000); // Example: fill every hour
 
 
 function closeMergerPopup() {
