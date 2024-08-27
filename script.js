@@ -11,6 +11,7 @@ window.onload = function() {
     openTab('clicker');
     updateStats();
     renderBusinesses();
+    renderMergedBusinesses();
 };
 
 function roundToHundredths(value) {
@@ -62,6 +63,7 @@ function earnMoney() {
         calculateOfflineIncome(); // Moved to be before calculateOfflineEarnings
         updateStats();
         renderBusinesses();
+        renderMergedBusinesses();
     }
     
     
@@ -470,6 +472,7 @@ function mergeSelectedBusinesses() {
     saveProgress();
     updateStats();
     renderBusinesses();
+    renderMergedBusinesses();
 }
 
 const mergedBusinesses = [
@@ -564,6 +567,7 @@ function performMerge(business1, business2) {
         saveProgress();
         updateStats();
         renderBusinesses();
+        renderMergedBusinesses();
     }
 }
 
