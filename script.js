@@ -274,6 +274,53 @@ function closeBusiness(index) {
         closeUpgradeBusinessPopup();
     }
 }
+
+let selectedBusinesses = [];
+let vaultCapacity = 1000000; // Example initial capacity; adjust as needed
+let vaultCurrent = 0;        // Current amount in the vault
+let bankBalance = 10000000;  // Example bank balance; adjust as needed
+let bank = {
+    name: 'Bank',
+    level: 1,
+    baseCost: 10000000,
+    currentMoneyInVault: 10000000,
+    maxVaultStorage: 10000000,
+    upgradeCost: 5000000, // 50% of base cost
+    upgradeMultiplier: 1.5,
+    maxLevel: 10, // Max level corresponds to 1 trillion vault storage
+    hourlyIncome: 100000, // Starting income for a full vault
+    imageSrc: 'images/Bank.jpg',
+    type: 'bank'
+};
+
+function openBankPopup(index) {
+    const bank = businesses[index];
+    document.getElementById('bank-upgrade-cost').textContent = roundToHundredths(bank.upgradeCost).toLocaleString(undefined, { minimumFractionDigits: 2 });
+    document.getElementById('bank-hourly-income').textContent = roundToHundredths(bank.hourlyIncome).toLocaleString(undefined, { minimumFractionDigits: 2 });
+    document.getElementById('bank-vault-storage').textContent = `$${roundToHundredths(bank.currentMoneyInVault).toLocaleString(undefined, { minimumFractionDigits: 2 })} / $${roundToHundredths(bank.maxVaultStorage).toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+    
+    document.getElementById('bank-upgrade-button').disabled = cash < bank.upgradeCost;
+    document.getElementById('bank-upgrade-button').onclick = () => upgradeBankVault(index);
+    document.getElementById('bank-popup').style.display = 'block';
+}
+
+// Function to upgrade the Bank's vault storage
+function upgradeBankVault(index) {
+    const bank = businesses[index];
+    if (cash >= bank.upgradeCost && bank.maxVaultStorage < 1e12) {
+        cash = roundToHundredths(cash - bank.upgradeCost);
+        bank.maxVaultStorage = roundToHundredths(bank.maxVaultStorage * bank.upgradeMultiplier);
+        bank.upgradeCost = roundToHundredths(bank.upgradeCost * 1.15);
+        saveProgress();
+        updateStats();
+        renderBusinesses();
+        openBankPopup(index); // Refresh popup with new values
+    } else {
+        alert('Not enough cash or max storage reached!');
+    }
+}
+
+// Function to calculate the hourly income for the bank
 // Function to calculate the hourly income for the bank
 function calculateBankIncome() {
     businesses.forEach(business => {
@@ -320,7 +367,7 @@ function fillVault() {
 // Call fillVault on an interval or in your game loop
 setInterval(() => {
     fillVault();
-}, 1000); // Example: fill every second
+}, 360000); // Example: fill every hour
 
 
 function closeMergerPopup() {
