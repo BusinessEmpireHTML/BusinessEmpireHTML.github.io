@@ -74,8 +74,14 @@ const mergedBusinesses = [
 function openMergerPopup() {
     document.getElementById('merger-business-list').innerHTML = '';
     businesses.forEach((business, index) => {
-        // Allow both max-level and merged businesses to be shown in merger popup
-        if ((business.level === business.maxLevel && !business.merged) || (business.merged && canMergeAgain(business))) {
+        // Check if the business is eligible for merging
+        const isEligibleForMerging = (business.level === business.maxLevel && !business.merged) || 
+                                      (business.merged && canMergeAgain(business));
+        
+        // Check if it's a bank and if the vault is maxed out
+        const isBankWithMaxVault = business.type === 'bank' && business.currentMoneyInVault === business.maxVaultStorage;
+        
+        if (isEligibleForMerging || isBankWithMaxVault) {
             const businessDiv = document.createElement('div');
             businessDiv.className = 'business-card merger-card';
             businessDiv.textContent = business.name;
@@ -85,6 +91,7 @@ function openMergerPopup() {
     });
     document.getElementById('business-merger-popup').style.display = 'block';
 }
+
 
 // Helper function to check if a merged business can merge again
 function canMergeAgain(business) {
