@@ -318,10 +318,9 @@ function fillVault() {
     console.log(`Vault filled to ${bank.currentMoneyInVault}, Bank balance is now ${bankBalance}`);
 }
 
-// Function to check if the vault is maxed out
 function isVaultMaxed() {
     const bank = businesses.find(business => business.type === 'bank');
-    return bank && bank.currentMoneyInVault === bank.maxVaultStorage;
+    return bank && bank.currentMoneyInVault >= bank.maxVaultStorage;
 }
 
 
@@ -438,24 +437,22 @@ function closeMergerPopup() {
     document.getElementById('merge-button').disabled = true;
 }
 
+let selectedBusinesses = []; // Initialize outside of the function
+
 function toggleBusinessSelection(index) {
-    const businessIndex = selectedBusinesses.indexOf(index);
-    if (businessIndex === -1) {
-        if (selectedBusinesses.length < 2) {
-            selectedBusinesses.push(index);
-        }
-    } else {
-        selectedBusinesses.splice(businessIndex, 1);
+    const card = document.querySelectorAll('.merger-card')[index];
+    
+    if (selectedBusinesses.includes(index)) {
+        // Deselect the business
+        selectedBusinesses = selectedBusinesses.filter(i => i !== index);
+        card.style.border = 'none';
+    } else if (selectedBusinesses.length < 2) {
+        // Select the business if less than 2 are selected
+        selectedBusinesses.push(index);
+        card.style.border = '2px solid green';
     }
 
-    document.querySelectorAll('.merger-card').forEach((card, i) => {
-        if (selectedBusinesses.includes(i)) {
-            card.style.border = '2px solid green';
-        } else {
-            card.style.border = 'none';
-        }
-    });
-
+    // Enable or disable the merge button based on selection
     document.getElementById('merge-button').disabled = selectedBusinesses.length !== 2;
 }
 
@@ -570,6 +567,21 @@ function performMerge(business1, business2) {
     }
 }
 
+function renderMergerBusinesses() {
+    const mergerList = document.getElementById('merger-business-list');
+    mergerList.innerHTML = ''; // Clear previous list
+
+    businesses.forEach((business, index) => {
+        if (business.level === business.maxLevel || (business.type === 'bank' && isVaultMaxed())) {
+            const mergerCard = document.createElement('div');
+            mergerCard.className = 'merger-card';
+            mergerCard.textContent = `${business.name} (Level ${business.level})`;
+            mergerCard.onclick = () => toggleBusinessSelection(index);
+
+            mergerList.appendChild(mergerCard);
+        }
+    });
+}
 
 
 
@@ -601,3 +613,4 @@ calculateOfflineIncome();
 openTab('clicker');
 updateStats();
 renderBusinesses();
+renderMergerBusinesses();
