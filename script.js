@@ -275,7 +275,6 @@ function closeBusiness(index) {
     }
 }
 
-let bankBalance = 10000000; // Example bank balance; adjust as needed
 let bank = {
     name: 'Bank',
     level: 1,
@@ -289,6 +288,38 @@ let bank = {
     imageSrc: 'images/Bank.jpg',
     type: 'bank'
 };
+
+let bankBalance = 10000000; // Example bank balance; adjust as needed
+
+// Function to fill the vault with money from the bank balance
+function fillVault() {
+    const bank = businesses.find(business => business.type === 'bank');
+    if (!bank) return; // Exit if no bank is found
+
+    let amountNeeded = bank.maxVaultStorage - bank.currentMoneyInVault;
+
+    if (bankBalance >= amountNeeded) {
+        bank.currentMoneyInVault = bank.maxVaultStorage;
+        bankBalance -= amountNeeded;
+    } else {
+        bank.currentMoneyInVault += bankBalance;
+        bankBalance = 0;
+    }
+
+    // Ensure currentMoneyInVault does not exceed maxVaultStorage
+    if (bank.currentMoneyInVault > bank.maxVaultStorage) {
+        bank.currentMoneyInVault = bank.maxVaultStorage;
+    }
+
+    console.log(`Vault filled to ${bank.currentMoneyInVault}, Bank balance is now ${bankBalance}`);
+}
+
+// Function to check if the vault is maxed out
+function isVaultMaxed() {
+    const bank = businesses.find(business => business.type === 'bank');
+    return bank && bank.currentMoneyInVault === bank.maxVaultStorage;
+}
+
 
 function openBankPopup(index) {
     const bank = businesses[index];
@@ -337,29 +368,6 @@ setInterval(() => {
     calculateBankIncome();
     calculateIncome();
 }, 1000); // 1 second in milliseconds
-
-// Function to fill the vault with money from the bank balance
-function fillVault() {
-    const bank = businesses.find(business => business.type === 'bank');
-    if (!bank) return; // Exit if no bank is found
-
-    let amountNeeded = bank.maxVaultStorage - bank.currentMoneyInVault;
-
-    if (bankBalance >= amountNeeded) {
-        bank.currentMoneyInVault = bank.maxVaultStorage;
-        bankBalance -= amountNeeded;
-    } else {
-        bank.currentMoneyInVault += bankBalance;
-        bankBalance = 0;
-    }
-
-    // Ensure currentMoneyInVault does not exceed maxVaultStorage
-    if (bank.currentMoneyInVault > bank.maxVaultStorage) {
-        bank.currentMoneyInVault = bank.maxVaultStorage;
-    }
-
-    console.log(`Vault filled to ${bank.currentMoneyInVault}, Bank balance is now ${bankBalance}`);
-}
 
 // Function to check if the vault is maxed out
 function isVaultMaxed() {
