@@ -39,6 +39,7 @@
       z-index: 10;
     }
 
+    /* Orbit paths */
     .orbit {
       position: absolute;
       border: 1px solid rgba(255, 255, 255, 0.3); /* Light orbit path */
@@ -48,7 +49,6 @@
       transform: translate(-50%, -50%);
     }
 
-    /* Orbit paths */
     .orbit-mercury { width: 200px; height: 200px; }
     .orbit-venus { width: 260px; height: 260px; }
     .orbit-earth { width: 320px; height: 320px; }
@@ -58,13 +58,17 @@
     .orbit-uranus { width: 560px; height: 560px; }
     .orbit-neptune { width: 620px; height: 620px; }
 
+    /* Planets inside orbits */
     .planet {
       position: absolute;
       width: 15px;
       height: 15px;
       border-radius: 50%;
       background-color: white;
-      animation: orbit infinite linear;
+      top: 50%;
+      left: 50%;
+      transform-origin: 100% 50%;
+      animation: orbitAnimation infinite linear;
     }
 
     /* Planets with unique distances and colors */
@@ -108,7 +112,8 @@
       animation-duration: 22s;
     }
 
-    @keyframes orbit {
+    /* Keyframes for planet orbit animation */
+    @keyframes orbitAnimation {
       from {
         transform: rotate(0deg);
       }
@@ -123,24 +128,30 @@
     <div class="sun"></div>
     
     <!-- Orbit paths -->
-    <div class="orbit orbit-mercury"></div>
-    <div class="orbit orbit-venus"></div>
-    <div class="orbit orbit-earth"></div>
-    <div class="orbit orbit-mars"></div>
-    <div class="orbit orbit-jupiter"></div>
-    <div class="orbit orbit-saturn"></div>
-    <div class="orbit orbit-uranus"></div>
-    <div class="orbit orbit-neptune"></div>
-
-    <!-- Planets -->
-    <div class="planet mercury"></div>
-    <div class="planet venus"></div>
-    <div class="planet earth"></div>
-    <div class="planet mars"></div>
-    <div class="planet jupiter"></div>
-    <div class="planet saturn"></div>
-    <div class="planet uranus"></div>
-    <div class="planet neptune"></div>
+    <div class="orbit-mercury">
+      <div class="mercury"></div>
+    </div>
+    <div class="orbit-venus">
+      <div class="venus"></div>
+    </div>
+    <div class="orbit-earth">
+      <div class="earth"></div>
+    </div>
+    <div class="orbit-mars">
+      <div class=mars"></div>
+    </div>
+    <div class="orbit-jupiter">
+      <div class="jupiter"></div>
+    </div>
+    <div class="orbit-saturn">
+      <div class="saturn"></div>
+    </div>
+    <div class="orbit-uranus">
+      <div class="uranus"></div>
+    </div>
+    <div class="orbit-neptune">
+      <div class="neptune"></div>
+    </div>
   </div>
 </body>
 </html>
