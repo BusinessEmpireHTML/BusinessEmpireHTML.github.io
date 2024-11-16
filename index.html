@@ -23,14 +23,14 @@ body {
 
 .solar-system {
   position: relative;
-  width: 800px;
-  height: 800px;
+  width: 400px;
+  height: 400px;
 }
 
 .sun {
   position: absolute;
-  width: 100px;
-  height: 100px;
+  width: 80px;
+  height: 80px;
   background-color: yellow;
   border-radius: 50%;
   top: 50%;
@@ -41,8 +41,8 @@ body {
 
 .planet {
   position: absolute;
-  width: 20px;
-  height: 20px;
+  width: 15px;
+  height: 15px;
   border-radius: 50%;
   background-color: white;
   animation: orbit infinite linear;
@@ -51,49 +51,49 @@ body {
 .mercury {
   background-color: gray;
   animation-duration: 5s;
-  transform-origin: 140px 140px; /* Increased distance from the sun */
+  transform-origin: 100px 100px; /* Closer to sun */
 }
 
 .venus {
   background-color: orange;
   animation-duration: 8s;
-  transform-origin: 180px 180px;
+  transform-origin: 130px 130px;
 }
 
 .earth {
   background-color: blue;
   animation-duration: 10s;
-  transform-origin: 220px 220px;
+  transform-origin: 160px 160px;
 }
 
 .mars {
   background-color: red;
   animation-duration: 12s;
-  transform-origin: 260px 260px;
+  transform-origin: 190px 190px;
 }
 
 .jupiter {
   background-color: brown;
   animation-duration: 15s;
-  transform-origin: 300px 300px;
+  transform-origin: 220px 220px;
 }
 
 .saturn {
   background-color: goldenrod;
   animation-duration: 18s;
-  transform-origin: 340px 340px;
+  transform-origin: 250px 250px;
 }
 
 .uranus {
   background-color: lightblue;
   animation-duration: 20s;
-  transform-origin: 380px 380px;
+  transform-origin: 280px 280px;
 }
 
 .neptune {
   background-color: darkblue;
   animation-duration: 22s;
-  transform-origin: 420px 420px;
+  transform-origin: 310px 310px;
 }
 
 @keyframes orbit {
