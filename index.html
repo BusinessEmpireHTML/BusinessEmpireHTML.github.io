@@ -23,8 +23,8 @@
 
     .solar-system {
       position: relative;
-      width: 800px;
-      height: 800px;
+      width: 400px;
+      height: 400px;
     }
 
     .sun {
@@ -71,49 +71,57 @@
     .mercury {
       background-color: gray;
       animation-duration: 5s;
+      transform-origin: 100px 100px;
     }
 
     .venus {
       background-color: orange;
       animation-duration: 8s;
+      transform-origin: 130px 130px;
     }
 
     .earth {
       background-color: blue;
       animation-duration: 10s;
+      transform-origin: 160px 160px;
     }
 
     .mars {
       background-color: red;
       animation-duration: 12s;
+      transform-origin: 190px 190px;
     }
 
     .jupiter {
       background-color: brown;
       animation-duration: 15s;
+      transform-origin: 220px 220px;
     }
 
     .saturn {
       background-color: goldenrod;
       animation-duration: 18s;
+      transform-origin: 250px 250px;
     }
 
     .uranus {
       background-color: lightblue;
       animation-duration: 20s;
+      transform-origin: 280px 280px;
     }
 
     .neptune {
       background-color: darkblue;
       animation-duration: 22s;
+      transform-origin: 310px 310px;
     }
 
     @keyframes orbit {
       from {
-        transform: rotate(0deg);
+        transform: rotate(0deg) translateX(0px);
       }
       to {
-        transform: rotate(360deg);
+        transform: rotate(360deg) translateX(0px);
       }
     }
   </style>
@@ -123,24 +131,24 @@
     <div class="sun"></div>
     
     <!-- Orbit paths -->
-    <div class="orbit-mercury"></div>
-    <div class="orbit-venus"></div>
-    <div class="orbit-earth"></div>
-    <div class="orbit-mars"></div>
-    <div class="orbit-jupiter"></div>
-    <div class="orbit-saturn"></div>
-    <div class="orbit-uranus"></div>
-    <div class="orbit-neptune"></div>
+    <div class="orbit orbit-mercury"></div>
+    <div class="orbit orbit-venus"></div>
+    <div class="orbit orbit-earth"></div>
+    <div class="orbit orbit-mars"></div>
+    <div class="orbit orbit-jupiter"></div>
+    <div class="orbit orbit-saturn"></div>
+    <div class="orbit orbit-uranus"></div>
+    <div class="orbit orbit-neptune"></div>
 
     <!-- Planets -->
-    <div class="mercury"></div>
-    <div class="venus"></div>
-    <div class="earth"></div>
-    <div class="mars"></div>
-    <div class="jupiter"></div>
-    <div class="saturn"></div>
-    <div class="uranus"></div>
-    <div class="neptune"></div>
+    <div class="planet mercury"></div>
+    <div class="planet venus"></div>
+    <div class="planet earth"></div>
+    <div class="planet mars"></div>
+    <div class="planet jupiter"></div>
+    <div class="planet saturn"></div>
+    <div class="planet uranus"></div>
+    <div class="planet neptune"></div>
   </div>
 </body>
 </html>
