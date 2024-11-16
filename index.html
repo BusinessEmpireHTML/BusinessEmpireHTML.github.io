@@ -17,7 +17,7 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: #000; /* Dark background for visibility */
+  background: #000;
   overflow: hidden;
 }
 
@@ -25,7 +25,6 @@ body {
   position: relative;
   width: 600px;
   height: 600px;
-  border: 2px solid white; /* Border for visibility */
 }
 
 .sun {
@@ -37,7 +36,7 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  z-index: 10; /* Ensure the sun is above other elements */
+  z-index: 10;
 }
 
 .planet {
@@ -47,55 +46,55 @@ body {
   border-radius: 50%;
   background-color: white;
   animation: orbit infinite linear;
-  transform-origin: 300px 300px; /* Center origin for orbit */
+  transform-origin: 300px 300px;
 }
 
 .mercury {
   background-color: gray;
   animation-duration: 5s;
-  transform: rotate(0deg) translateX(60px);
+  transform: rotate(0deg) translateX(80px);
 }
 
 .venus {
   background-color: orange;
   animation-duration: 8s;
-  transform: rotate(0deg) translateX(100px);
+  transform: rotate(0deg) translateX(120px);
 }
 
 .earth {
   background-color: blue;
   animation-duration: 10s;
-  transform: rotate(0deg) translateX(140px);
+  transform: rotate(0deg) translateX(160px);
 }
 
 .mars {
   background-color: red;
   animation-duration: 12s;
-  transform: rotate(0deg) translateX(180px);
+  transform: rotate(0deg) translateX(200px);
 }
 
 .jupiter {
   background-color: brown;
   animation-duration: 15s;
-  transform: rotate(0deg) translateX(220px);
+  transform: rotate(0deg) translateX(240px);
 }
 
 .saturn {
   background-color: goldenrod;
   animation-duration: 18s;
-  transform: rotate(0deg) translateX(260px);
+  transform: rotate(0deg) translateX(280px);
 }
 
 .uranus {
   background-color: lightblue;
   animation-duration: 20s;
-  transform: rotate(0deg) translateX(300px);
+  transform: rotate(0deg) translateX(320px);
 }
 
 .neptune {
   background-color: darkblue;
   animation-duration: 22s;
-  transform: rotate(0deg) translateX(340px);
+  transform: rotate(0deg) translateX(360px);
 }
 
 @keyframes orbit {
