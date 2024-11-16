@@ -5,60 +5,107 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Solar System Test</title>
   <style>
-    /* Reset */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+   /* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background: #000;
-      overflow: hidden;
-    }
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #000; /* Dark background for visibility */
+  overflow: hidden;
+}
 
-    .solar-system {
-      position: relative;
-      width: 600px;
-      height: 600px;
-      border: 2px solid white;
-    }
+.solar-system {
+  position: relative;
+  width: 600px;
+  height: 600px;
+  border: 2px solid white; /* Border for visibility */
+}
 
-    .sun {
-      position: absolute;
-      width: 100px;
-      height: 100px;
-      background-color: yellow;
-      border-radius: 50%;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 10;
-    }
+.sun {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  background-color: yellow;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10; /* Ensure the sun is above other elements */
+}
 
-    .planet {
-      position: absolute;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background-color: white;
-      animation: orbit infinite linear;
-      transform-origin: 300px 300px;
-    }
+.planet {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: white;
+  animation: orbit infinite linear;
+  transform-origin: 300px 300px; /* Center origin for orbit */
+}
 
-    .mercury { background-color: gray; animation-duration: 5s; transform: rotate(0deg) translateX(60px); }
-    .venus { background-color: orange; animation-duration: 8s; transform: rotate(0deg) translateX(100px); }
-    .earth { background-color: blue; animation-duration: 10s; transform: rotate(0deg) translateX(140px); }
-    .mars { background-color: red; animation-duration: 12s; transform: rotate(0deg) translateX(180px); }
-    .jupiter { background-color: brown; animation-duration: 15s; transform: rotate(0deg) translateX(220px); }
-    .saturn { background-color: goldenrod; animation-duration: 18s; transform: rotate(0deg) translateX(260px); }
-    .uranus { background-color: lightblue; animation-duration: 20s; transform: rotate(0deg) translateX(300px); }
-    .neptune { background-color: darkblue; animation-duration: 22s; transform: rotate(0deg) translateX(340px); }
+.mercury {
+  background-color: gray;
+  animation-duration: 5s;
+  transform: rotate(0deg) translateX(60px);
+}
 
-    @keyframes orbit {
-      from { transform: rotate(0deg) translateX(60px); }
-      to { transform: rotate(360deg) translateX(60px); }
-    }
+.venus {
+  background-color: orange;
+  animation-duration: 8s;
+  transform: rotate(0deg) translateX(100px);
+}
+
+.earth {
+  background-color: blue;
+  animation-duration: 10s;
+  transform: rotate(0deg) translateX(140px);
+}
+
+.mars {
+  background-color: red;
+  animation-duration: 12s;
+  transform: rotate(0deg) translateX(180px);
+}
+
+.jupiter {
+  background-color: brown;
+  animation-duration: 15s;
+  transform: rotate(0deg) translateX(220px);
+}
+
+.saturn {
+  background-color: goldenrod;
+  animation-duration: 18s;
+  transform: rotate(0deg) translateX(260px);
+}
+
+.uranus {
+  background-color: lightblue;
+  animation-duration: 20s;
+  transform: rotate(0deg) translateX(300px);
+}
+
+.neptune {
+  background-color: darkblue;
+  animation-duration: 22s;
+  transform: rotate(0deg) translateX(340px);
+}
+
+@keyframes orbit {
+  from {
+    transform: rotate(0deg) translateX(60px);
+  }
+  to {
+    transform: rotate(360deg) translateX(60px);
+  }
+}
   </style>
 </head>
 <body>
