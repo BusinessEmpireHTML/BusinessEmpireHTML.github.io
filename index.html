@@ -65,63 +65,64 @@
       border-radius: 50%;
       background-color: white;
       animation: orbit infinite linear;
+      transform-origin: 50% 50%; /* Center the rotation */
     }
 
-    /* Planets with unique distances and colors */
+    /* Planets with unique distances, colors, and initial positions */
     .mercury {
       background-color: gray;
       animation-duration: 5s;
-      transform-origin: 100px 100px;
+      transform: rotate(0deg) translateX(100px);
     }
 
     .venus {
       background-color: orange;
       animation-duration: 8s;
-      transform-origin: 130px 130px;
+      transform: rotate(0deg) translateX(130px);
     }
 
     .earth {
       background-color: blue;
       animation-duration: 10s;
-      transform-origin: 160px 160px;
+      transform: rotate(0deg) translateX(160px);
     }
 
     .mars {
       background-color: red;
       animation-duration: 12s;
-      transform-origin: 190px 190px;
+      transform: rotate(0deg) translateX(190px);
     }
 
     .jupiter {
       background-color: brown;
       animation-duration: 15s;
-      transform-origin: 220px 220px;
+      transform: rotate(0deg) translateX(220px);
     }
 
     .saturn {
       background-color: goldenrod;
       animation-duration: 18s;
-      transform-origin: 250px 250px;
+      transform: rotate(0deg) translateX(250px);
     }
 
     .uranus {
       background-color: lightblue;
       animation-duration: 20s;
-      transform-origin: 280px 280px;
+      transform: rotate(0deg) translateX(280px);
     }
 
     .neptune {
       background-color: darkblue;
       animation-duration: 22s;
-      transform-origin: 310px 310px;
+      transform: rotate(0deg) translateX(310px);
     }
 
     @keyframes orbit {
       from {
-        transform: rotate(0deg) translateX(0px);
+        transform: rotate(0deg) translateX(var(--radius));
       }
       to {
-        transform: rotate(360deg) translateX(0px);
+        transform: rotate(360deg) translateX(var(--radius));
       }
     }
   </style>
