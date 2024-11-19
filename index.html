@@ -23,8 +23,8 @@
 
     .solar-system {
       position: relative;
-      width: 400px;
-      height: 400px;
+      width: 620px; /* Size based on the largest orbit */
+      height: 620px;
     }
 
     .sun {
@@ -65,13 +65,15 @@
       border-radius: 50%;
       background-color: white;
       animation: orbit infinite linear;
-      transform-origin: 50% 50%; /* Center the rotation */
+      top: 50%; /* Start planets in the center */
+      left: 50%;
+      transform-origin: 0px -1px; /* Ensure each planet's orbit centers on the sun */
     }
 
-    /* Planets with unique distances, colors, and animation speeds */
+    /* Planets with unique colors, animation speeds, and radii */
     .mercury {
       background-color: gray;
-      animation-duration: .12s;
+      animation-duration: 5s;
       --radius: 100px;
     }
 
