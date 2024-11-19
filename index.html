@@ -23,14 +23,14 @@ body {
 
 .solar-system {
   position: relative;
-  width: 600px;
-  height: 600px;
+  width: 400px;
+  height: 400px;
 }
 
 .sun {
   position: absolute;
-  width: 100px;
-  height: 100px;
+  width: 80px;
+  height: 80px;
   background-color: yellow;
   border-radius: 50%;
   top: 50%;
@@ -41,68 +41,67 @@ body {
 
 .planet {
   position: absolute;
-  width: 20px;
-  height: 20px;
+  width: 15px;
+  height: 15px;
   border-radius: 50%;
   background-color: white;
   animation: orbit infinite linear;
-  transform-origin: 300px 300px;
 }
 
 .mercury {
   background-color: gray;
   animation-duration: 5s;
-  transform: rotate(0deg) translateX(80px);
+  transform-origin: 100px 100px; /* Closer to sun */
 }
 
 .venus {
   background-color: orange;
   animation-duration: 8s;
-  transform: rotate(0deg) translateX(120px);
+  transform-origin: 130px 130px;
 }
 
 .earth {
   background-color: blue;
   animation-duration: 10s;
-  transform: rotate(0deg) translateX(160px);
+  transform-origin: 160px 160px;
 }
 
 .mars {
   background-color: red;
   animation-duration: 12s;
-  transform: rotate(0deg) translateX(200px);
+  transform-origin: 190px 190px;
 }
 
 .jupiter {
   background-color: brown;
   animation-duration: 15s;
-  transform: rotate(0deg) translateX(240px);
+  transform-origin: 220px 220px;
 }
 
 .saturn {
   background-color: goldenrod;
   animation-duration: 18s;
-  transform: rotate(0deg) translateX(280px);
+  transform-origin: 250px 250px;
 }
 
 .uranus {
   background-color: lightblue;
   animation-duration: 20s;
-  transform: rotate(0deg) translateX(320px);
+  transform-origin: 280px 280px;
 }
 
 .neptune {
   background-color: darkblue;
   animation-duration: 22s;
-  transform: rotate(0deg) translateX(360px);
+  transform-origin: 310px 310px;
 }
 
 @keyframes orbit {
   from {
-    transform: rotate(0deg) translateX(60px);
+    transform: rotate(0deg) translateX(0px);
   }
   to {
-    transform: rotate(360deg) translateX(60px);
+    transform: rotate(360deg) translateX(0px);
   }
 }
   </style>
