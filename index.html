@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Solar System with Orbits</title>
+  <title>Solar System with Orbits - Debugging</title>
   <style>
     /* Reset */
     * {
@@ -25,6 +25,7 @@
       position: relative;
       width: 640px;
       height: 640px;
+      border: 1px solid white; /* Add border for debugging */
     }
 
     .sun {
@@ -37,11 +38,12 @@
       left: 50%;
       transform: translate(-50%, -50%);
       z-index: 10;
+      border: 2px solid orange; /* Border to make sun more visible */
     }
 
     .orbit {
       position: absolute;
-      border: 1px solid rgba(255, 255, 255, 0.3); /* Light orbit path */
+      border: 1px solid rgba(255, 255, 255, 0.6); /* Light orbit path for visibility */
       border-radius: 50%;
       top: 50%;
       left: 50%;
@@ -64,59 +66,52 @@
       height: 15px;
       border-radius: 50%;
       background-color: white;
+      border: 1px solid #000; /* Add border for visibility */
       top: 50%; /* Center vertically */
       left: 50%; /* Center horizontally */
-      transform-origin: 0 -50%; /* Center rotation at top of the planet's orbit */
+      transform-origin: center; /* Debug: set origin to center */
       animation: orbit infinite linear;
     }
 
-    /* Planets with unique colors and distances */
+    /* Planets with unique colors and animation durations */
     .mercury {
       background-color: gray;
       animation-duration: 5s;
-      transform: rotate(0deg) translateX(100px); /* Position at orbit radius */
     }
 
     .venus {
       background-color: orange;
       animation-duration: 8s;
-      transform: rotate(0deg) translateX(130px);
     }
 
     .earth {
       background-color: blue;
       animation-duration: 10s;
-      transform: rotate(0deg) translateX(160px);
     }
 
     .mars {
       background-color: red;
       animation-duration: 12s;
-      transform: rotate(0deg) translateX(190px);
     }
 
     .jupiter {
       background-color: brown;
       animation-duration: 15s;
-      transform: rotate(0deg) translateX(220px);
     }
 
     .saturn {
       background-color: goldenrod;
       animation-duration: 18s;
-      transform: rotate(0deg) translateX(250px);
     }
 
     .uranus {
       background-color: lightblue;
       animation-duration: 20s;
-      transform: rotate(0deg) translateX(280px);
     }
 
     .neptune {
       background-color: darkblue;
       animation-duration: 22s;
-      transform: rotate(0deg) translateX(310px);
     }
 
     /* Keyframes for orbit animation */
