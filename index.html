@@ -3,155 +3,193 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Solar System with Orbits</title>
+  <title>BigNumber Demo</title>
   <style>
-    /* Reset */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
     body {
+      font-family: Arial, sans-serif;
+      background-color: #1e1e2f;
+      color: #ffffff;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
-      height: 100vh;
-      background: #000;
-      overflow: hidden;
+      padding: 20px;
     }
 
-    .solar-system {
-      position: relative;
-      width: 620px; /* Size based on the largest orbit */
-      height: 620px;
+    h1 {
+      color: #00e0ff;
     }
 
-    .sun {
-      position: absolute;
-      width: 80px;
-      height: 80px;
-      background-color: yellow;
-      border-radius: 50%;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 10;
+    .input-section {
+      margin-bottom: 20px;
     }
 
-    .orbit {
-      position: absolute;
-      border: 1px solid rgba(255, 255, 255, 0.3); /* Light orbit path */
-      border-radius: 50%;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+    .input-section label {
+      margin-right: 10px;
     }
 
-    /* Orbit paths */
-    .orbit-mercury { width: 220px; height: 220px; }
-    .orbit-venus { width: 275px; height: 275px; }
-    .orbit-earth { width: 340px; height: 340px; }
-    .orbit-mars { width: 399px; height: 399px; }
-    .orbit-jupiter { width: 458px; height: 458px; }
-    .orbit-saturn { width: 517px; height: 517px; }
-    .orbit-uranus { width: 576px; height: 576px; }
-    .orbit-neptune { width: 635px; height: 635px; }
-
-    .planet {
-      position: absolute;
-      width: 15px;
-      height: 15px;
-      border-radius: 50%;
-      background-color: white;
-      animation: orbit infinite linear;
-      top: 50%; /* Start planets in the center */
-      left: 50%;
-      transform-origin: 0px -1px; /* Ensure each planet's orbit centers on the sun */
+    button {
+      background-color: #00e0ff;
+      color: #1e1e2f;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      margin-left: 10px;
     }
 
-    /* Planets with unique colors, animation speeds, and radii */
-    .mercury {
-      background-color: gray;
-      animation-duration: 5s;
-      --radius: 100px;
+    button:hover {
+      background-color: #005c7f;
     }
 
-    .venus {
-      background-color: orange;
-      animation-duration: 7s;
-      --radius: 130px;
-    }
-
-    .earth {
-      background-color: blue;
-      animation-duration: 9s;
-      --radius: 160px;
-    }
-
-    .mars {
-      background-color: red;
-      animation-duration: 11s;
-      --radius: 190px;
-    }
-
-    .jupiter {
-      background-color: brown;
-      animation-duration: 13s;
-      --radius: 220px;
-    }
-
-    .saturn {
-      background-color: goldenrod;
-      animation-duration: 15s;
-      --radius: 250px;
-    }
-
-    .uranus {
-      background-color: lightblue;
-      animation-duration: 17s;
-      --radius: 280px;
-    }
-
-    .neptune {
-      background-color: darkblue;
-      animation-duration: 19s;
-      --radius: 310px;
-    }
-
-    @keyframes orbit {
-      from {
-        transform: rotate(0deg) translateX(var(--radius));
-      }
-      to {
-        transform: rotate(360deg) translateX(var(--radius));
-      }
+    .output {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #2e2e3e;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 600px;
+      word-wrap: break-word;
     }
   </style>
 </head>
 <body>
-  <div class="solar-system">
-    <div class="sun"></div>
-    
-    <!-- Orbit paths -->
-    <div class="orbit orbit-mercury"></div>
-    <div class="orbit orbit-venus"></div>
-    <div class="orbit orbit-earth"></div>
-    <div class="orbit orbit-mars"></div>
-    <div class="orbit orbit-jupiter"></div>
-    <div class="orbit orbit-saturn"></div>
-    <div class="orbit orbit-uranus"></div>
-    <div class="orbit orbit-neptune"></div>
+  <h1>BigNumber Demo</h1>
 
-    <!-- Planets -->
-    <div class="planet mercury"></div>
-    <div class="planet venus"></div>
-    <div class="planet earth"></div>
-    <div class="planet mars"></div>
-    <div class="planet jupiter"></div>
-    <div class="planet saturn"></div>
-    <div class="planet uranus"></div>
-    <div class="planet neptune"></div>
+  <div class="input-section">
+    <label for="coefficient1">Coefficient 1:</label>
+    <input type="number" id="coefficient1" step="any" value="1.5">
+    <label for="exponent1">Exponent 1:</label>
+    <input type="number" id="exponent1" value="12">
   </div>
+
+  <div class="input-section">
+    <label for="coefficient2">Coefficient 2:</label>
+    <input type="number" id="coefficient2" step="any" value="2.5">
+    <label for="exponent2">Exponent 2:</label>
+    <input type="number" id="exponent2" value="8">
+  </div>
+
+  <div>
+    <button onclick="performOperation('add')">Add</button>
+    <button onclick="performOperation('subtract')">Subtract</button>
+    <button onclick="performOperation('multiply')">Multiply</button>
+    <button onclick="performOperation('divide')">Divide</button>
+    <button onclick="performOperation('sqrt')">Square Root (First)</button>
+    <button onclick="performOperation('log')">Log Base 10 (First)</button>
+  </div>
+
+  <div class="output" id="output">Results will be displayed here...</div>
+
+  <script>
+    // BigNumber class implementation
+    class BigNumber {
+      constructor(coefficient = 1, exponent = 0) {
+        this.coefficient = coefficient;
+        this.exponent = exponent;
+        this.normalize();
+      }
+
+      normalize() {
+        if (this.coefficient === 0) {
+          this.exponent = 0;
+          return;
+        }
+        while (Math.abs(this.coefficient) >= 10) {
+          this.coefficient /= 10;
+          this.exponent++;
+        }
+        while (Math.abs(this.coefficient) < 1 && this.coefficient !== 0) {
+          this.coefficient *= 10;
+          this.exponent--;
+        }
+      }
+
+      add(other) {
+        if (this.exponent > other.exponent) {
+          const diff = this.exponent - other.exponent;
+          return new BigNumber(this.coefficient + other.coefficient / 10 ** diff, this.exponent);
+        } else if (this.exponent < other.exponent) {
+          const diff = other.exponent - this.exponent;
+          return new BigNumber(this.coefficient / 10 ** diff + other.coefficient, other.exponent);
+        } else {
+          return new BigNumber(this.coefficient + other.coefficient, this.exponent);
+        }
+      }
+
+      subtract(other) {
+        if (this.exponent > other.exponent) {
+          const diff = this.exponent - other.exponent;
+          return new BigNumber(this.coefficient - other.coefficient / 10 ** diff, this.exponent);
+        } else if (this.exponent < other.exponent) {
+          const diff = other.exponent - this.exponent;
+          return new BigNumber(this.coefficient / 10 ** diff - other.coefficient, other.exponent);
+        } else {
+          return new BigNumber(this.coefficient - other.coefficient, this.exponent);
+        }
+      }
+
+      multiply(other) {
+        return new BigNumber(this.coefficient * other.coefficient, this.exponent + other.exponent);
+      }
+
+      divide(other) {
+        return new BigNumber(this.coefficient / other.coefficient, this.exponent - other.exponent);
+      }
+
+      sqrt() {
+        return new BigNumber(Math.sqrt(this.coefficient), Math.floor(this.exponent / 2));
+      }
+
+      log(base = 10) {
+        return new BigNumber(Math.log10(this.coefficient) + this.exponent, 0);
+      }
+
+      toString() {
+        if (this.exponent < 9) {
+          const normalNumber = this.coefficient * 10 ** this.exponent;
+          if (normalNumber < 1000) return normalNumber.toFixed(2);
+          return Math.floor(normalNumber).toLocaleString();
+        } else {
+          return `${this.coefficient.toFixed(3)}e${this.exponent}`;
+        }
+      }
+    }
+
+    // Perform operations and update output
+    function performOperation(operation) {
+      const coefficient1 = parseFloat(document.getElementById('coefficient1').value);
+      const exponent1 = parseInt(document.getElementById('exponent1').value);
+      const coefficient2 = parseFloat(document.getElementById('coefficient2').value);
+      const exponent2 = parseInt(document.getElementById('exponent2').value);
+
+      const num1 = new BigNumber(coefficient1, exponent1);
+      const num2 = new BigNumber(coefficient2, exponent2);
+
+      let result;
+      switch (operation) {
+        case 'add':
+          result = num1.add(num2);
+          break;
+        case 'subtract':
+          result = num1.subtract(num2);
+          break;
+        case 'multiply':
+          result = num1.multiply(num2);
+          break;
+        case 'divide':
+          result = num1.divide(num2);
+          break;
+        case 'sqrt':
+          result = num1.sqrt();
+          break;
+        case 'log':
+          result = num1.log();
+          break;
+        default:
+          result = 'Invalid operation';
+      }
+
+      document.getElementById('output').innerText = `Result: ${result.toString()}`;
+    }
+  </script>
 </body>
 </html>
