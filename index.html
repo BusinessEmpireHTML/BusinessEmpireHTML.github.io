@@ -52,33 +52,32 @@
   </style>
 </head>
 <body>
-  <h1>BigNumber Demo</h1>
-
-  <div class="input-section">
+  <h1>BigNumber Math Operations</h1>
+  <div>
     <label for="coefficient1">Coefficient 1:</label>
-    <input type="number" id="coefficient1" step="any" value="1.5">
+    <input id="coefficient1" type="number" step="0.01" value="1">
     <label for="exponent1">Exponent 1:</label>
-    <input type="number" id="exponent1" value="12">
+    <input id="exponent1" type="number" value="0">
   </div>
-
-  <div class="input-section">
+  <div>
     <label for="coefficient2">Coefficient 2:</label>
-    <input type="number" id="coefficient2" step="any" value="2.5">
+    <input id="coefficient2" type="number" step="0.01" value="2">
     <label for="exponent2">Exponent 2:</label>
-    <input type="number" id="exponent2" value="8">
+    <input id="exponent2" type="number" value="0">
   </div>
-
   <div>
     <button onclick="performOperation('add')">Add</button>
     <button onclick="performOperation('subtract')">Subtract</button>
     <button onclick="performOperation('multiply')">Multiply</button>
     <button onclick="performOperation('divide')">Divide</button>
-    <button onclick="performOperation('sqrt')">Square Root (First)</button>
-    <button onclick="performOperation('log')">Log Base 10 (First)</button>
+    <button onclick="performOperation('sqrt')">Square Root</button>
+    <button onclick="performOperation('log')">Logarithm</button>
+    <button onclick="performOperation('power')">Power</button>
+    <button onclick="performOperation('abs')">Absolute Value</button>
+    <button onclick="performOperation('modulus')">Modulus</button>
+    <button onclick="performOperation('exp')">Exponential</button>
   </div>
-
-  <div class="output" id="output">Results will be displayed here...</div>
-
+  <p id="output">Result: </p>
   <script>
 class BigNumber {
   constructor(coefficient = 1, exponent = 0) {
@@ -140,6 +139,26 @@ class BigNumber {
 
   log(base = 10) {
     return new BigNumber(Math.log10(this.coefficient) + this.exponent, 0);
+  }
+
+  power(exp) {
+    const newCoefficient = Math.pow(this.coefficient, exp);
+    const newExponent = this.exponent * exp;
+    return new BigNumber(newCoefficient, newExponent);
+  }
+
+  abs() {
+    return new BigNumber(Math.abs(this.coefficient), this.exponent);
+  }
+
+  modulus(other) {
+    const modCoefficient = (this.coefficient * 10 ** this.exponent) % (other.coefficient * 10 ** other.exponent);
+    return new BigNumber(modCoefficient, 0);
+  }
+
+  exp() {
+    const result = Math.exp(this.coefficient * Math.pow(10, this.exponent));
+    return new BigNumber(result, 0);
   }
 
   toString() {
