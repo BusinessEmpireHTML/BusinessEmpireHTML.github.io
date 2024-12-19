@@ -80,7 +80,7 @@
   <div class="output" id="output">Results will be displayed here...</div>
 
   <script>
-    class BigNumber {
+class BigNumber {
   constructor(coefficient = 1, exponent = 0) {
     this.coefficient = coefficient;
     this.exponent = exponent;
@@ -152,8 +152,10 @@
         return Math.floor(normalNumber).toLocaleString(); // Commas for numbers below 1 billion
       }
     }
-    // Scientific notation for numbers 1 billion and above
-    return `${this.coefficient.toFixed(3)}e${this.exponent}`;
+
+    // Scientific notation with commas in the exponent
+    const formattedExponent = this.exponent.toLocaleString(); // Add commas to the exponent
+    return `${this.coefficient.toFixed(3)}e${formattedExponent}`;
   }
 }
 
