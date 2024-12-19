@@ -80,79 +80,82 @@
   <div class="output" id="output">Results will be displayed here...</div>
 
   <script>
-    // BigNumber class implementation
     class BigNumber {
-      constructor(coefficient = 1, exponent = 0) {
-        this.coefficient = coefficient;
-        this.exponent = exponent;
-        this.normalize();
-      }
+  constructor(coefficient = 1, exponent = 0) {
+    this.coefficient = coefficient;
+    this.exponent = exponent;
+    this.normalize();
+  }
 
-      normalize() {
-        if (this.coefficient === 0) {
-          this.exponent = 0;
-          return;
-        }
-        while (Math.abs(this.coefficient) >= 10) {
-          this.coefficient /= 10;
-          this.exponent++;
-        }
-        while (Math.abs(this.coefficient) < 1 && this.coefficient !== 0) {
-          this.coefficient *= 10;
-          this.exponent--;
-        }
-      }
+  normalize() {
+    if (this.coefficient === 0) {
+      this.exponent = 0;
+      return;
+    }
+    while (Math.abs(this.coefficient) >= 10) {
+      this.coefficient /= 10;
+      this.exponent++;
+    }
+    while (Math.abs(this.coefficient) < 1 && this.coefficient !== 0) {
+      this.coefficient *= 10;
+      this.exponent--;
+    }
+  }
 
-      add(other) {
-        if (this.exponent > other.exponent) {
-          const diff = this.exponent - other.exponent;
-          return new BigNumber(this.coefficient + other.coefficient / 10 ** diff, this.exponent);
-        } else if (this.exponent < other.exponent) {
-          const diff = other.exponent - this.exponent;
-          return new BigNumber(this.coefficient / 10 ** diff + other.coefficient, other.exponent);
-        } else {
-          return new BigNumber(this.coefficient + other.coefficient, this.exponent);
-        }
-      }
+  add(other) {
+    if (this.exponent > other.exponent) {
+      const diff = this.exponent - other.exponent;
+      return new BigNumber(this.coefficient + other.coefficient / 10 ** diff, this.exponent);
+    } else if (this.exponent < other.exponent) {
+      const diff = other.exponent - this.exponent;
+      return new BigNumber(this.coefficient / 10 ** diff + other.coefficient, other.exponent);
+    } else {
+      return new BigNumber(this.coefficient + other.coefficient, this.exponent);
+    }
+  }
 
-      subtract(other) {
-        if (this.exponent > other.exponent) {
-          const diff = this.exponent - other.exponent;
-          return new BigNumber(this.coefficient - other.coefficient / 10 ** diff, this.exponent);
-        } else if (this.exponent < other.exponent) {
-          const diff = other.exponent - this.exponent;
-          return new BigNumber(this.coefficient / 10 ** diff - other.coefficient, other.exponent);
-        } else {
-          return new BigNumber(this.coefficient - other.coefficient, this.exponent);
-        }
-      }
+  subtract(other) {
+    if (this.exponent > other.exponent) {
+      const diff = this.exponent - other.exponent;
+      return new BigNumber(this.coefficient - other.coefficient / 10 ** diff, this.exponent);
+    } else if (this.exponent < other.exponent) {
+      const diff = other.exponent - this.exponent;
+      return new BigNumber(this.coefficient / 10 ** diff - other.coefficient, other.exponent);
+    } else {
+      return new BigNumber(this.coefficient - other.coefficient, this.exponent);
+    }
+  }
 
-      multiply(other) {
-        return new BigNumber(this.coefficient * other.coefficient, this.exponent + other.exponent);
-      }
+  multiply(other) {
+    return new BigNumber(this.coefficient * other.coefficient, this.exponent + other.exponent);
+  }
 
-      divide(other) {
-        return new BigNumber(this.coefficient / other.coefficient, this.exponent - other.exponent);
-      }
+  divide(other) {
+    return new BigNumber(this.coefficient / other.coefficient, this.exponent - other.exponent);
+  }
 
-      sqrt() {
-        return new BigNumber(Math.sqrt(this.coefficient), Math.floor(this.exponent / 2));
-      }
+  sqrt() {
+    return new BigNumber(Math.sqrt(this.coefficient), Math.floor(this.exponent / 2));
+  }
 
-      log(base = 10) {
-        return new BigNumber(Math.log10(this.coefficient) + this.exponent, 0);
-      }
+  log(base = 10) {
+    return new BigNumber(Math.log10(this.coefficient) + this.exponent, 0);
+  }
 
-      toString() {
-        if (this.exponent < 9) {
-          const normalNumber = this.coefficient * 10 ** this.exponent;
-          if (normalNumber < 1000) return normalNumber.toFixed(2);
-          return Math.floor(normalNumber).toLocaleString();
-        } else {
-          return `${this.coefficient.toFixed(3)}e${this.exponent}`;
-        }
+  toString() {
+    if (this.exponent < 9) {
+      const normalNumber = this.coefficient * 10 ** this.exponent;
+
+      if (normalNumber < 1000) {
+        return normalNumber.toFixed(2); // Two decimal places for numbers below 1,000
+      } else if (normalNumber < 1_000_000_000) {
+        return Math.floor(normalNumber).toLocaleString(); // Commas for numbers below 1 billion
       }
     }
+    // Scientific notation for numbers 1 billion and above
+    return `${this.coefficient.toFixed(3)}e${this.exponent}`;
+  }
+}
 
     // Perform operations and update output
     function performOperation(operation) {
