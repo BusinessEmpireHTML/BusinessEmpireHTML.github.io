@@ -1,231 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BigNumber Demo</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #1e1e2f;
-      color: #ffffff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-    }
-
-    h1 {
-      color: #00e0ff;
-    }
-
-    .input-section {
-      margin-bottom: 20px;
-    }
-
-    .input-section label {
-      margin-right: 10px;
-    }
-
-    button {
-      background-color: #00e0ff;
-      color: #1e1e2f;
-      border: none;
-      padding: 10px 20px;
-      cursor: pointer;
-      margin-left: 10px;
-    }
-
-    button:hover {
-      background-color: #005c7f;
-    }
-
-    .output {
-      margin-top: 20px;
-      padding: 10px;
-      background-color: #2e2e3e;
-      border-radius: 8px;
-      width: 100%;
-      max-width: 600px;
-      word-wrap: break-word;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Empire Simulation</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <h1>BigNumber Math Operations</h1>
-  <div>
-    <label for="coefficient1">Coefficient 1:</label>
-    <input id="coefficient1" type="number" step="0.01" value="1">
-    <label for="exponent1">Exponent 1:</label>
-    <input id="exponent1" type="number" value="0">
-  </div>
-  <div>
-    <label for="coefficient2">Coefficient 2:</label>
-    <input id="coefficient2" type="number" step="0.01" value="2">
-    <label for="exponent2">Exponent 2:</label>
-    <input id="exponent2" type="number" value="0">
-  </div>
-  <div>
-    <button onclick="performOperation('add')">Add</button>
-    <button onclick="performOperation('subtract')">Subtract</button>
-    <button onclick="performOperation('multiply')">Multiply</button>
-    <button onclick="performOperation('divide')">Divide</button>
-    <button onclick="performOperation('sqrt')">Square Root</button>
-    <button onclick="performOperation('log')">Logarithm</button>
-    <button onclick="performOperation('power')">Power</button>
-    <button onclick="performOperation('abs')">Absolute Value</button>
-    <button onclick="performOperation('modulus')">Modulus</button>
-    <button onclick="performOperation('exp')">Exponential</button>
-  </div>
-  <p id="output">Result: </p>
-  <script>
-class BigNumber {
-  constructor(coefficient = 1, exponent = 0) {
-    this.coefficient = coefficient;
-    this.exponent = exponent;
-    this.normalize();
-  }
+    <div id="game">
+        <h1>Business Empire Simulation</h1>
+        <div class="tabs">
+            <button class="tab-button" onclick="openTab('clicker')">Clicker</button>
+            <button class="tab-button" onclick="openTab('investments')">Investing</button>
+            <button class="tab-button" onclick="openTab('businesses')">Businesses</button>
+            <button class="tab-button" onclick="openTab('items')">Items</button>
+            <button class="tab-button" onclick="openTab('profile')">Profile</button>
+        </div>
 
-  normalize() {
-    if (this.coefficient === 0) {
-      this.exponent = 0;
-      return;
-    }
-    while (Math.abs(this.coefficient) >= 10) {
-      this.coefficient /= 10;
-      this.exponent++;
-    }
-    while (Math.abs(this.coefficient) < 1 && this.coefficient !== 0) {
-      this.coefficient *= 10;
-      this.exponent--;
-    }
-  }
+        <div id="clicker" class="tab-content">
+            <div id="click-area" onclick="earnMoney()">Click to Earn Money</div>
+            <p>Cash: $<span id="cash-clicker">0</span></p> <!-- Updated ID -->
+            <p>Click Value: $<span id="clickValue">1</span></p>
+            <p>Hourly Income: $<span id="hourlyIncome-clicker">0</span></p> <!-- Updated ID -->
+        </div>
 
-  add(other) {
-    if (this.exponent > other.exponent) {
-      const diff = this.exponent - other.exponent;
-      return new BigNumber(this.coefficient + other.coefficient / 10 ** diff, this.exponent);
-    } else if (this.exponent < other.exponent) {
-      const diff = other.exponent - this.exponent;
-      return new BigNumber(this.coefficient / 10 ** diff + other.coefficient, other.exponent);
-    } else {
-      return new BigNumber(this.coefficient + other.coefficient, this.exponent);
-    }
-  }
+        <div id="investments" class="tab-content">
+            <button onclick="invest('stock')">Invest in Stock ($2000)</button>
+            <button onclick="invest('realEstate')">Invest in Real Estate ($8000)</button>
+        </div>
 
-  subtract(other) {
-    if (this.exponent > other.exponent) {
-      const diff = this.exponent - other.exponent;
-      return new BigNumber(this.coefficient - other.coefficient / 10 ** diff, this.exponent);
-    } else if (this.exponent < other.exponent) {
-      const diff = other.exponent - this.exponent;
-      return new BigNumber(this.coefficient / 10 ** diff - other.coefficient, other.exponent);
-    } else {
-      return new BigNumber(this.coefficient - other.coefficient, this.exponent);
-    }
-  }
+        <div id="businesses" class="tab-content">
+            <button class="button-rounded" onclick="openBuyBusinessPopup()">Buy A New Business</button>
+            <button class="button-rounded" onclick="openMergerPopup()">Merge Businesses</button>
+            <div id="business-list"></div>
+        </div>
 
-  multiply(other) {
-    return new BigNumber(this.coefficient * other.coefficient, this.exponent + other.exponent);
-  }
+        <div id="items" class="tab-content">
+            <p>Items like cars, houses, boats, islands, etc. can be listed here.</p>
+        </div>
 
-  divide(other) {
-    return new BigNumber(this.coefficient / other.coefficient, this.exponent - other.exponent);
-  }
+        <div id="profile" class="tab-content">
+            <p>Your total fortune: $<span id="cash-profile">0</span></p> <!-- Updated ID -->
+            <p>Hourly Income: $<span id="hourlyIncome-profile">0</span></p> <!-- Updated ID -->
+        </div>
 
-  sqrt() {
-    return new BigNumber(Math.sqrt(this.coefficient), Math.floor(this.exponent / 2));
-  }
-
-  log(base = 10) {
-    return new BigNumber(Math.log10(this.coefficient) + this.exponent, 0);
-  }
-
-  power(exp) {
-    const newCoefficient = Math.pow(this.coefficient, exp);
-    const newExponent = this.exponent * exp;
-    return new BigNumber(newCoefficient, newExponent);
-  }
-
-  abs() {
-    return new BigNumber(Math.abs(this.coefficient), this.exponent);
-  }
-
-  modulus(other) {
-    const modCoefficient = (this.coefficient * 10 ** this.exponent) % (other.coefficient * 10 ** other.exponent);
-    return new BigNumber(modCoefficient, 0);
-  }
-
-  exp() {
-    const result = Math.exp(this.coefficient * Math.pow(10, this.exponent));
-    return new BigNumber(result, 0);
-  }
-
-  toString() {
-    if (this.exponent < 9) {
-      const normalNumber = this.coefficient * 10 ** this.exponent;
-
-      if (normalNumber < 1000) {
-        return normalNumber.toFixed(2); // Two decimal places for numbers below 1,000
-      } else if (normalNumber < 1_000_000_000) {
-        return Math.floor(normalNumber).toLocaleString(); // Commas for numbers below 1 billion
-      }
-    }
-
-    // Scientific notation with commas in the exponent
-    const formattedExponent = this.exponent.toLocaleString(); // Add commas to the exponent
-    return `${this.coefficient.toFixed(3)}e${formattedExponent}`;
-  }
-}
-
-    // Perform operations and update output
-    function performOperation(operation) {
-      const coefficient1 = parseFloat(document.getElementById('coefficient1').value);
-      const exponent1 = parseInt(document.getElementById('exponent1').value);
-      const coefficient2 = parseFloat(document.getElementById('coefficient2').value);
-      const exponent2 = parseInt(document.getElementById('exponent2').value);
-
-      const num1 = new BigNumber(coefficient1, exponent1);
-      const num2 = new BigNumber(coefficient2, exponent2);
-
-      let result;
-      switch (operation) {
-        case 'add':
-          result = num1.add(num2);
-          break;
-        case 'subtract':
-          result = num1.subtract(num2);
-          break;
-        case 'multiply':
-          result = num1.multiply(num2);
-          break;
-        case 'divide':
-          result = num1.divide(num2);
-          break;
-        case 'sqrt':
-          result = num1.sqrt();
-          break;
-        case 'log':
-          result = num1.log();
-          break;
-        case 'power':
-          result = num1. power (2); // Example:
-         break;
-        case 'abs':
-         result = numi.abs();
-         break;
-        case 'modulus':
-         result = num1. modulus (num2) ;
-         break;
-        case 'exp':
-         result = num1. exp();
-         break;
-        default:
-          result = 'Invalid operation';
-      }
-
-      document.getElementById('output').innerText = `Result: ${result.toString()}`;
-    }
-  </script>
+        <div id="buy-business-popup" class="popup">
+            <h2>Buy a New Business</h2>
+            <!-- Updated prices for businesses -->
+            <button onclick="buyBusiness('lemonadeStand')">Buy Lemonade Stand - $500</button>
+            <button onclick="buyBusiness('carWash')">Buy Car Wash - $12,500</button>
+            <button onclick="buyBusiness('localShop')">Buy Local Shop - $45,000</button>
+            <button onclick="buyBusiness('factory')">Buy Factory - $150,000</button>
+            <button onclick="buyBusiness('legalClinic')">Buy Legal Clinic - $200,000</button>
+            <button onclick="buyBusiness('bank')">Buy Bank - $10,000,000</button>
+            <button onclick="closeBuyBusinessPopup()">Close</button>
+        </div>
+        <div id="bank-popup" class="popup">
+            <div class="popup-content">
+                <h2>Bank</h2>
+                <p>Hourly Income: $<span id="bank-hourly-income">100,000</span></p>
+                <p>Vault Storage: <span id="bank-vault-storage">$10,000,000 / $10,000,000</span></p>
+                <p>Upgrade Cost: $<span id="bank-upgrade-cost">5,000,000</span></p>
+                <button id="bank-upgrade-button" onclick="upgradeBankVault()">Upgrade Vault</button>
+                <button onclick="closeBankPopup()">Close</button>
+            </div>
+        </div>
+        
+        <div id="business-merger-popup" class="popup">
+            <h2>Business Merger</h2>
+            <p>Select two max-level businesses to merge them.</p>
+            <div id="merger-business-list"></div>
+            <button id="merge-button" onclick="mergeSelectedBusinesses()" disabled>Merge</button>
+            <button onclick="closeMergerPopup()">Close</button>
+        </div>        
+        <div id="upgrade-business-popup" class="popup">
+            <h2>Upgrade <span id="business-name"></span></h2>
+            <p>Current Level: <span id="business-level"></span></p>
+            <p>Current Income: $<span id="business-income"></span> per hour</p>
+            <p>Upgrade Cost: $<span id="business-upgrade-cost"></span></p>
+            <button id="upgrade-button" class="button-rounded">Upgrade</button>
+            <button id="close-button" class="button-rounded button-red">Close Business</button>
+            <button class="button-rounded button-white" onclick="closeUpgradeBusinessPopup()">Close</button>
+        </div>
+    </div>
+    <script src="main.js"></script>
+    <script src="bank.js"></script>
+    <script src="business.js"></script>
+    <script src="merger.js"></script>
 </body>
 </html>
