@@ -1,91 +1,313 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Business Empire Simulation</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8">
+  <title>Universe Explorer & Colony Builder</title>
+  <style>
+    body { margin: 0; overflow: hidden; background: #000; }
+    canvas { display: block; }
+    #hud {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+  </style>
 </head>
 <body>
-    <div id="game">
-        <h1>Business Empire Simulation</h1>
-        <div class="tabs">
-            <button class="tab-button" onclick="openTab('clicker')">Clicker</button>
-            <button class="tab-button" onclick="openTab('investments')">Investing</button>
-            <button class="tab-button" onclick="openTab('businesses')">Businesses</button>
-            <button class="tab-button" onclick="openTab('items')">Items</button>
-            <button class="tab-button" onclick="openTab('profile')">Profile</button>
-        </div>
+  <div id="hud">Loading...</div>
+  <!-- Three.js library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    /***************************************
+     * Scene, Camera, Renderer & Global Setup
+     ***************************************/
+    let scene, camera, renderer, clock;
+    initScene();
 
-        <div id="clicker" class="tab-content">
-            <div id="click-area" onclick="earnMoney()">Click to Earn Money</div>
-            <p>Cash: $<span id="cash-clicker">0</span></p> <!-- Updated ID -->
-            <p>Click Value: $<span id="clickValue">1</span></p>
-            <p>Hourly Income: $<span id="hourlyIncome-clicker">0</span></p> <!-- Updated ID -->
-        </div>
+    function initScene(){
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x000000);
 
-        <div id="investments" class="tab-content">
-            <button onclick="invest('stock')">Invest in Stock ($2000)</button>
-            <button onclick="invest('realEstate')">Invest in Real Estate ($8000)</button>
-        </div>
+      camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 10000);
+      camera.position.set(0, 50, 200);
 
-        <div id="businesses" class="tab-content">
-            <button class="button-rounded" onclick="openBuyBusinessPopup()">Buy A New Business</button>
-            <button class="button-rounded" onclick="openMergerPopup()">Merge Businesses</button>
-            <div id="business-list"></div>
-        </div>
+      renderer = new THREE.WebGLRenderer({antialias: true});
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
 
-        <div id="items" class="tab-content">
-            <p>Items like cars, houses, boats, islands, etc. can be listed here.</p>
-        </div>
+      clock = new THREE.Clock();
 
-        <div id="profile" class="tab-content">
-            <p>Your total fortune: $<span id="cash-profile">0</span></p> <!-- Updated ID -->
-            <p>Hourly Income: $<span id="hourlyIncome-profile">0</span></p> <!-- Updated ID -->
-        </div>
+      // Basic lighting: ambient & directional
+      let ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+      scene.add(ambientLight);
+      let directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+      directionalLight.position.set(100, 100, 100);
+      scene.add(directionalLight);
 
-        <div id="buy-business-popup" class="popup">
-            <h2>Buy a New Business</h2>
-            <!-- Updated prices for businesses -->
-            <button onclick="buyBusiness('lemonadeStand')">Buy Lemonade Stand - $500</button>
-            <button onclick="buyBusiness('carWash')">Buy Car Wash - $12,500</button>
-            <button onclick="buyBusiness('localShop')">Buy Local Shop - $45,000</button>
-            <button onclick="buyBusiness('factory')">Buy Factory - $150,000</button>
-            <button onclick="buyBusiness('legalClinic')">Buy Legal Clinic - $200,000</button>
-            <button onclick="buyBusiness('bank')">Buy Bank - $10,000,000</button>
-            <button onclick="closeBuyBusinessPopup()">Close</button>
-        </div>
-        <div id="bank-popup" class="popup">
-            <div class="popup-content">
-                <h2>Bank</h2>
-                <p>Hourly Income: $<span id="bank-hourly-income">100,000</span></p>
-                <p>Vault Storage: <span id="bank-vault-storage">$10,000,000 / $10,000,000</span></p>
-                <p>Upgrade Cost: $<span id="bank-upgrade-cost">5,000,000</span></p>
-                <button id="bank-upgrade-button" onclick="upgradeBankVault()">Upgrade Vault</button>
-                <button onclick="closeBankPopup()">Close</button>
-            </div>
-        </div>
+      window.addEventListener('resize', onWindowResize, false);
+    }
+
+    function onWindowResize(){
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    /***************************************
+     * Universe, Solar Systems, Planets & Colonies
+     ***************************************/
+    // The Universe class holds many solar systems, each with stars and planets.
+    class Universe {
+      constructor() {
+        this.solarSystems = [];
+        // Procedurally generate a few solar systems
+        for (let i = 0; i < 5; i++){
+          let system = new SolarSystem(i);
+          this.solarSystems.push(system);
+        }
+      }
+      update(delta){
+        this.solarSystems.forEach(system => system.update(delta));
+      }
+    }
+
+    // SolarSystem creates a central star and orbits of planets.
+    class SolarSystem {
+      constructor(id) {
+        this.id = id;
+        this.planets = [];
+        // Create a star for this system at a random location.
+        this.star = this.createStar();
+        scene.add(this.star);
+        // Generate planets (each with unique properties)
+        let numPlanets = Math.floor(Math.random() * 5) + 3; // Between 3 and 7 planets
+        for (let i = 0; i < numPlanets; i++){
+          let angle = Math.random() * Math.PI * 2;
+          let distance = 50 + i * 50 + Math.random() * 20;
+          let planet = new Planet(distance, angle);
+          this.planets.push(planet);
+          scene.add(planet.mesh);
+        }
+      }
+      
+      createStar(){
+        // Star rendered as a glowing yellow sphere.
+        let geometry = new THREE.SphereGeometry(10, 32, 32);
+        let material = new THREE.MeshBasicMaterial({color: 0xffff00});
+        let star = new THREE.Mesh(geometry, material);
+        star.position.set((Math.random()-0.5)*500, (Math.random()-0.5)*500, (Math.random()-0.5)*500);
+        return star;
+      }
+      
+      update(delta){
+        // Update each planet’s orbit.
+        this.planets.forEach(planet => planet.update(delta));
+      }
+    }
+
+    // Planet class defines orbital parameters and properties (habitable vs. hostile, resources, etc.)
+    class Planet {
+      constructor(distance, angle) {
+        this.distance = distance;
+        this.angle = angle;
+        // Randomly decide habitability (affects color and potential for colony)
+        this.habitable = Math.random() > 0.5;
+        // Generate random resource quantities
+        this.resources = {
+          iron: Math.floor(Math.random()*1000),
+          titanium: Math.floor(Math.random()*500),
+          hydrogen: Math.floor(Math.random()*2000),
+          rareCrystals: Math.floor(Math.random()*200)
+        };
+        // Create a planet mesh – size and color vary based on habitability.
+        let geometry = new THREE.SphereGeometry(5 + Math.random()*5, 32, 32);
+        let color = this.habitable ? 0x00ff00 : 0xff0000;
+        let material = new THREE.MeshLambertMaterial({color: color});
+        this.mesh = new THREE.Mesh(geometry, material);
+        this.updatePosition();
+
+        // Colony can be built if conditions are met.
+        this.colony = null;
+      }
+      
+      updatePosition(){
+        // Calculate orbiting position around a central star assumed at the origin.
+        let x = this.distance * Math.cos(this.angle);
+        let z = this.distance * Math.sin(this.angle);
+        this.mesh.position.set(x, 0, z);
+      }
+      
+      update(delta){
+        // Advance orbit over time.
+        this.angle += delta * 0.1;
+        this.updatePosition();
+      }
+      
+      // Method to build a colony on this planet if habitable.
+      buildColony(){
+        if (this.habitable && !this.colony){
+          this.colony = new Colony(this);
+        }
+      }
+    }
+
+    // Colony class for colonization and resource management.
+    class Colony {
+      constructor(planet) {
+        this.planet = planet;
+        this.population = 10;
+        this.resourceStorage = {iron: 0, titanium: 0, hydrogen: 0, rareCrystals: 0};
+        this.buildings = [];
+        // Render a colony marker (a small dome) on the planet.
+        let geometry = new THREE.SphereGeometry(1.5, 16, 16);
+        let material = new THREE.MeshBasicMaterial({color: 0xffffff});
+        this.mesh = new THREE.Mesh(geometry, material);
+        this.mesh.position.copy(planet.mesh.position);
+        scene.add(this.mesh);
+      }
+      
+      update(delta){
+        // Update logic for resource consumption, growth, etc.
+      }
+    }
+
+    /***************************************
+     * Spaceship & Navigation (Player-controlled)
+     ***************************************/
+    // Ship class with basic physics properties, thrust controls and upgradeable stats.
+    class Ship {
+      constructor(){
+        // Create a simple cone geometry to represent the ship.
+        let geometry = new THREE.ConeGeometry(2, 6, 16);
+        let material = new THREE.MeshLambertMaterial({color: 0x00ffff});
+        this.mesh = new THREE.Mesh(geometry, material);
+        // Rotate so that the ship “points” forward.
+        this.mesh.rotation.x = Math.PI/2;
+        scene.add(this.mesh);
         
-        <div id="business-merger-popup" class="popup">
-            <h2>Business Merger</h2>
-            <p>Select two max-level businesses to merge them.</p>
-            <div id="merger-business-list"></div>
-            <button id="merge-button" onclick="mergeSelectedBusinesses()" disabled>Merge</button>
-            <button onclick="closeMergerPopup()">Close</button>
-        </div>        
-        <div id="upgrade-business-popup" class="popup">
-            <h2>Upgrade <span id="business-name"></span></h2>
-            <p>Current Level: <span id="business-level"></span></p>
-            <p>Current Income: $<span id="business-income"></span> per hour</p>
-            <p>Upgrade Cost: $<span id="business-upgrade-cost"></span></p>
-            <button id="upgrade-button" class="button-rounded">Upgrade</button>
-            <button id="close-button" class="button-rounded button-red">Close Business</button>
-            <button class="button-rounded button-white" onclick="closeUpgradeBusinessPopup()">Close</button>
-        </div>
-    </div>
-    <script src="main.js"></script>
-    <script src="bank.js"></script>
-    <script src="business.js"></script>
-    <script src="merger.js"></script>
+        // Physics properties.
+        this.velocity = new THREE.Vector3();
+        this.acceleration = new THREE.Vector3();
+        this.maxSpeed = 50;
+        this.position = this.mesh.position;
+        
+        // Navigation and upgradeable stats.
+        this.fuel = 100;
+        this.shields = 100;
+      }
+      
+      update(delta){
+        // Update velocity based on applied acceleration.
+        this.velocity.add(this.acceleration.clone().multiplyScalar(delta));
+        // Limit to maximum speed.
+        if (this.velocity.length() > this.maxSpeed){
+          this.velocity.setLength(this.maxSpeed);
+        }
+        // Update position.
+        this.position.add(this.velocity.clone().multiplyScalar(delta));
+        // Reset acceleration after each update.
+        this.acceleration.set(0,0,0);
+      }
+      
+      // Apply thrust in a specified direction.
+      applyThrust(direction, power){
+        this.acceleration.add(direction.normalize().multiplyScalar(power));
+        // Fuel consumption based on thrust.
+        this.fuel = Math.max(0, this.fuel - power * 0.1);
+      }
+    }
+
+    /***************************************
+     * Player Input & Controls
+     ***************************************/
+    const ship = new Ship();
+    document.addEventListener('keydown', onKeyDown);
+    document.addEventListener('keyup', onKeyUp);
+    let keysPressed = {};
+    function onKeyDown(event){
+      keysPressed[event.code] = true;
+    }
+    function onKeyUp(event){
+      keysPressed[event.code] = false;
+    }
+
+    // Map keys to ship thrust and rotation.
+    function processInput(delta){
+      // Forward thrust: ArrowUp or W key.
+      if(keysPressed['ArrowUp'] || keysPressed['KeyW']){
+        // Thrust in the ship's local forward direction.
+        let forward = new THREE.Vector3(0,0,-1).applyQuaternion(ship.mesh.quaternion);
+        ship.applyThrust(forward, 10);
+      }
+      // Reverse thrust.
+      if(keysPressed['ArrowDown'] || keysPressed['KeyS']){
+        let backward = new THREE.Vector3(0,0,1).applyQuaternion(ship.mesh.quaternion);
+        ship.applyThrust(backward, 10);
+      }
+      // Yaw left/right.
+      if(keysPressed['ArrowLeft'] || keysPressed['KeyA']){
+        ship.mesh.rotation.y += delta;
+      }
+      if(keysPressed['ArrowRight'] || keysPressed['KeyD']){
+        ship.mesh.rotation.y -= delta;
+      }
+    }
+
+    /***************************************
+     * Game World Initialization
+     ***************************************/
+    // Create the universe (with solar systems, stars, and planets)
+    const universe = new Universe();
+
+    // HUD element for displaying ship and game stats.
+    const hud = document.getElementById('hud');
+    function updateHUD(){
+      hud.innerHTML = `Fuel: ${ship.fuel.toFixed(2)} | Shields: ${ship.shields} | Position: (${ship.position.x.toFixed(1)}, ${ship.position.y.toFixed(1)}, ${ship.position.z.toFixed(1)})`;
+    }
+
+    /***************************************
+     * Main Game Loop
+     ***************************************/
+    function animate(){
+      requestAnimationFrame(animate);
+      let delta = clock.getDelta();
+      
+      processInput(delta);
+      ship.update(delta);
+      universe.update(delta);
+      
+      // Update the camera to follow the ship smoothly.
+      camera.position.lerp(new THREE.Vector3(ship.position.x, ship.position.y+50, ship.position.z+100), 0.05);
+      camera.lookAt(ship.position);
+      
+      updateHUD();
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    /***************************************
+     * Additional Features & Placeholders
+     ***************************************/
+    // Multiplayer & Persistence:
+    //   Integration with Node.js servers and cloud databases (like Firebase or IndexedDB)
+    //   would be added here to support real-time multiplayer exploration and persistent game states.
+
+    // AI & NPCs:
+    //   NPC ships (pirates, traders, alien factions) can be implemented with similar class structures
+    //   and integrated into the game loop with their own behavior patterns.
+
+    // Colony Management & Planetary Landing:
+    //   Proximity detection between the ship and a planet would trigger landing events.
+    //   A separate UI/scene would be created for detailed colony-building and planetary surface management.
+
+    // Research, Tech Tree, and Dynamic Galactic Events:
+    //   A module to handle research progression, terraforming, cosmic events (like supernovae or black hole time dilation),
+    //   and custom ship design could be integrated as the game scales.
+  </script>
 </body>
 </html>
