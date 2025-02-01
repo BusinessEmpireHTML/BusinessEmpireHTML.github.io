@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Universe Explorer & Colony Builder</title>
+  <title>Universe Explorer & Colony Builder (Mobile Enhanced)</title>
   <style>
     body { margin: 0; overflow: hidden; background: #000; }
     canvas { display: block; }
@@ -15,11 +15,68 @@
       background: rgba(0, 0, 0, 0.5);
       padding: 5px 10px;
       border-radius: 5px;
+      z-index: 2;
+    }
+    /* Minimap */
+    #minimap {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(50, 50, 50, 0.7);
+      border: 1px solid #fff;
+      z-index: 2;
+    }
+    /* Mobile Joystick (left bottom) */
+    #joystick {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      width: 100px;
+      height: 100px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid #fff;
+      border-radius: 50%;
+      z-index: 2;
+      touch-action: none;
+    }
+    /* Joystick knob */
+    #joystickKnob {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 50%;
+      top: 30px;
+      left: 30px;
+      pointer-events: none;
+    }
+    /* Action Button (right bottom) */
+    #actionButton {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      width: 80px;
+      height: 80px;
+      background: rgba(0, 200, 0, 0.6);
+      border: 2px solid #fff;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 80px;
+      font-size: 18px;
+      color: #fff;
+      z-index: 2;
+      user-select: none;
     }
   </style>
 </head>
 <body>
   <div id="hud">Loading...</div>
+  <canvas id="minimap" width="150" height="150"></canvas>
+  <div id="joystick">
+    <div id="joystickKnob"></div>
+  </div>
+  <div id="actionButton">Colony</div>
+  
   <!-- Three.js library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script>
@@ -42,7 +99,7 @@
 
       clock = new THREE.Clock();
 
-      // Basic lighting: ambient & directional
+      // Basic lighting
       let ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
       scene.add(ambientLight);
       let directionalLight = new THREE.DirectionalLight(0xffffff, 1);
@@ -61,7 +118,6 @@
     /***************************************
      * Universe, Solar Systems, Planets & Colonies
      ***************************************/
-    // The Universe class holds many solar systems, each with stars and planets.
     class Universe {
       constructor() {
         this.solarSystems = [];
@@ -76,16 +132,13 @@
       }
     }
 
-    // SolarSystem creates a central star and orbits of planets.
     class SolarSystem {
       constructor(id) {
         this.id = id;
         this.planets = [];
-        // Create a star for this system at a random location.
         this.star = this.createStar();
         scene.add(this.star);
-        // Generate planets (each with unique properties)
-        let numPlanets = Math.floor(Math.random() * 5) + 3; // Between 3 and 7 planets
+        let numPlanets = Math.floor(Math.random() * 5) + 3; // 3-7 planets
         for (let i = 0; i < numPlanets; i++){
           let angle = Math.random() * Math.PI * 2;
           let distance = 50 + i * 50 + Math.random() * 20;
@@ -96,7 +149,6 @@
       }
       
       createStar(){
-        // Star rendered as a glowing yellow sphere.
         let geometry = new THREE.SphereGeometry(10, 32, 32);
         let material = new THREE.MeshBasicMaterial({color: 0xffff00});
         let star = new THREE.Mesh(geometry, material);
@@ -105,50 +157,41 @@
       }
       
       update(delta){
-        // Update each planet’s orbit.
         this.planets.forEach(planet => planet.update(delta));
       }
     }
 
-    // Planet class defines orbital parameters and properties (habitable vs. hostile, resources, etc.)
     class Planet {
       constructor(distance, angle) {
         this.distance = distance;
         this.angle = angle;
-        // Randomly decide habitability (affects color and potential for colony)
         this.habitable = Math.random() > 0.5;
-        // Generate random resource quantities
         this.resources = {
           iron: Math.floor(Math.random()*1000),
           titanium: Math.floor(Math.random()*500),
           hydrogen: Math.floor(Math.random()*2000),
           rareCrystals: Math.floor(Math.random()*200)
         };
-        // Create a planet mesh – size and color vary based on habitability.
         let geometry = new THREE.SphereGeometry(5 + Math.random()*5, 32, 32);
         let color = this.habitable ? 0x00ff00 : 0xff0000;
         let material = new THREE.MeshLambertMaterial({color: color});
         this.mesh = new THREE.Mesh(geometry, material);
         this.updatePosition();
-
-        // Colony can be built if conditions are met.
         this.colony = null;
       }
       
       updatePosition(){
-        // Calculate orbiting position around a central star assumed at the origin.
         let x = this.distance * Math.cos(this.angle);
         let z = this.distance * Math.sin(this.angle);
         this.mesh.position.set(x, 0, z);
       }
       
       update(delta){
-        // Advance orbit over time.
         this.angle += delta * 0.1;
         this.updatePosition();
       }
       
-      // Method to build a colony on this planet if habitable.
+      // Build a colony if possible
       buildColony(){
         if (this.habitable && !this.colony){
           this.colony = new Colony(this);
@@ -156,14 +199,12 @@
       }
     }
 
-    // Colony class for colonization and resource management.
     class Colony {
       constructor(planet) {
         this.planet = planet;
         this.population = 10;
         this.resourceStorage = {iron: 0, titanium: 0, hydrogen: 0, rareCrystals: 0};
         this.buildings = [];
-        // Render a colony marker (a small dome) on the planet.
         let geometry = new THREE.SphereGeometry(1.5, 16, 16);
         let material = new THREE.MeshBasicMaterial({color: 0xffffff});
         this.mesh = new THREE.Mesh(geometry, material);
@@ -172,52 +213,39 @@
       }
       
       update(delta){
-        // Update logic for resource consumption, growth, etc.
+        // Colony update logic goes here.
       }
     }
 
     /***************************************
      * Spaceship & Navigation (Player-controlled)
      ***************************************/
-    // Ship class with basic physics properties, thrust controls and upgradeable stats.
     class Ship {
       constructor(){
-        // Create a simple cone geometry to represent the ship.
         let geometry = new THREE.ConeGeometry(2, 6, 16);
         let material = new THREE.MeshLambertMaterial({color: 0x00ffff});
         this.mesh = new THREE.Mesh(geometry, material);
-        // Rotate so that the ship “points” forward.
         this.mesh.rotation.x = Math.PI/2;
         scene.add(this.mesh);
         
-        // Physics properties.
         this.velocity = new THREE.Vector3();
         this.acceleration = new THREE.Vector3();
         this.maxSpeed = 50;
-        this.position = this.mesh.position;
-        
-        // Navigation and upgradeable stats.
         this.fuel = 100;
         this.shields = 100;
       }
       
       update(delta){
-        // Update velocity based on applied acceleration.
         this.velocity.add(this.acceleration.clone().multiplyScalar(delta));
-        // Limit to maximum speed.
         if (this.velocity.length() > this.maxSpeed){
           this.velocity.setLength(this.maxSpeed);
         }
-        // Update position.
-        this.position.add(this.velocity.clone().multiplyScalar(delta));
-        // Reset acceleration after each update.
+        this.mesh.position.add(this.velocity.clone().multiplyScalar(delta));
         this.acceleration.set(0,0,0);
       }
       
-      // Apply thrust in a specified direction.
       applyThrust(direction, power){
         this.acceleration.add(direction.normalize().multiplyScalar(power));
-        // Fuel consumption based on thrust.
         this.fuel = Math.max(0, this.fuel - power * 0.1);
       }
     }
@@ -226,30 +254,19 @@
      * Player Input & Controls
      ***************************************/
     const ship = new Ship();
-    document.addEventListener('keydown', onKeyDown);
-    document.addEventListener('keyup', onKeyUp);
     let keysPressed = {};
-    function onKeyDown(event){
-      keysPressed[event.code] = true;
-    }
-    function onKeyUp(event){
-      keysPressed[event.code] = false;
-    }
+    document.addEventListener('keydown', (event) => { keysPressed[event.code] = true; });
+    document.addEventListener('keyup', (event) => { keysPressed[event.code] = false; });
 
-    // Map keys to ship thrust and rotation.
-    function processInput(delta){
-      // Forward thrust: ArrowUp or W key.
+    function processKeyboardInput(delta){
       if(keysPressed['ArrowUp'] || keysPressed['KeyW']){
-        // Thrust in the ship's local forward direction.
         let forward = new THREE.Vector3(0,0,-1).applyQuaternion(ship.mesh.quaternion);
         ship.applyThrust(forward, 10);
       }
-      // Reverse thrust.
       if(keysPressed['ArrowDown'] || keysPressed['KeyS']){
         let backward = new THREE.Vector3(0,0,1).applyQuaternion(ship.mesh.quaternion);
         ship.applyThrust(backward, 10);
       }
-      // Yaw left/right.
       if(keysPressed['ArrowLeft'] || keysPressed['KeyA']){
         ship.mesh.rotation.y += delta;
       }
@@ -259,16 +276,126 @@
     }
 
     /***************************************
+     * Mobile Controls: Virtual Joystick & Action Button
+     ***************************************/
+    const joystick = document.getElementById('joystick');
+    const joystickKnob = document.getElementById('joystickKnob');
+    let joystickActive = false;
+    let joystickOrigin = { x: 0, y: 0 };
+
+    joystick.addEventListener('touchstart', (event) => {
+      event.preventDefault();
+      joystickActive = true;
+      let touch = event.touches[0];
+      let rect = joystick.getBoundingClientRect();
+      joystickOrigin = { x: rect.left + rect.width/2, y: rect.top + rect.height/2 };
+      // Position knob at the touch point relative to joystick.
+      updateJoystickKnob(touch.clientX, touch.clientY);
+    });
+
+    joystick.addEventListener('touchmove', (event) => {
+      if (!joystickActive) return;
+      let touch = event.touches[0];
+      updateJoystickKnob(touch.clientX, touch.clientY);
+      // Calculate offset from center.
+      let offsetX = touch.clientX - joystickOrigin.x;
+      let offsetY = touch.clientY - joystickOrigin.y;
+      // Determine thrust direction from offset.
+      let thrustDirection = new THREE.Vector3(offsetX, 0, offsetY * -1); // Invert Y for 3D coordinate
+      // Scale power relative to maximum displacement (limit at 40 pixels).
+      let maxDistance = 40;
+      let distance = Math.min(Math.sqrt(offsetX * offsetX + offsetY * offsetY), maxDistance);
+      let power = (distance / maxDistance) * 10;
+      ship.applyThrust(thrustDirection, power);
+    });
+
+    joystick.addEventListener('touchend', (event) => {
+      joystickActive = false;
+      // Return knob to center.
+      joystickKnob.style.left = "30px";
+      joystickKnob.style.top = "30px";
+    });
+
+    function updateJoystickKnob(clientX, clientY){
+      let rect = joystick.getBoundingClientRect();
+      let offsetX = clientX - (rect.left + rect.width/2);
+      let offsetY = clientY - (rect.top + rect.height/2);
+      // Limit the knob movement to within the joystick circle.
+      let maxOffset = 30;
+      let distance = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
+      if(distance > maxOffset){
+        offsetX = (offsetX / distance) * maxOffset;
+        offsetY = (offsetY / distance) * maxOffset;
+      }
+      joystickKnob.style.left = (30 + offsetX) + "px";
+      joystickKnob.style.top = (30 + offsetY) + "px";
+    }
+
+    // Action button to build a colony if near a habitable planet.
+    const actionButton = document.getElementById('actionButton');
+    actionButton.addEventListener('touchstart', (event) => {
+      event.preventDefault();
+      attemptColonyBuild();
+    });
+    actionButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      attemptColonyBuild();
+    });
+
+    // Check if ship is close enough to any habitable planet to build a colony.
+    function attemptColonyBuild(){
+      const threshold = 10; // Distance threshold
+      for (let system of universe.solarSystems) {
+        for (let planet of system.planets) {
+          let shipPos = ship.mesh.position;
+          let planetPos = planet.mesh.position;
+          if (shipPos.distanceTo(planetPos) < threshold && planet.habitable && !planet.colony){
+            planet.buildColony();
+            console.log("Colony established on planet at", planetPos);
+            return;
+          }
+        }
+      }
+      console.log("No suitable planet nearby for colony building.");
+    }
+
+    /***************************************
+     * HUD & Minimap
+     ***************************************/
+    const hud = document.getElementById('hud');
+    const minimap = document.getElementById('minimap');
+    const minimapCtx = minimap.getContext('2d');
+    function updateHUD(){
+      hud.innerHTML = `Fuel: ${ship.fuel.toFixed(2)} | Shields: ${ship.shields} <br>
+                       Position: (${ship.mesh.position.x.toFixed(1)}, ${ship.mesh.position.y.toFixed(1)}, ${ship.mesh.position.z.toFixed(1)})`;
+    }
+    // Simple minimap: draws ship as a white dot and planets as colored dots.
+    function updateMinimap(){
+      minimapCtx.clearRect(0, 0, minimap.width, minimap.height);
+      // Center of minimap.
+      let centerX = minimap.width / 2, centerY = minimap.height / 2;
+      // Scale down positions.
+      let scale = 0.1;
+      // Draw ship.
+      minimapCtx.fillStyle = "#ffffff";
+      minimapCtx.beginPath();
+      minimapCtx.arc(centerX + ship.mesh.position.x * scale, centerY + ship.mesh.position.z * scale, 3, 0, Math.PI*2);
+      minimapCtx.fill();
+      // Draw planets from all solar systems.
+      universe.solarSystems.forEach(system => {
+        system.planets.forEach(planet => {
+          minimapCtx.fillStyle = planet.habitable ? "#00ff00" : "#ff0000";
+          minimapCtx.beginPath();
+          minimapCtx.arc(centerX + planet.mesh.position.x * scale, centerY + planet.mesh.position.z * scale, 2, 0, Math.PI*2);
+          minimapCtx.fill();
+        });
+      });
+    }
+
+    /***************************************
      * Game World Initialization
      ***************************************/
-    // Create the universe (with solar systems, stars, and planets)
     const universe = new Universe();
-
-    // HUD element for displaying ship and game stats.
-    const hud = document.getElementById('hud');
-    function updateHUD(){
-      hud.innerHTML = `Fuel: ${ship.fuel.toFixed(2)} | Shields: ${ship.shields} | Position: (${ship.position.x.toFixed(1)}, ${ship.position.y.toFixed(1)}, ${ship.position.z.toFixed(1)})`;
-    }
 
     /***************************************
      * Main Game Loop
@@ -277,15 +404,17 @@
       requestAnimationFrame(animate);
       let delta = clock.getDelta();
       
-      processInput(delta);
+      // Process both keyboard and mobile inputs.
+      processKeyboardInput(delta);
       ship.update(delta);
       universe.update(delta);
       
-      // Update the camera to follow the ship smoothly.
-      camera.position.lerp(new THREE.Vector3(ship.position.x, ship.position.y+50, ship.position.z+100), 0.05);
-      camera.lookAt(ship.position);
+      // Smooth camera follow.
+      camera.position.lerp(new THREE.Vector3(ship.mesh.position.x, ship.mesh.position.y+50, ship.mesh.position.z+100), 0.05);
+      camera.lookAt(ship.mesh.position);
       
       updateHUD();
+      updateMinimap();
       renderer.render(scene, camera);
     }
     animate();
@@ -293,21 +422,9 @@
     /***************************************
      * Additional Features & Placeholders
      ***************************************/
-    // Multiplayer & Persistence:
-    //   Integration with Node.js servers and cloud databases (like Firebase or IndexedDB)
-    //   would be added here to support real-time multiplayer exploration and persistent game states.
-
-    // AI & NPCs:
-    //   NPC ships (pirates, traders, alien factions) can be implemented with similar class structures
-    //   and integrated into the game loop with their own behavior patterns.
-
-    // Colony Management & Planetary Landing:
-    //   Proximity detection between the ship and a planet would trigger landing events.
-    //   A separate UI/scene would be created for detailed colony-building and planetary surface management.
-
-    // Research, Tech Tree, and Dynamic Galactic Events:
-    //   A module to handle research progression, terraforming, cosmic events (like supernovae or black hole time dilation),
-    //   and custom ship design could be integrated as the game scales.
+    // Multiplayer, AI, research/tech tree and dynamic galactic events can be integrated here.
+    // You might add particle effects for engine thrust, improved physics, and a detailed UI for colony management.
   </script>
 </body>
 </html>
+
