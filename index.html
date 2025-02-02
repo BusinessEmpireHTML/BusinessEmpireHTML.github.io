@@ -1,430 +1,229 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Universe Explorer & Colony Builder (Mobile Enhanced)</title>
+  <meta charset="UTF-8">
+  <title>Galaxy Explorer Idle Game</title>
   <style>
-    body { margin: 0; overflow: hidden; background: #000; }
-    canvas { display: block; }
-    #hud {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      color: #fff;
+    body {
+      background: radial-gradient(ellipse at center, #000 0%, #111 100%);
+      color: #ddd;
       font-family: Arial, sans-serif;
-      background: rgba(0, 0, 0, 0.5);
-      padding: 5px 10px;
-      border-radius: 5px;
-      z-index: 2;
+      margin: 0;
+      padding: 20px;
     }
-    /* Minimap */
-    #minimap {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: rgba(50, 50, 50, 0.7);
-      border: 1px solid #fff;
-      z-index: 2;
-    }
-    /* Mobile Joystick (left bottom) */
-    #joystick {
-      position: absolute;
-      bottom: 20px;
-      left: 20px;
-      width: 100px;
-      height: 100px;
-      background: rgba(255, 255, 255, 0.1);
-      border: 2px solid #fff;
-      border-radius: 50%;
-      z-index: 2;
-      touch-action: none;
-    }
-    /* Joystick knob */
-    #joystickKnob {
-      position: absolute;
-      width: 40px;
-      height: 40px;
-      background: rgba(255, 255, 255, 0.5);
-      border-radius: 50%;
-      top: 30px;
-      left: 30px;
-      pointer-events: none;
-    }
-    /* Action Button (right bottom) */
-    #actionButton {
-      position: absolute;
-      bottom: 20px;
-      right: 20px;
-      width: 80px;
-      height: 80px;
-      background: rgba(0, 200, 0, 0.6);
-      border: 2px solid #fff;
-      border-radius: 50%;
+    h1 {
       text-align: center;
-      line-height: 80px;
-      font-size: 18px;
-      color: #fff;
-      z-index: 2;
-      user-select: none;
+      font-size: 3em;
+      margin-bottom: 0.2em;
     }
+    #game {
+      max-width: 800px;
+      margin: auto;
+      background-color: rgba(0, 0, 0, 0.5);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #000;
+    }
+    #resources p, #status p {
+      font-size: 1.2em;
+      margin: 5px 0;
+    }
+    #actions {
+      margin-top: 20px;
+      text-align: center;
+    }
+    #actions button {
+      margin: 5px;
+      padding: 10px 15px;
+      font-size: 1em;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      background-color: #444;
+      color: #fff;
+      transition: background-color 0.3s;
+    }
+    #actions button:hover {
+      background-color: #666;
+    }
+    /* Optional: add a background audio element or animated sprites for extra immersion */
   </style>
 </head>
 <body>
-  <div id="hud">Loading...</div>
-  <canvas id="minimap" width="150" height="150"></canvas>
-  <div id="joystick">
-    <div id="joystickKnob"></div>
+  <div id="game">
+    <h1>Galaxy Explorer</h1>
+    
+    <!-- Display Resources -->
+    <div id="resources">
+      <p>Energy: <span id="energy">0</span></p>
+      <p>Minerals: <span id="minerals">0</span></p>
+      <p>Research Data: <span id="research">0</span></p>
+      <p>Tech Level: <span id="techLevel">0</span></p>
+      <p>Colonies: <span id="colonies">0</span></p>
+      <p>Prestige Bonus: <span id="prestigeBonus">0</span></p>
+    </div>
+
+    <!-- Action Buttons -->
+    <div id="actions">
+      <button onclick="generateResources()">Gather Resources</button>
+      <button onclick="explore()">Explore</button>
+      <button onclick="colonize()">Colonize</button>
+      <button onclick="researchTech()">Research Technology</button>
+      <button onclick="trade()">Trade with Aliens</button>
+      <button onclick="activateAutomation()">Activate Automation</button>
+      <button onclick="prestige()">Prestige Reset</button>
+    </div>
+    
+    <!-- Message/Status Area -->
+    <div id="status">
+      <p id="message">Welcome, Captain! Begin your journey by gathering resources.</p>
+    </div>
   </div>
-  <div id="actionButton">Colony</div>
-  
-  <!-- Three.js library -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
   <script>
-    /***************************************
-     * Scene, Camera, Renderer & Global Setup
-     ***************************************/
-    let scene, camera, renderer, clock;
-    initScene();
+    // Main game object to hold state and progression values
+    let game = {
+      energy: 0,
+      minerals: 0,
+      research: 0,
+      techLevel: 0,
+      colonies: 0,
+      prestigeBonus: 0,
+      automationActive: false,
+      autoInterval: null
+    };
 
-    function initScene(){
-      scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x000000);
-
-      camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 10000);
-      camera.position.set(0, 50, 200);
-
-      renderer = new THREE.WebGLRenderer({antialias: true});
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      document.body.appendChild(renderer.domElement);
-
-      clock = new THREE.Clock();
-
-      // Basic lighting
-      let ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-      scene.add(ambientLight);
-      let directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-      directionalLight.position.set(100, 100, 100);
-      scene.add(directionalLight);
-
-      window.addEventListener('resize', onWindowResize, false);
+    // Update all on-screen values
+    function updateDisplay() {
+      document.getElementById("energy").innerText = game.energy;
+      document.getElementById("minerals").innerText = game.minerals;
+      document.getElementById("research").innerText = game.research;
+      document.getElementById("techLevel").innerText = game.techLevel;
+      document.getElementById("colonies").innerText = game.colonies;
+      document.getElementById("prestigeBonus").innerText = game.prestigeBonus;
     }
 
-    function onWindowResize(){
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
+    // Display messages in the status area
+    function showMessage(message) {
+      document.getElementById("message").innerText = message;
     }
 
-    /***************************************
-     * Universe, Solar Systems, Planets & Colonies
-     ***************************************/
-    class Universe {
-      constructor() {
-        this.solarSystems = [];
-        // Procedurally generate a few solar systems
-        for (let i = 0; i < 5; i++){
-          let system = new SolarSystem(i);
-          this.solarSystems.push(system);
-        }
-      }
-      update(delta){
-        this.solarSystems.forEach(system => system.update(delta));
-      }
+    // Resource Generation:
+    // Gathers resources based on tech, colonies, and prestige bonus.
+    function generateResources() {
+      const energyGain = 1 + game.techLevel + game.prestigeBonus;
+      const mineralGain = 1 + game.colonies;
+      const researchGain = 1 + Math.floor(game.techLevel / 2);
+      game.energy += energyGain;
+      game.minerals += mineralGain;
+      game.research += researchGain;
+      updateDisplay();
+      showMessage(`Resources gathered! Energy +${energyGain}, Minerals +${mineralGain}, Research Data +${researchGain}`);
     }
 
-    class SolarSystem {
-      constructor(id) {
-        this.id = id;
-        this.planets = [];
-        this.star = this.createStar();
-        scene.add(this.star);
-        let numPlanets = Math.floor(Math.random() * 5) + 3; // 3-7 planets
-        for (let i = 0; i < numPlanets; i++){
-          let angle = Math.random() * Math.PI * 2;
-          let distance = 50 + i * 50 + Math.random() * 20;
-          let planet = new Planet(distance, angle);
-          this.planets.push(planet);
-          scene.add(planet.mesh);
-        }
+    // Exploration:
+    // Simulates a space mission with randomized outcomes.
+    function explore() {
+      const outcome = Math.random();
+      if (outcome < 0.3) {
+        const bonus = Math.floor(Math.random() * 10) + 5;
+        game.energy += bonus;
+        showMessage(`Exploration success! Discovered a solar anomaly: Energy +${bonus}`);
+      } else if (outcome < 0.6) {
+        const bonus = Math.floor(Math.random() * 10) + 5;
+        game.minerals += bonus;
+        showMessage(`Exploration success! Found a rich asteroid field: Minerals +${bonus}`);
+      } else if (outcome < 0.9) {
+        const bonus = Math.floor(Math.random() * 10) + 5;
+        game.research += bonus;
+        showMessage(`Exploration success! Uncovered alien ruins: Research Data +${bonus}`);
+      } else {
+        showMessage("Exploration yielded nothing this time. Try again!");
       }
-      
-      createStar(){
-        let geometry = new THREE.SphereGeometry(10, 32, 32);
-        let material = new THREE.MeshBasicMaterial({color: 0xffff00});
-        let star = new THREE.Mesh(geometry, material);
-        star.position.set((Math.random()-0.5)*500, (Math.random()-0.5)*500, (Math.random()-0.5)*500);
-        return star;
-      }
-      
-      update(delta){
-        this.planets.forEach(planet => planet.update(delta));
-      }
+      updateDisplay();
     }
 
-    class Planet {
-      constructor(distance, angle) {
-        this.distance = distance;
-        this.angle = angle;
-        this.habitable = Math.random() > 0.5;
-        this.resources = {
-          iron: Math.floor(Math.random()*1000),
-          titanium: Math.floor(Math.random()*500),
-          hydrogen: Math.floor(Math.random()*2000),
-          rareCrystals: Math.floor(Math.random()*200)
-        };
-        let geometry = new THREE.SphereGeometry(5 + Math.random()*5, 32, 32);
-        let color = this.habitable ? 0x00ff00 : 0xff0000;
-        let material = new THREE.MeshLambertMaterial({color: color});
-        this.mesh = new THREE.Mesh(geometry, material);
-        this.updatePosition();
-        this.colony = null;
+    // Colonization:
+    // Uses minerals and energy to establish a new colony.
+    function colonize() {
+      if (game.minerals >= 50 && game.energy >= 50) {
+        game.minerals -= 50;
+        game.energy -= 50;
+        game.colonies++;
+        showMessage(`New colony established! Total colonies: ${game.colonies}`);
+      } else {
+        showMessage("Not enough resources to colonize. (Requires 50 Energy & 50 Minerals)");
       }
-      
-      updatePosition(){
-        let x = this.distance * Math.cos(this.angle);
-        let z = this.distance * Math.sin(this.angle);
-        this.mesh.position.set(x, 0, z);
-      }
-      
-      update(delta){
-        this.angle += delta * 0.1;
-        this.updatePosition();
-      }
-      
-      // Build a colony if possible
-      buildColony(){
-        if (this.habitable && !this.colony){
-          this.colony = new Colony(this);
-        }
-      }
+      updateDisplay();
     }
 
-    class Colony {
-      constructor(planet) {
-        this.planet = planet;
-        this.population = 10;
-        this.resourceStorage = {iron: 0, titanium: 0, hydrogen: 0, rareCrystals: 0};
-        this.buildings = [];
-        let geometry = new THREE.SphereGeometry(1.5, 16, 16);
-        let material = new THREE.MeshBasicMaterial({color: 0xffffff});
-        this.mesh = new THREE.Mesh(geometry, material);
-        this.mesh.position.copy(planet.mesh.position);
-        scene.add(this.mesh);
+    // Technology Tree:
+    // Research new tech levels using research data.
+    function researchTech() {
+      if (game.research >= 30) {
+        game.research -= 30;
+        game.techLevel++;
+        showMessage(`Technology advanced! Tech Level is now ${game.techLevel}`);
+      } else {
+        showMessage("Insufficient research data. (Requires 30 Research Data)");
       }
-      
-      update(delta){
-        // Colony update logic goes here.
+      updateDisplay();
+    }
+
+    // Trade and Diplomacy:
+    // Randomly trade with alien civilizations for bonus resources.
+    function trade() {
+      const chance = Math.random();
+      if (chance < 0.5) {
+        const bonus = 20;
+        game.energy += bonus;
+        showMessage(`Trade success! Alien civilization supplied Energy +${bonus}`);
+      } else {
+        const bonus = 20;
+        game.minerals += bonus;
+        showMessage(`Trade success! Received Minerals +${bonus} from an alien ally`);
+      }
+      updateDisplay();
+    }
+
+    // Automation:
+    // Once activated, this system will automatically gather resources at intervals.
+    function activateAutomation() {
+      if (!game.automationActive) {
+        game.automationActive = true;
+        game.autoInterval = setInterval(generateResources, 2000);
+        showMessage("Automation activated: Resources will be gathered automatically every 2 seconds.");
+      } else {
+        showMessage("Automation is already active.");
       }
     }
 
-    /***************************************
-     * Spaceship & Navigation (Player-controlled)
-     ***************************************/
-    class Ship {
-      constructor(){
-        let geometry = new THREE.ConeGeometry(2, 6, 16);
-        let material = new THREE.MeshLambertMaterial({color: 0x00ffff});
-        this.mesh = new THREE.Mesh(geometry, material);
-        this.mesh.rotation.x = Math.PI/2;
-        scene.add(this.mesh);
-        
-        this.velocity = new THREE.Vector3();
-        this.acceleration = new THREE.Vector3();
-        this.maxSpeed = 50;
-        this.fuel = 100;
-        this.shields = 100;
-      }
-      
-      update(delta){
-        this.velocity.add(this.acceleration.clone().multiplyScalar(delta));
-        if (this.velocity.length() > this.maxSpeed){
-          this.velocity.setLength(this.maxSpeed);
-        }
-        this.mesh.position.add(this.velocity.clone().multiplyScalar(delta));
-        this.acceleration.set(0,0,0);
-      }
-      
-      applyThrust(direction, power){
-        this.acceleration.add(direction.normalize().multiplyScalar(power));
-        this.fuel = Math.max(0, this.fuel - power * 0.1);
+    // Prestige Mechanic:
+    // Allows players to reset some progress in exchange for a permanent bonus.
+    function prestige() {
+      // Enable prestige once the player has achieved notable progress
+      if (game.techLevel >= 5 || game.colonies >= 3) {
+        game.prestigeBonus++;
+        // Reset most progress while retaining the prestige bonus for future gains
+        game.energy = 0;
+        game.minerals = 0;
+        game.research = 0;
+        game.techLevel = 0;
+        game.colonies = 0;
+        // Turn off automation (player can reactivate it later)
+        if (game.autoInterval) clearInterval(game.autoInterval);
+        game.automationActive = false;
+        showMessage(`Prestige achieved! Prestige Bonus is now ${game.prestigeBonus}. Begin your new journey!`);
+        updateDisplay();
+      } else {
+        showMessage("Insufficient progress for Prestige. (Achieve at least Tech Level 5 or 3 Colonies)");
       }
     }
 
-    /***************************************
-     * Player Input & Controls
-     ***************************************/
-    const ship = new Ship();
-    let keysPressed = {};
-    document.addEventListener('keydown', (event) => { keysPressed[event.code] = true; });
-    document.addEventListener('keyup', (event) => { keysPressed[event.code] = false; });
-
-    function processKeyboardInput(delta){
-      if(keysPressed['ArrowUp'] || keysPressed['KeyW']){
-        let forward = new THREE.Vector3(0,0,-1).applyQuaternion(ship.mesh.quaternion);
-        ship.applyThrust(forward, 10);
-      }
-      if(keysPressed['ArrowDown'] || keysPressed['KeyS']){
-        let backward = new THREE.Vector3(0,0,1).applyQuaternion(ship.mesh.quaternion);
-        ship.applyThrust(backward, 10);
-      }
-      if(keysPressed['ArrowLeft'] || keysPressed['KeyA']){
-        ship.mesh.rotation.y += delta;
-      }
-      if(keysPressed['ArrowRight'] || keysPressed['KeyD']){
-        ship.mesh.rotation.y -= delta;
-      }
-    }
-
-    /***************************************
-     * Mobile Controls: Virtual Joystick & Action Button
-     ***************************************/
-    const joystick = document.getElementById('joystick');
-    const joystickKnob = document.getElementById('joystickKnob');
-    let joystickActive = false;
-    let joystickOrigin = { x: 0, y: 0 };
-
-    joystick.addEventListener('touchstart', (event) => {
-      event.preventDefault();
-      joystickActive = true;
-      let touch = event.touches[0];
-      let rect = joystick.getBoundingClientRect();
-      joystickOrigin = { x: rect.left + rect.width/2, y: rect.top + rect.height/2 };
-      // Position knob at the touch point relative to joystick.
-      updateJoystickKnob(touch.clientX, touch.clientY);
-    });
-
-    joystick.addEventListener('touchmove', (event) => {
-      if (!joystickActive) return;
-      let touch = event.touches[0];
-      updateJoystickKnob(touch.clientX, touch.clientY);
-      // Calculate offset from center.
-      let offsetX = touch.clientX - joystickOrigin.x;
-      let offsetY = touch.clientY - joystickOrigin.y;
-      // Determine thrust direction from offset.
-      let thrustDirection = new THREE.Vector3(offsetX, 0, offsetY * -1); // Invert Y for 3D coordinate
-      // Scale power relative to maximum displacement (limit at 40 pixels).
-      let maxDistance = 40;
-      let distance = Math.min(Math.sqrt(offsetX * offsetX + offsetY * offsetY), maxDistance);
-      let power = (distance / maxDistance) * 10;
-      ship.applyThrust(thrustDirection, power);
-    });
-
-    joystick.addEventListener('touchend', (event) => {
-      joystickActive = false;
-      // Return knob to center.
-      joystickKnob.style.left = "30px";
-      joystickKnob.style.top = "30px";
-    });
-
-    function updateJoystickKnob(clientX, clientY){
-      let rect = joystick.getBoundingClientRect();
-      let offsetX = clientX - (rect.left + rect.width/2);
-      let offsetY = clientY - (rect.top + rect.height/2);
-      // Limit the knob movement to within the joystick circle.
-      let maxOffset = 30;
-      let distance = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
-      if(distance > maxOffset){
-        offsetX = (offsetX / distance) * maxOffset;
-        offsetY = (offsetY / distance) * maxOffset;
-      }
-      joystickKnob.style.left = (30 + offsetX) + "px";
-      joystickKnob.style.top = (30 + offsetY) + "px";
-    }
-
-    // Action button to build a colony if near a habitable planet.
-    const actionButton = document.getElementById('actionButton');
-    actionButton.addEventListener('touchstart', (event) => {
-      event.preventDefault();
-      attemptColonyBuild();
-    });
-    actionButton.addEventListener('click', (event) => {
-      event.preventDefault();
-      attemptColonyBuild();
-    });
-
-    // Check if ship is close enough to any habitable planet to build a colony.
-    function attemptColonyBuild(){
-      const threshold = 10; // Distance threshold
-      for (let system of universe.solarSystems) {
-        for (let planet of system.planets) {
-          let shipPos = ship.mesh.position;
-          let planetPos = planet.mesh.position;
-          if (shipPos.distanceTo(planetPos) < threshold && planet.habitable && !planet.colony){
-            planet.buildColony();
-            console.log("Colony established on planet at", planetPos);
-            return;
-          }
-        }
-      }
-      console.log("No suitable planet nearby for colony building.");
-    }
-
-    /***************************************
-     * HUD & Minimap
-     ***************************************/
-    const hud = document.getElementById('hud');
-    const minimap = document.getElementById('minimap');
-    const minimapCtx = minimap.getContext('2d');
-    function updateHUD(){
-      hud.innerHTML = `Fuel: ${ship.fuel.toFixed(2)} | Shields: ${ship.shields} <br>
-                       Position: (${ship.mesh.position.x.toFixed(1)}, ${ship.mesh.position.y.toFixed(1)}, ${ship.mesh.position.z.toFixed(1)})`;
-    }
-    // Simple minimap: draws ship as a white dot and planets as colored dots.
-    function updateMinimap(){
-      minimapCtx.clearRect(0, 0, minimap.width, minimap.height);
-      // Center of minimap.
-      let centerX = minimap.width / 2, centerY = minimap.height / 2;
-      // Scale down positions.
-      let scale = 0.1;
-      // Draw ship.
-      minimapCtx.fillStyle = "#ffffff";
-      minimapCtx.beginPath();
-      minimapCtx.arc(centerX + ship.mesh.position.x * scale, centerY + ship.mesh.position.z * scale, 3, 0, Math.PI*2);
-      minimapCtx.fill();
-      // Draw planets from all solar systems.
-      universe.solarSystems.forEach(system => {
-        system.planets.forEach(planet => {
-          minimapCtx.fillStyle = planet.habitable ? "#00ff00" : "#ff0000";
-          minimapCtx.beginPath();
-          minimapCtx.arc(centerX + planet.mesh.position.x * scale, centerY + planet.mesh.position.z * scale, 2, 0, Math.PI*2);
-          minimapCtx.fill();
-        });
-      });
-    }
-
-    /***************************************
-     * Game World Initialization
-     ***************************************/
-    const universe = new Universe();
-
-    /***************************************
-     * Main Game Loop
-     ***************************************/
-    function animate(){
-      requestAnimationFrame(animate);
-      let delta = clock.getDelta();
-      
-      // Process both keyboard and mobile inputs.
-      processKeyboardInput(delta);
-      ship.update(delta);
-      universe.update(delta);
-      
-      // Smooth camera follow.
-      camera.position.lerp(new THREE.Vector3(ship.mesh.position.x, ship.mesh.position.y+50, ship.mesh.position.z+100), 0.05);
-      camera.lookAt(ship.mesh.position);
-      
-      updateHUD();
-      updateMinimap();
-      renderer.render(scene, camera);
-    }
-    animate();
-
-    /***************************************
-     * Additional Features & Placeholders
-     ***************************************/
-    // Multiplayer, AI, research/tech tree and dynamic galactic events can be integrated here.
-    // You might add particle effects for engine thrust, improved physics, and a detailed UI for colony management.
+    // Initialize display on load
+    updateDisplay();
   </script>
 </body>
 </html>
+
 
