@@ -2,228 +2,203 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Galaxy Explorer Idle Game</title>
+  <title>Sun Costume Collection</title>
   <style>
-    body {
-      background: radial-gradient(ellipse at center, #000 0%, #111 100%);
-      color: #ddd;
-      font-family: Arial, sans-serif;
+    /* Reset and basic styling */
+    * {
       margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      background-color: #0a0a0a;
+      font-family: Arial, sans-serif;
+      color: #fff;
       padding: 20px;
     }
+    
     h1 {
       text-align: center;
-      font-size: 3em;
-      margin-bottom: 0.2em;
+      margin-bottom: 20px;
     }
-    #game {
-      max-width: 800px;
-      margin: auto;
-      background-color: rgba(0, 0, 0, 0.5);
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px #000;
+    
+    /* Container for cards */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
     }
-    #resources p, #status p {
-      font-size: 1.2em;
-      margin: 5px 0;
+    
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
     }
-    #actions {
-      margin-top: 20px;
+    
+    .card {
+      background-color: #222;
+      border: 2px solid #444;
+      border-radius: 8px;
+      padding: 10px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
       text-align: center;
     }
-    #actions button {
-      margin: 5px;
-      padding: 10px 15px;
-      font-size: 1em;
+    
+    .card:hover {
+      transform: scale(1.05);
+    }
+    
+    /* Unlocked skins have a vibrant border, locked skins appear darker */
+    .card.unlocked {
+      border-color: #ffd700; /* gold */
+    }
+    
+    .card.locked {
+      border-color: #555;
+      filter: brightness(50%);
+    }
+    
+    .card-header {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    
+    .card img {
+      width: 100%;
+      height: auto;
+      border-radius: 4px;
+    }
+    
+    /* Modal styles for showing details when a card is clicked */
+    .modal {
+      display: none; 
+      position: fixed;
+      z-index: 100;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.8);
+    }
+    
+    .modal-content {
+      background-color: #333;
+      margin: 10% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 500px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    
+    .close-button {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
       cursor: pointer;
-      border: none;
-      border-radius: 5px;
-      background-color: #444;
+    }
+    
+    .close-button:hover,
+    .close-button:focus {
       color: #fff;
-      transition: background-color 0.3s;
     }
-    #actions button:hover {
-      background-color: #666;
+    
+    .sun-preview img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin-bottom: 15px;
     }
-    /* Optional: add a background audio element or animated sprites for extra immersion */
+    
+    .upgrade-button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #ffd700;
+      border: none;
+      border-radius: 4px;
+      color: #000;
+      cursor: pointer;
+      font-size: 16px;
+    }
   </style>
 </head>
 <body>
-  <div id="game">
-    <h1>Galaxy Explorer</h1>
-    
-    <!-- Display Resources -->
-    <div id="resources">
-      <p>Energy: <span id="energy">0</span></p>
-      <p>Minerals: <span id="minerals">0</span></p>
-      <p>Research Data: <span id="research">0</span></p>
-      <p>Tech Level: <span id="techLevel">0</span></p>
-      <p>Colonies: <span id="colonies">0</span></p>
-      <p>Prestige Bonus: <span id="prestigeBonus">0</span></p>
-    </div>
-
-    <!-- Action Buttons -->
-    <div id="actions">
-      <button onclick="generateResources()">Gather Resources</button>
-      <button onclick="explore()">Explore</button>
-      <button onclick="colonize()">Colonize</button>
-      <button onclick="researchTech()">Research Technology</button>
-      <button onclick="trade()">Trade with Aliens</button>
-      <button onclick="activateAutomation()">Activate Automation</button>
-      <button onclick="prestige()">Prestige Reset</button>
-    </div>
-    
-    <!-- Message/Status Area -->
-    <div id="status">
-      <p id="message">Welcome, Captain! Begin your journey by gathering resources.</p>
+  <h1>Sun Costume Collection</h1>
+  <div class="container">
+    <div class="cards">
+      <!-- Base Sun Skin (always unlocked, no benefits/upgrades) -->
+      <div class="card unlocked base-sun">
+        <div class="card-header">Base Sun</div>
+        <div class="card-body">
+          <img src="https://via.placeholder.com/200x200?text=Base+Sun" alt="Base Sun Skin">
+        </div>
+        <div class="card-footer">
+          <p>No benefits available</p>
+        </div>
+      </div>
+      
+      <!-- Example of an unlocked sun skin with benefits -->
+      <div class="card unlocked" data-rarity="rare">
+        <div class="card-header">Sun Skin - Rare</div>
+        <div class="card-body">
+          <img src="https://via.placeholder.com/200x200?text=Rare+Sun" alt="Rare Sun Skin">
+        </div>
+      </div>
+      
+      <!-- Example of a locked sun skin -->
+      <div class="card locked" data-rarity="epic">
+        <div class="card-header">Sun Skin - Epic (Locked)</div>
+        <div class="card-body">
+          <img src="https://via.placeholder.com/200x200?text=Epic+Sun" alt="Epic Sun Skin">
+        </div>
+      </div>
+      
+      <!-- Additional placeholder cards can be added here -->
     </div>
   </div>
-
+  
+  <!-- Modal for detailed view -->
+  <div class="modal" id="detailModal">
+    <div class="modal-content">
+      <span class="close-button">&times;</span>
+      <div class="sun-preview">
+        <img src="https://via.placeholder.com/400x400?text=Sun+Preview" alt="Sun Skin Preview">
+      </div>
+      <div class="sun-details">
+        <h2>Sun Skin Details</h2>
+        <p>Boosts: [Placeholder for boost details]</p>
+        <button class="upgrade-button">Upgrade</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Minimal JavaScript to open and close the modal -->
   <script>
-    // Main game object to hold state and progression values
-    let game = {
-      energy: 0,
-      minerals: 0,
-      research: 0,
-      techLevel: 0,
-      colonies: 0,
-      prestigeBonus: 0,
-      automationActive: false,
-      autoInterval: null
-    };
-
-    // Update all on-screen values
-    function updateDisplay() {
-      document.getElementById("energy").innerText = game.energy;
-      document.getElementById("minerals").innerText = game.minerals;
-      document.getElementById("research").innerText = game.research;
-      document.getElementById("techLevel").innerText = game.techLevel;
-      document.getElementById("colonies").innerText = game.colonies;
-      document.getElementById("prestigeBonus").innerText = game.prestigeBonus;
-    }
-
-    // Display messages in the status area
-    function showMessage(message) {
-      document.getElementById("message").innerText = message;
-    }
-
-    // Resource Generation:
-    // Gathers resources based on tech, colonies, and prestige bonus.
-    function generateResources() {
-      const energyGain = 1 + game.techLevel + game.prestigeBonus;
-      const mineralGain = 1 + game.colonies;
-      const researchGain = 1 + Math.floor(game.techLevel / 2);
-      game.energy += energyGain;
-      game.minerals += mineralGain;
-      game.research += researchGain;
-      updateDisplay();
-      showMessage(`Resources gathered! Energy +${energyGain}, Minerals +${mineralGain}, Research Data +${researchGain}`);
-    }
-
-    // Exploration:
-    // Simulates a space mission with randomized outcomes.
-    function explore() {
-      const outcome = Math.random();
-      if (outcome < 0.3) {
-        const bonus = Math.floor(Math.random() * 10) + 5;
-        game.energy += bonus;
-        showMessage(`Exploration success! Discovered a solar anomaly: Energy +${bonus}`);
-      } else if (outcome < 0.6) {
-        const bonus = Math.floor(Math.random() * 10) + 5;
-        game.minerals += bonus;
-        showMessage(`Exploration success! Found a rich asteroid field: Minerals +${bonus}`);
-      } else if (outcome < 0.9) {
-        const bonus = Math.floor(Math.random() * 10) + 5;
-        game.research += bonus;
-        showMessage(`Exploration success! Uncovered alien ruins: Research Data +${bonus}`);
-      } else {
-        showMessage("Exploration yielded nothing this time. Try again!");
+    const cards = document.querySelectorAll('.card');
+    const modal = document.getElementById('detailModal');
+    const closeButton = document.querySelector('.close-button');
+    
+    cards.forEach(card => {
+      card.addEventListener('click', function() {
+        // Here you would later update the modal content based on the card clicked
+        modal.style.display = 'block';
+      });
+    });
+    
+    closeButton.addEventListener('click', function() {
+      modal.style.display = 'none';
+    });
+    
+    // Optional: Hide modal when clicking outside of the modal content
+    window.addEventListener('click', function(e) {
+      if (e.target === modal) {
+        modal.style.display = 'none';
       }
-      updateDisplay();
-    }
-
-    // Colonization:
-    // Uses minerals and energy to establish a new colony.
-    function colonize() {
-      if (game.minerals >= 50 && game.energy >= 50) {
-        game.minerals -= 50;
-        game.energy -= 50;
-        game.colonies++;
-        showMessage(`New colony established! Total colonies: ${game.colonies}`);
-      } else {
-        showMessage("Not enough resources to colonize. (Requires 50 Energy & 50 Minerals)");
-      }
-      updateDisplay();
-    }
-
-    // Technology Tree:
-    // Research new tech levels using research data.
-    function researchTech() {
-      if (game.research >= 30) {
-        game.research -= 30;
-        game.techLevel++;
-        showMessage(`Technology advanced! Tech Level is now ${game.techLevel}`);
-      } else {
-        showMessage("Insufficient research data. (Requires 30 Research Data)");
-      }
-      updateDisplay();
-    }
-
-    // Trade and Diplomacy:
-    // Randomly trade with alien civilizations for bonus resources.
-    function trade() {
-      const chance = Math.random();
-      if (chance < 0.5) {
-        const bonus = 20;
-        game.energy += bonus;
-        showMessage(`Trade success! Alien civilization supplied Energy +${bonus}`);
-      } else {
-        const bonus = 20;
-        game.minerals += bonus;
-        showMessage(`Trade success! Received Minerals +${bonus} from an alien ally`);
-      }
-      updateDisplay();
-    }
-
-    // Automation:
-    // Once activated, this system will automatically gather resources at intervals.
-    function activateAutomation() {
-      if (!game.automationActive) {
-        game.automationActive = true;
-        game.autoInterval = setInterval(generateResources, 2000);
-        showMessage("Automation activated: Resources will be gathered automatically every 2 seconds.");
-      } else {
-        showMessage("Automation is already active.");
-      }
-    }
-
-    // Prestige Mechanic:
-    // Allows players to reset some progress in exchange for a permanent bonus.
-    function prestige() {
-      // Enable prestige once the player has achieved notable progress
-      if (game.techLevel >= 5 || game.colonies >= 3) {
-        game.prestigeBonus++;
-        // Reset most progress while retaining the prestige bonus for future gains
-        game.energy = 0;
-        game.minerals = 0;
-        game.research = 0;
-        game.techLevel = 0;
-        game.colonies = 0;
-        // Turn off automation (player can reactivate it later)
-        if (game.autoInterval) clearInterval(game.autoInterval);
-        game.automationActive = false;
-        showMessage(`Prestige achieved! Prestige Bonus is now ${game.prestigeBonus}. Begin your new journey!`);
-        updateDisplay();
-      } else {
-        showMessage("Insufficient progress for Prestige. (Achieve at least Tech Level 5 or 3 Colonies)");
-      }
-    }
-
-    // Initialize display on load
-    updateDisplay();
+    });
   </script>
 </body>
 </html>
-
-
