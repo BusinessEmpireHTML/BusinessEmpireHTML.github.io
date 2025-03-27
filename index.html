@@ -3,161 +3,258 @@
 <head>
   <meta charset="UTF-8">
   <title>Sun Costume Collection</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap">
   <style>
-    /* Reset and basic styling */
+    :root {
+      --bg-color: #121212;
+      --primary-color: #1e1e1e;
+      --text-color: #f0f0f0;
+      --gold: #ffd700;
+      --blue: #1e90ff;
+      --purple: #8a2be2;
+      --orange: #ff8c00;
+      --red: #ff4500;
+      --card-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
     * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
     }
-    
+
     body {
-      background-color: #0a0a0a;
-      font-family: Arial, sans-serif;
-      color: #fff;
+      font-family: 'Roboto', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
       padding: 20px;
     }
-    
+
     h1 {
       text-align: center;
       margin-bottom: 20px;
+      font-weight: 700;
     }
-    
-    /* Container for cards */
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
+
+    .section-header {
+      font-size: 1.5em;
+      margin: 30px 0 10px 0;
+      padding-bottom: 5px;
+      border-bottom: 2px solid var(--text-color);
     }
-    
+
     .cards {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
       gap: 20px;
     }
-    
+
     .card {
-      background-color: #222;
-      border: 2px solid #444;
-      border-radius: 8px;
-      padding: 10px;
+      background-color: var(--primary-color);
+      border-radius: 10px;
+      overflow: hidden;
       cursor: pointer;
-      transition: transform 0.2s ease;
-      text-align: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: var(--card-shadow);
+      position: relative;
     }
-    
+
     .card:hover {
-      transform: scale(1.05);
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.3);
     }
-    
-    /* Unlocked skins have a vibrant border, locked skins appear darker */
-    .card.unlocked {
-      border-color: #ffd700; /* gold */
-    }
-    
-    .card.locked {
-      border-color: #555;
-      filter: brightness(50%);
-    }
-    
+
     .card-header {
-      font-weight: bold;
-      margin-bottom: 10px;
+      font-weight: 700;
+      text-align: center;
+      padding: 10px;
     }
-    
-    .card img {
+
+    .card-body img {
       width: 100%;
-      height: auto;
-      border-radius: 4px;
+      display: block;
     }
-    
-    /* Modal styles for showing details when a card is clicked */
+
+    .card-footer {
+      padding: 10px;
+      text-align: center;
+      background-color: var(--bg-color);
+      font-size: 0.9em;
+    }
+
+    /* Rarity border colors using data attributes */
+    .card[data-rarity="base"] { border: 3px solid var(--text-color); }
+    .card[data-rarity="rare"] { border: 3px solid var(--blue); }
+    .card[data-rarity="epic"] { border: 3px solid var(--purple); }
+    .card[data-rarity="legendary"] { border: 3px solid var(--orange); }
+    .card[data-rarity="mythic"] { border: 3px solid var(--red); }
+
+    /* Locked skins styling */
+    .locked {
+      filter: grayscale(100%) brightness(70%);
+    }
+
+    .locked::after {
+      content: "Locked";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(0,0,0,0.7);
+      color: var(--text-color);
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-weight: 700;
+    }
+
+    /* Modal Styles */
     .modal {
-      display: none; 
+      display: none;
       position: fixed;
       z-index: 100;
       left: 0;
       top: 0;
       width: 100%;
       height: 100%;
-      overflow: auto;
       background-color: rgba(0,0,0,0.8);
     }
-    
+
     .modal-content {
-      background-color: #333;
+      background-color: var(--primary-color);
       margin: 10% auto;
       padding: 20px;
-      border: 1px solid #888;
-      width: 80%;
+      border-radius: 10px;
+      width: 90%;
       max-width: 500px;
-      border-radius: 8px;
+      box-shadow: var(--card-shadow);
+      position: relative;
       text-align: center;
     }
-    
+
     .close-button {
-      color: #aaa;
-      float: right;
-      font-size: 28px;
-      font-weight: bold;
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 1.5em;
       cursor: pointer;
+      color: var(--text-color);
     }
-    
-    .close-button:hover,
-    .close-button:focus {
-      color: #fff;
-    }
-    
+
     .sun-preview img {
       width: 100%;
-      height: auto;
-      border-radius: 8px;
+      border-radius: 10px;
       margin-bottom: 15px;
     }
-    
+
     .upgrade-button {
-      margin-top: 20px;
       padding: 10px 20px;
-      background-color: #ffd700;
+      background-color: var(--gold);
       border: none;
-      border-radius: 4px;
+      border-radius: 5px;
       color: #000;
+      font-size: 1em;
       cursor: pointer;
-      font-size: 16px;
+      transition: background-color 0.2s ease;
+    }
+
+    .upgrade-button:hover {
+      background-color: #e6c200;
     }
   </style>
 </head>
 <body>
   <h1>Sun Costume Collection</h1>
   <div class="container">
-    <div class="cards">
-      <!-- Base Sun Skin (always unlocked, no benefits/upgrades) -->
-      <div class="card unlocked base-sun">
-        <div class="card-header">Base Sun</div>
-        <div class="card-body">
-          <img src="https://via.placeholder.com/200x200?text=Base+Sun" alt="Base Sun Skin">
+    <!-- Unlocked Skins Section -->
+    <div class="section">
+      <div class="section-header">Unlocked Skins</div>
+      <div class="cards">
+        <!-- Base Sun Skin -->
+        <div class="card unlocked" data-rarity="base">
+          <div class="card-header">Base Sun</div>
+          <div class="card-body">
+            <img src="https://via.placeholder.com/220x220?text=Base+Sun" alt="Base Sun Skin">
+          </div>
+          <div class="card-footer">
+            <p>No benefits available</p>
+          </div>
         </div>
-        <div class="card-footer">
-          <p>No benefits available</p>
+        <!-- Rare Sun Skin -->
+        <div class="card unlocked" data-rarity="rare">
+          <div class="card-header">Rare Sun</div>
+          <div class="card-body">
+            <img src="https://via.placeholder.com/220x220?text=Rare+Sun" alt="Rare Sun Skin">
+          </div>
+          <div class="card-footer">
+            <p>Boosts: [Placeholder]</p>
+          </div>
+        </div>
+        <!-- Epic Sun Skin -->
+        <div class="card unlocked" data-rarity="epic">
+          <div class="card-header">Epic Sun</div>
+          <div class="card-body">
+            <img src="https://via.placeholder.com/220x220?text=Epic+Sun" alt="Epic Sun Skin">
+          </div>
+          <div class="card-footer">
+            <p>Boosts: [Placeholder]</p>
+          </div>
+        </div>
+        <!-- Legendary Sun Skin -->
+        <div class="card unlocked" data-rarity="legendary">
+          <div class="card-header">Legendary Sun</div>
+          <div class="card-body">
+            <img src="https://via.placeholder.com/220x220?text=Legendary+Sun" alt="Legendary Sun Skin">
+          </div>
+          <div class="card-footer">
+            <p>Boosts: [Placeholder]</p>
+          </div>
+        </div>
+        <!-- Mythic Sun Skin -->
+        <div class="card unlocked" data-rarity="mythic">
+          <div class="card-header">Mythic Sun</div>
+          <div class="card-body">
+            <img src="https://via.placeholder.com/220x220?text=Mythic+Sun" alt="Mythic Sun Skin">
+          </div>
+          <div class="card-footer">
+            <p>Boosts: [Placeholder]</p>
+          </div>
         </div>
       </div>
-      
-      <!-- Example of an unlocked sun skin with benefits -->
-      <div class="card unlocked" data-rarity="rare">
-        <div class="card-header">Sun Skin - Rare</div>
-        <div class="card-body">
-          <img src="https://via.placeholder.com/200x200?text=Rare+Sun" alt="Rare Sun Skin">
+    </div>
+
+    <!-- Locked Skins Section -->
+    <div class="section">
+      <div class="section-header">Locked Skins</div>
+      <div class="cards">
+        <!-- Locked Rare Sun Skin -->
+        <div class="card locked" data-rarity="rare">
+          <div class="card-header">Rare Sun (Locked)</div>
+          <div class="card-body">
+            <img src="https://via.placeholder.com/220x220?text=Rare+Sun" alt="Rare Sun Skin">
+          </div>
+        </div>
+        <!-- Locked Epic Sun Skin -->
+        <div class="card locked" data-rarity="epic">
+          <div class="card-header">Epic Sun (Locked)</div>
+          <div class="card-body">
+            <img src="https://via.placeholder.com/220x220?text=Epic+Sun" alt="Epic Sun Skin">
+          </div>
+        </div>
+        <!-- Locked Legendary Sun Skin -->
+        <div class="card locked" data-rarity="legendary">
+          <div class="card-header">Legendary Sun (Locked)</div>
+          <div class="card-body">
+            <img src="https://via.placeholder.com/220x220?text=Legendary+Sun" alt="Legendary Sun Skin">
+          </div>
+        </div>
+        <!-- Locked Mythic Sun Skin -->
+        <div class="card locked" data-rarity="mythic">
+          <div class="card-header">Mythic Sun (Locked)</div>
+          <div class="card-body">
+            <img src="https://via.placeholder.com/220x220?text=Mythic+Sun" alt="Mythic Sun Skin">
+          </div>
         </div>
       </div>
-      
-      <!-- Example of a locked sun skin -->
-      <div class="card locked" data-rarity="epic">
-        <div class="card-header">Sun Skin - Epic (Locked)</div>
-        <div class="card-body">
-          <img src="https://via.placeholder.com/200x200?text=Epic+Sun" alt="Epic Sun Skin">
-        </div>
-      </div>
-      
-      <!-- Additional placeholder cards can be added here -->
     </div>
   </div>
   
@@ -176,28 +273,25 @@
     </div>
   </div>
   
-  <!-- Minimal JavaScript to open and close the modal -->
   <script>
+    // Minimal JavaScript to handle modal open/close actions
     const cards = document.querySelectorAll('.card');
     const modal = document.getElementById('detailModal');
     const closeButton = document.querySelector('.close-button');
     
     cards.forEach(card => {
       card.addEventListener('click', function() {
-        // Here you would later update the modal content based on the card clicked
+        // Future: update modal content based on the selected card
         modal.style.display = 'block';
       });
     });
     
-    closeButton.addEventListener('click', function() {
+    closeButton.addEventListener('click', () => {
       modal.style.display = 'none';
     });
     
-    // Optional: Hide modal when clicking outside of the modal content
-    window.addEventListener('click', function(e) {
-      if (e.target === modal) {
-        modal.style.display = 'none';
-      }
+    window.addEventListener('click', (e) => {
+      if (e.target === modal) modal.style.display = 'none';
     });
   </script>
 </body>
