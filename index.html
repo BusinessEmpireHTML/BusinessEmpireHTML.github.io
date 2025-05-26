@@ -1,298 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Sun Costume Collection</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap">
-  <style>
-    :root {
-      --bg-color: #121212;
-      --primary-color: #1e1e1e;
-      --text-color: #f0f0f0;
-      --gold: #ffd700;
-      --blue: #1e90ff;
-      --purple: #8a2be2;
-      --orange: #ff8c00;
-      --red: #ff4500;
-      --card-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: 'Roboto', sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      padding: 20px;
-    }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 20px;
-      font-weight: 700;
-    }
-
-    .section-header {
-      font-size: 1.5em;
-      margin: 30px 0 10px 0;
-      padding-bottom: 5px;
-      border-bottom: 2px solid var(--text-color);
-    }
-
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 20px;
-    }
-
-    .card {
-      background-color: var(--primary-color);
-      border-radius: 10px;
-      overflow: hidden;
-      cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      box-shadow: var(--card-shadow);
-      position: relative;
-    }
-
-    .card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 16px rgba(0,0,0,0.3);
-    }
-
-    .card-header {
-      font-weight: 700;
-      text-align: center;
-      padding: 10px;
-    }
-
-    .card-body img {
-      width: 100%;
-      display: block;
-    }
-
-    .card-footer {
-      padding: 10px;
-      text-align: center;
-      background-color: var(--bg-color);
-      font-size: 0.9em;
-    }
-
-    /* Rarity border colors using data attributes */
-    .card[data-rarity="base"] { border: 3px solid var(--text-color); }
-    .card[data-rarity="rare"] { border: 3px solid var(--blue); }
-    .card[data-rarity="epic"] { border: 3px solid var(--purple); }
-    .card[data-rarity="legendary"] { border: 3px solid var(--orange); }
-    .card[data-rarity="mythic"] { border: 3px solid var(--red); }
-
-    /* Locked skins styling */
-    .locked {
-      filter: grayscale(100%) brightness(70%);
-    }
-
-    .locked::after {
-      content: "Locked";
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background-color: rgba(0,0,0,0.7);
-      color: var(--text-color);
-      padding: 5px 10px;
-      border-radius: 5px;
-      font-weight: 700;
-    }
-
-    /* Modal Styles */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 100;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0,0,0,0.8);
-    }
-
-    .modal-content {
-      background-color: var(--primary-color);
-      margin: 10% auto;
-      padding: 20px;
-      border-radius: 10px;
-      width: 90%;
-      max-width: 500px;
-      box-shadow: var(--card-shadow);
-      position: relative;
-      text-align: center;
-    }
-
-    .close-button {
-      position: absolute;
-      top: 10px;
-      right: 15px;
-      font-size: 1.5em;
-      cursor: pointer;
-      color: var(--text-color);
-    }
-
-    .sun-preview img {
-      width: 100%;
-      border-radius: 10px;
-      margin-bottom: 15px;
-    }
-
-    .upgrade-button {
-      padding: 10px 20px;
-      background-color: var(--gold);
-      border: none;
-      border-radius: 5px;
-      color: #000;
-      font-size: 1em;
-      cursor: pointer;
-      transition: background-color 0.2s ease;
-    }
-
-    .upgrade-button:hover {
-      background-color: #e6c200;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Empire Simulation</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <h1>Sun Costume Collection</h1>
-  <div class="container">
-    <!-- Unlocked Skins Section -->
-    <div class="section">
-      <div class="section-header">Unlocked Skins</div>
-      <div class="cards">
-        <!-- Base Sun Skin -->
-        <div class="card unlocked" data-rarity="base">
-          <div class="card-header">Base Sun</div>
-          <div class="card-body">
-            <img src="https://via.placeholder.com/220x220?text=Base+Sun" alt="Base Sun Skin">
-          </div>
-          <div class="card-footer">
-            <p>No benefits available</p>
-          </div>
+    <div id="game">
+        <h1>Business Empire Simulation</h1>
+        <div class="tabs">
+            <button class="tab-button" onclick="openTab('clicker')">Clicker</button>
+            <button class="tab-button" onclick="openTab('investments')">Investing</button>
+            <button class="tab-button" onclick="openTab('businesses')">Businesses</button>
+            <button class="tab-button" onclick="openTab('items')">Items</button>
+            <button class="tab-button" onclick="openTab('profile')">Profile</button>
         </div>
-        <!-- Rare Sun Skin -->
-        <div class="card unlocked" data-rarity="rare">
-          <div class="card-header">Rare Sun</div>
-          <div class="card-body">
-            <img src="https://via.placeholder.com/220x220?text=Rare+Sun" alt="Rare Sun Skin">
-          </div>
-          <div class="card-footer">
-            <p>Boosts: [Placeholder]</p>
-          </div>
-        </div>
-        <!-- Epic Sun Skin -->
-        <div class="card unlocked" data-rarity="epic">
-          <div class="card-header">Epic Sun</div>
-          <div class="card-body">
-            <img src="https://via.placeholder.com/220x220?text=Epic+Sun" alt="Epic Sun Skin">
-          </div>
-          <div class="card-footer">
-            <p>Boosts: [Placeholder]</p>
-          </div>
-        </div>
-        <!-- Legendary Sun Skin -->
-        <div class="card unlocked" data-rarity="legendary">
-          <div class="card-header">Legendary Sun</div>
-          <div class="card-body">
-            <img src="https://via.placeholder.com/220x220?text=Legendary+Sun" alt="Legendary Sun Skin">
-          </div>
-          <div class="card-footer">
-            <p>Boosts: [Placeholder]</p>
-          </div>
-        </div>
-        <!-- Mythic Sun Skin -->
-        <div class="card unlocked" data-rarity="mythic">
-          <div class="card-header">Mythic Sun</div>
-          <div class="card-body">
-            <img src="https://via.placeholder.com/220x220?text=Mythic+Sun" alt="Mythic Sun Skin">
-          </div>
-          <div class="card-footer">
-            <p>Boosts: [Placeholder]</p>
-          </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Locked Skins Section -->
-    <div class="section">
-      <div class="section-header">Locked Skins</div>
-      <div class="cards">
-        <!-- Locked Rare Sun Skin -->
-        <div class="card locked" data-rarity="rare">
-          <div class="card-header">Rare Sun (Locked)</div>
-          <div class="card-body">
-            <img src="https://via.placeholder.com/220x220?text=Rare+Sun" alt="Rare Sun Skin">
-          </div>
+        <div id="clicker" class="tab-content">
+            <div id="click-area" onclick="earnMoney()">Click to Earn Money</div>
+            <p>Cash: $<span id="cash-clicker">0</span></p> <!-- Updated ID -->
+            <p>Click Value: $<span id="clickValue">1</span></p>
+            <p>Hourly Income: $<span id="hourlyIncome-clicker">0</span></p> <!-- Updated ID -->
         </div>
-        <!-- Locked Epic Sun Skin -->
-        <div class="card locked" data-rarity="epic">
-          <div class="card-header">Epic Sun (Locked)</div>
-          <div class="card-body">
-            <img src="https://via.placeholder.com/220x220?text=Epic+Sun" alt="Epic Sun Skin">
-          </div>
+
+        <div id="investments" class="tab-content">
+            <button onclick="invest('stock')">Invest in Stock ($2000)</button>
+            <button onclick="invest('realEstate')">Invest in Real Estate ($8000)</button>
         </div>
-        <!-- Locked Legendary Sun Skin -->
-        <div class="card locked" data-rarity="legendary">
-          <div class="card-header">Legendary Sun (Locked)</div>
-          <div class="card-body">
-            <img src="https://via.placeholder.com/220x220?text=Legendary+Sun" alt="Legendary Sun Skin">
-          </div>
+
+        <div id="businesses" class="tab-content">
+            <button class="button-rounded" onclick="openBuyBusinessPopup()">Buy A New Business</button>
+            <button class="button-rounded" onclick="openMergerPopup()">Merge Businesses</button>
+            <div id="business-list"></div>
         </div>
-        <!-- Locked Mythic Sun Skin -->
-        <div class="card locked" data-rarity="mythic">
-          <div class="card-header">Mythic Sun (Locked)</div>
-          <div class="card-body">
-            <img src="https://via.placeholder.com/220x220?text=Mythic+Sun" alt="Mythic Sun Skin">
-          </div>
+
+        <div id="items" class="tab-content">
+            <p>Items like cars, houses, boats, islands, etc. can be listed here.</p>
         </div>
-      </div>
+
+        <div id="profile" class="tab-content">
+            <p>Your total fortune: $<span id="cash-profile">0</span></p> <!-- Updated ID -->
+            <p>Hourly Income: $<span id="hourlyIncome-profile">0</span></p> <!-- Updated ID -->
+        </div>
+
+        <div id="buy-business-popup" class="popup">
+            <h2>Buy a New Business</h2>
+            <!-- Updated prices for businesses -->
+            <button onclick="buyBusiness('lemonadeStand')">Buy Lemonade Stand - $500</button>
+            <button onclick="buyBusiness('carWash')">Buy Car Wash - $12,500</button>
+            <button onclick="buyBusiness('localShop')">Buy Local Shop - $45,000</button>
+            <button onclick="buyBusiness('factory')">Buy Factory - $150,000</button>
+            <button onclick="buyBusiness('legalClinic')">Buy Legal Clinic - $200,000</button>
+            <button onclick="buyBusiness('bank')">Buy Bank - $10,000,000</button>
+            <button onclick="closeBuyBusinessPopup()">Close</button>
+        </div>
+        <div id="bank-popup" class="popup">
+            <div class="popup-content">
+                <h2>Bank</h2>
+                <p>Hourly Income: $<span id="bank-hourly-income">100,000</span></p>
+                <p>Vault Storage: <span id="bank-vault-storage">$10,000,000 / $10,000,000</span></p>
+                <p>Upgrade Cost: $<span id="bank-upgrade-cost">5,000,000</span></p>
+                <button id="bank-upgrade-button" onclick="upgradeBankVault()">Upgrade Vault</button>
+                <button onclick="closeBankPopup()">Close</button>
+            </div>
+        </div>
+        
+        <div id="business-merger-popup" class="popup">
+            <h2>Business Merger</h2>
+            <p>Select two max-level businesses to merge them.</p>
+            <div id="merger-business-list"></div>
+            <button id="merge-button" onclick="mergeSelectedBusinesses()" disabled>Merge</button>
+            <button onclick="closeMergerPopup()">Close</button>
+        </div>        
+        <div id="upgrade-business-popup" class="popup">
+            <h2>Upgrade <span id="business-name"></span></h2>
+            <p>Current Level: <span id="business-level"></span></p>
+            <p>Current Income: $<span id="business-income"></span> per hour</p>
+            <p>Upgrade Cost: $<span id="business-upgrade-cost"></span></p>
+            <button id="upgrade-button" class="button-rounded">Upgrade</button>
+            <button id="close-button" class="button-rounded button-red">Close Business</button>
+            <button class="button-rounded button-white" onclick="closeUpgradeBusinessPopup()">Close</button>
+        </div>
     </div>
-  </div>
-  
-  <!-- Modal for detailed view -->
-  <div class="modal" id="detailModal">
-    <div class="modal-content">
-      <span class="close-button">&times;</span>
-      <div class="sun-preview">
-        <img src="https://via.placeholder.com/400x400?text=Sun+Preview" alt="Sun Skin Preview">
-      </div>
-      <div class="sun-details">
-        <h2>Sun Skin Details</h2>
-        <p>Boosts: [Placeholder for boost details]</p>
-        <button class="upgrade-button">Upgrade</button>
-      </div>
-    </div>
-  </div>
-  
-  <script>
-    // Minimal JavaScript to handle modal open/close actions
-    const cards = document.querySelectorAll('.card');
-    const modal = document.getElementById('detailModal');
-    const closeButton = document.querySelector('.close-button');
-    
-    cards.forEach(card => {
-      card.addEventListener('click', function() {
-        // Future: update modal content based on the selected card
-        modal.style.display = 'block';
-      });
-    });
-    
-    closeButton.addEventListener('click', () => {
-      modal.style.display = 'none';
-    });
-    
-    window.addEventListener('click', (e) => {
-      if (e.target === modal) modal.style.display = 'none';
-    });
-  </script>
+    <script src="main.js"></script>
+    <script src="bank.js"></script>
+    <script src="business.js"></script>
+    <script src="merger.js"></script>
 </body>
 </html>
