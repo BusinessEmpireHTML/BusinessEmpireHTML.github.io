@@ -3,14 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parallel Bible Study (KJV | Original | RV60)</title>
+    <title>Parallel Bible Study</title>
     <style>
         :root {
             --primary: #2c3e50;
             --accent: #2980b9;
-            --accent-light: #ebf5fb;
             --bg-light: #f4f6f7;
-            --text-main: #333;
             --border: #ccc;
             --panel-width: 350px;
         }
@@ -18,64 +16,48 @@
         * { box-sizing: border-box; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: sans-serif;
             margin: 0;
             background-color: var(--bg-light);
-            color: var(--text-main);
             height: 100vh;
             display: flex;
             flex-direction: column;
             overflow: hidden;
         }
 
-        /* --- Header --- */
+        /* Header */
         header {
             background-color: #fff;
-            padding: 0 20px;
             height: 60px;
             border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            z-index: 10;
+            padding: 0 15px;
+            flex-shrink: 0; /* Prevents header from shrinking */
         }
 
-        h1 { font-size: 1.2rem; color: var(--primary); margin: 0; display: flex; align-items: center; gap: 8px; }
+        h1 { font-size: 1.2rem; color: var(--primary); margin: 0; }
         
-        .controls { display: flex; gap: 10px; align-items: center; }
+        .controls { display: flex; gap: 8px; }
         
-        select, button {
-            padding: 8px 12px;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            font-size: 0.95rem;
-            background: white;
-            cursor: pointer;
-        }
-        
-        button.primary-btn {
-            background-color: var(--accent);
-            color: white;
-            border-color: var(--accent);
-            font-weight: 500;
-        }
+        select { padding: 6px; font-size: 1rem; border-radius: 4px; border: 1px solid #999; }
+        button { padding: 6px 12px; background: var(--accent); color: white; border: none; border-radius: 4px; cursor: pointer; }
 
-        /* --- Main Workspace --- */
+        /* Main Area */
         .workspace {
             display: flex;
             flex: 1;
+            height: calc(100vh - 60px); /* Explicit height calculation */
             position: relative;
-            overflow: hidden; 
-            height: calc(100vh - 60px);
         }
 
         .bible-grid {
             flex: 1;
             display: grid;
-            grid-template-columns: repeat(3, 1fr); /* Equal 3 columns */
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 1px;
-            background-color: var(--border); /* Functions as vertical dividers */
+            background-color: #ccc;
             height: 100%;
         }
 
@@ -88,123 +70,62 @@
         }
 
         .col-header {
-            padding: 15px;
-            background: #fdfdfd;
-            border-bottom: 1px solid var(--border);
-            font-weight: 700;
-            color: var(--accent);
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-bottom: 1px solid #ddd;
             text-align: center;
+            font-weight: bold;
+            color: var(--accent);
+            font-size: 0.9rem;
+            flex-shrink: 0;
         }
 
         .col-content {
             flex: 1;
             overflow-y: auto;
-            padding: 10px 0;
-            scroll-behavior: smooth;
+            padding: 10px;
         }
 
-        /* --- Verse Styling --- */
+        /* Verses */
         .verse-block {
-            padding: 12px 15px;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
             cursor: pointer;
-            border-left: 4px solid transparent;
-            border-bottom: 1px solid #f0f0f0;
-            transition: background 0.15s;
         }
+        .verse-block:hover { background-color: #eaf6ff; }
+        .verse-block.active { background-color: #dbf0ff; border-left: 3px solid var(--accent); padding-left: 5px; }
 
-        .verse-block:hover { background-color: var(--accent-light); }
+        .v-num { font-weight: bold; color: #888; margin-right: 5px; font-size: 0.8rem; }
+        .v-text { line-height: 1.5; color: #333; }
         
-        .verse-block.active {
-            background-color: var(--accent-light);
-            border-left-color: var(--accent);
-        }
+        /* Fonts */
+        .font-hebrew { font-family: 'Times New Roman', serif; font-size: 1.4rem; direction: rtl; text-align: right; }
+        .font-greek { font-family: 'Times New Roman', serif; font-size: 1.2rem; }
 
-        .v-num {
-            font-size: 0.8rem;
-            color: #888;
-            font-weight: bold;
-            margin-right: 8px;
-            user-select: none;
-        }
-
-        .v-text { 
-            line-height: 1.6; 
-            font-size: 1.05rem; 
-            color: #222;
-        }
-
-        /* Language Specific Fonts */
-        .font-hebrew { 
-            font-family: 'Times New Roman', serif; 
-            font-size: 1.3rem; 
-            direction: rtl; 
-            text-align: right; 
-            line-height: 1.8;
-        }
-        .font-greek { 
-            font-family: 'Times New Roman', serif; 
-            font-size: 1.2rem; 
-            line-height: 1.6;
-        }
-
-        /* --- Notes Panel --- */
+        /* Notes Panel */
         .side-panel {
             width: var(--panel-width);
             background: white;
-            border-left: 1px solid var(--border);
+            border-left: 1px solid #ccc;
             position: absolute;
-            right: 0;
-            top: 0;
-            height: 100%;
+            right: 0; top: 0; bottom: 0;
             transform: translateX(100%);
-            transition: transform 0.3s ease-in-out;
+            transition: transform 0.2s;
             display: flex;
             flex-direction: column;
-            z-index: 20;
-            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+            z-index: 99;
         }
+        .side-panel.open { transform: translateX(0); box-shadow: -5px 0 15px rgba(0,0,0,0.2); }
 
-        .side-panel.open { transform: translateX(0); }
-
-        .panel-header {
-            padding: 20px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--bg-light);
-        }
-
-        .panel-body { padding: 20px; flex: 1; display: flex; flex-direction: column; }
-
-        textarea {
-            flex: 1;
-            width: 100%;
-            padding: 15px;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            resize: none;
-            font-family: inherit;
-            font-size: 1rem;
-            margin-bottom: 10px;
-            outline: none;
-        }
-        
-        textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(41, 128, 185, 0.1); }
-
-        .save-msg { color: #27ae60; font-size: 0.9rem; opacity: 0; transition: opacity 0.3s; }
-        .save-msg.visible { opacity: 1; }
-
+        .panel-header { padding: 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; background: #f0f0f0; }
+        .panel-body { padding: 15px; flex: 1; }
+        textarea { width: 100%; height: 200px; padding: 10px; border: 1px solid #ccc; font-size: 1rem; }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>📖 Study<span style="color:var(--accent)">Bible</span></h1>
-        
+        <h1>Study Bible</h1>
         <div class="controls">
             <select id="selTestament">
                 <option value="OT">Old Testament</option>
@@ -212,85 +133,76 @@
             </select>
             <select id="selBook"></select>
             <select id="selChapter"></select>
-            
-            <button class="primary-btn" onclick="app.exportNotes()" title="Download notes">⬇ Export Notes</button>
+            <button onclick="app.exportNotes()">Export Notes</button>
         </div>
     </header>
 
     <div class="workspace">
-        
         <div class="bible-grid">
             <div class="column">
                 <div class="col-header">English (KJV)</div>
-                <div class="col-content" id="view-kjv"></div>
+                <div class="col-content" id="view-kjv">Loading...</div>
             </div>
-
             <div class="column">
                 <div class="col-header" id="header-orig">Original</div>
-                <div class="col-content" id="view-orig"></div>
+                <div class="col-content" id="view-orig">Loading...</div>
             </div>
-
             <div class="column">
                 <div class="col-header">Español (RV60)</div>
-                <div class="col-content" id="view-spa"></div>
+                <div class="col-content" id="view-spa">Loading...</div>
             </div>
         </div>
 
         <div class="side-panel" id="notesPanel">
             <div class="panel-header">
-                <strong id="notesTitle">Verse Notes</strong>
-                <button onclick="ui.closePanel()" style="background:none; border:none; font-size:1.5rem;">&times;</button>
+                <strong id="notesTitle">Notes</strong>
+                <button onclick="ui.closePanel()">Close X</button>
             </div>
             <div class="panel-body">
-                <textarea id="notesInput" placeholder="Write your revelation here..."></textarea>
-                <div class="save-msg" id="saveStatus">Saved automatically</div>
+                <textarea id="notesInput" placeholder="Type notes here..."></textarea>
+                <div id="saveStatus" style="color:green; margin-top:5px; height:20px;"></div>
             </div>
         </div>
-
     </div>
 
     <script>
-        // --- 1. DATA SOURCE (DEMO CONTENT) ---
-        // I have added more chapters here so you can browse different sections.
-        
+        // --- 1. DATA (Fixed keys to be strictly strings to prevent errors) ---
         const BIBLE_DATA = {
-            OT: {
-                Genesis: {
-                    1: [
-                        { v: 1, kjv: "In the beginning God created the heaven and the earth.", orig: "בְּרֵאשִׁית בָּרָא אֱלֹהִים אֵת הַשָּׁמַיִם וְאֵת הָאָרֶץ", spa: "En el principio creó Dios los cielos y la tierra." },
-                        { v: 2, kjv: "And the earth was without form, and void; and darkness was upon the face of the deep.", orig: "וְהָאָרֶץ הָיְתָה תֹהוּ וָבֹהוּ וְחֹשֶׁךְ עַל־פְּנֵי תְהוֹם", spa: "Y la tierra estaba desordenada y vacía, y las tinieblas estaban sobre la faz del abismo." },
-                        { v: 3, kjv: "And God said, Let there be light: and there was light.", orig: "וַיֹּאמֶר אֱלֹהִים יְהִי אוֹר וַיְהִי־אוֹר", spa: "Y dijo Dios: Sea la luz; y fue la luz." }
+            "OT": {
+                "Genesis": {
+                    "1": [
+                        { "v": 1, "kjv": "In the beginning God created the heaven and the earth.", "orig": "בְּרֵאשִׁית בָּרָא אֱלֹהִים אֵת הַשָּׁמַיִם וְאֵת הָאָרֶץ", "spa": "En el principio creó Dios los cielos y la tierra." },
+                        { "v": 2, "kjv": "And the earth was without form, and void; and darkness was upon the face of the deep.", "orig": "וְהָאָרֶץ הָיְתָה תֹהוּ וָבֹהוּ", "spa": "Y la tierra estaba desordenada y vacía..." },
+                        { "v": 3, "kjv": "And God said, Let there be light: and there was light.", "orig": "וַיֹּאמֶר אֱלֹהִים יְהִי אוֹר וַיְהִי־אוֹר", "spa": "Y dijo Dios: Sea la luz; y fue la luz." }
                     ]
                 },
-                Psalms: {
-                    23: [
-                        { v: 1, kjv: "The LORD is my shepherd; I shall not want.", orig: "יְהוָה רֹעִי לֹא אֶחְסָר", spa: "Jehová es mi pastor; nada me faltará." },
-                        { v: 2, kjv: "He maketh me to lie down in green pastures: he leadeth me beside the still waters.", orig: "בִּנְאוֹת דֶּשֶׁא יַרְבִּיצֵנִי עַל־מֵי מְנֻחוֹת יְנַהֲלֵנִי", spa: "En lugares de delicados pastos me hará descansar; Junto a aguas de reposo me pastoreará." }
+                "Psalms": {
+                    "23": [
+                        { "v": 1, "kjv": "The LORD is my shepherd; I shall not want.", "orig": "יְהוָה רֹעִי לֹא אֶחְסָר", "spa": "Jehová es mi pastor; nada me faltará." },
+                        { "v": 2, "kjv": "He maketh me to lie down in green pastures...", "orig": "בִּנְאוֹת דֶּשֶׁא יַרְבִּיצֵנִי...", "spa": "En lugares de delicados pastos me hará descansar..." }
                     ]
                 }
             },
-            NT: {
-                John: {
-                    1: [
-                        { v: 1, kjv: "In the beginning was the Word, and the Word was with God, and the Word was God.", orig: "Ἐν ἀρχῇ ἦν ὁ λόγος, καὶ ὁ λόγος ἦν πρὸς τὸν θεόν, καὶ θεὸς ἦν ὁ λόγος.", spa: "En el principio era el Verbo, y el Verbo era con Dios, y el Verbo era Dios." },
-                        { v: 2, kjv: "The same was in the beginning with God.", orig: "οὗτος ἦν ἐν ἀρχῇ πρὸς τὸν θεόν.", spa: "Este era en el principio con Dios." },
-                        { v: 3, kjv: "All things were made by him; and without him was not any thing made that was made.", orig: "πάντα δι’ αὐτοῦ ἐγένετο, καὶ χωρὶς αὐτοῦ ἐγένετο οὐδὲ ἕν. ὃ γέγονεν", spa: "Todas las cosas por él fueron hechas, y sin él nada de lo que ha sido hecho, fue hecho." }
+            "NT": {
+                "John": {
+                    "1": [
+                        { "v": 1, "kjv": "In the beginning was the Word, and the Word was with God, and the Word was God.", "orig": "Ἐν ἀρχῇ ἦν ὁ λόγος...", "spa": "En el principio era el Verbo, y el Verbo era con Dios, y el Verbo era Dios." },
+                        { "v": 2, "kjv": "The same was in the beginning with God.", "orig": "οὗτος ἦν ἐν ἀρχῇ πρὸς τὸν θεόν.", "spa": "Este era en el principio con Dios." }
                     ],
-                    3: [
-                        { v: 16, kjv: "For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.", orig: "Οὕτως γὰρ ἠγάπησεν ὁ θεὸς τὸν κόσμον...", spa: "Porque de tal manera amó Dios al mundo, que ha dado a su Hijo unigénito, para que todo aquel que en él cree, no se pierda, mas tenga vida eterna." }
+                    "3": [
+                        { "v": 16, "kjv": "For God so loved the world...", "orig": "Οὕτως γὰρ ἠγάπησεν ὁ θεὸς τὸν κόσμον...", "spa": "Porque de tal manera amó Dios al mundo..." }
                     ]
                 },
-                Romans: {
-                    8: [
-                        { v: 1, kjv: "There is therefore now no condemnation to them which are in Christ Jesus...", orig: "Οὐδὲν ἄρα νῦν κατάκριμα τοῖς ἐν Χριστῷ Ἰησοῦ...", spa: "Ahora, pues, ninguna condenación hay para los que están en Cristo Jesús..." },
-                        { v: 28, kjv: "And we know that all things work together for good to them that love God...", orig: "Οἴδαμεν δὲ ὅτι τοῖς ἀγαπῶσιν τὸν θεὸν πάντα συνεργεῖ εἰς ἀγαθόν...", spa: "Y sabemos que a los que aman a Dios, todas las cosas les ayudan a bien..." }
+                "Romans": {
+                    "8": [
+                        { "v": 1, "kjv": "There is therefore now no condemnation to them which are in Christ Jesus...", "orig": "Οὐδὲν ἄρα νῦν κατάκριμα...", "spa": "Ahora, pues, ninguna condenación hay para los que están en Cristo Jesús..." }
                     ]
                 }
             }
         };
 
-        // --- 2. CONTROLLER & LOGIC ---
-
+        // --- 2. LOGIC (Simplified to run on all browsers) ---
+        
         const ui = {
             els: {
                 selTest: document.getElementById('selTestament'),
@@ -306,158 +218,172 @@
                 status: document.getElementById('saveStatus')
             },
 
-            renderVerse(container, vNum, text, vid, lang) {
-                const div = document.createElement('div');
-                div.className = 'verse-block';
-                div.dataset.vid = vid;
-                
-                let textClass = 'v-text';
-                // Apply specific font for Original languages
-                if(lang === 'orig') {
-                    if(app.state.testament === 'OT') textClass += ' font-hebrew';
-                    else textClass += ' font-greek';
-                }
-
-                div.innerHTML = `<span class="v-num">${vNum}</span><span class="${textClass}">${text}</span>`;
-                div.onclick = () => app.handleVerseClick(vid);
-                container.appendChild(div);
-            },
-
-            clearViews() {
+            clear() {
                 this.els.colKjv.innerHTML = '';
                 this.els.colOrig.innerHTML = '';
                 this.els.colSpa.innerHTML = '';
             },
 
-            showMessage(msg) {
-                this.els.colKjv.innerHTML = `<div style="padding:20px; color:#666;">${msg}</div>`;
+            addVerse(container, vNum, text, vid, lang) {
+                const div = document.createElement('div');
+                div.className = 'verse-block';
+                div.setAttribute('data-vid', vid);
+                
+                let textClass = 'v-text';
+                if(lang === 'orig') {
+                    // Check global state
+                    if(app.currentTestament === 'OT') textClass += ' font-hebrew';
+                    else textClass += ' font-greek';
+                }
+
+                div.innerHTML = '<span class="v-num">' + vNum + '</span><span class="' + textClass + '">' + text + '</span>';
+                
+                div.onclick = function() { app.clickVerse(vid); };
+                container.appendChild(div);
             },
 
             openPanel(vid, content) {
-                this.els.noteTitle.innerText = `Notes: ${vid.replace(/-/g, ' ')}`;
+                this.els.noteTitle.innerText = "Notes: " + vid;
                 this.els.noteInput.value = content;
-                this.els.panel.classList.add('open');
-                this.els.noteInput.focus();
+                this.els.panel.className = "side-panel open";
             },
 
             closePanel() {
-                this.els.panel.classList.remove('open');
-                document.querySelectorAll('.verse-block').forEach(b => b.classList.remove('active'));
-                app.state.activeVid = null;
+                this.els.panel.className = "side-panel";
+                var all = document.querySelectorAll('.verse-block');
+                for (var i=0; i<all.length; i++) { all[i].classList.remove('active'); }
+                app.currentVid = null;
             }
         };
 
         const app = {
-            state: {
-                testament: 'OT',
-                book: 'Genesis',
-                chapter: '1',
-                activeVid: null
-            },
+            currentTestament: 'OT',
+            currentBook: '',
+            currentChapter: '',
+            currentVid: null,
 
-            init() {
-                // Initial Bindings
-                ui.els.selTest.addEventListener('change', (e) => this.setTestament(e.target.value));
-                ui.els.selBook.addEventListener('change', (e) => this.setBook(e.target.value));
-                ui.els.selChap.addEventListener('change', (e) => this.setChapter(e.target.value));
-                ui.els.noteInput.addEventListener('input', (e) => this.saveNote(e.target.value));
+            init: function() {
+                // Event Listeners
+                ui.els.selTest.onchange = function(e) { app.setTestament(e.target.value); };
+                ui.els.selBook.onchange = function(e) { app.setBook(e.target.value); };
+                ui.els.selChap.onchange = function(e) { app.setChapter(e.target.value); };
+                ui.els.noteInput.oninput = function(e) { app.saveNote(e.target.value); };
 
-                // Force initial render
+                // Start
                 this.setTestament('OT');
             },
 
-            setTestament(t) {
-                this.state.testament = t;
-                ui.els.headerOrig.innerText = (t === 'OT') ? "Hebrew (Original)" : "Greek (Original)";
+            setTestament: function(t) {
+                this.currentTestament = t;
+                ui.els.headerOrig.innerText = (t === 'OT') ? "Hebrew" : "Greek";
                 
-                // Populate Books based on available Data
-                const books = Object.keys(BIBLE_DATA[t]);
-                ui.els.selBook.innerHTML = books.map(b => `<option value="${b}">${b}</option>`).join('');
-                
-                // Select first book automatically
-                if(books.length > 0) this.setBook(books[0]);
+                // Get books safely
+                var books = [];
+                if (BIBLE_DATA[t]) {
+                    books = Object.keys(BIBLE_DATA[t]);
+                }
+
+                // Populate Book Dropdown
+                var html = '';
+                for(var i=0; i<books.length; i++) {
+                    html += '<option value="'+books[i]+'">'+books[i]+'</option>';
+                }
+                ui.els.selBook.innerHTML = html;
+
+                if(books.length > 0) {
+                    this.setBook(books[0]);
+                } else {
+                    ui.els.selBook.innerHTML = '<option>No Books</option>';
+                }
             },
 
-            setBook(b) {
-                this.state.book = b;
-                const chapters = Object.keys(BIBLE_DATA[this.state.testament][b]);
-                ui.els.selChapter.innerHTML = chapters.map(c => `<option value="${c}">${c}</option>`).join('');
+            setBook: function(b) {
+                this.currentBook = b;
                 
-                // Select first chapter automatically
-                if(chapters.length > 0) this.setChapter(chapters[0]);
+                // Get chapters safely
+                var chapters = [];
+                if (BIBLE_DATA[this.currentTestament] && BIBLE_DATA[this.currentTestament][b]) {
+                    chapters = Object.keys(BIBLE_DATA[this.currentTestament][b]);
+                }
+
+                // Populate Chapter Dropdown
+                var html = '';
+                for(var i=0; i<chapters.length; i++) {
+                    html += '<option value="'+chapters[i]+'">'+chapters[i]+'</option>';
+                }
+                ui.els.selChapter.innerHTML = html;
+
+                if (chapters.length > 0) {
+                    this.setChapter(chapters[0]);
+                } else {
+                    ui.els.selChapter.innerHTML = '';
+                }
             },
 
-            setChapter(c) {
-                this.state.chapter = c;
-                this.loadContent();
+            setChapter: function(c) {
+                this.currentChapter = c;
+                this.render();
             },
 
-            loadContent() {
+            render: function() {
                 ui.closePanel();
-                ui.clearViews();
+                ui.clear();
 
-                // Safely access data
-                const t = this.state.testament;
-                const b = this.state.book;
-                const c = this.state.chapter;
+                // Retrieve verses safely using standard IF checks (No optional chaining)
+                var verses = [];
+                var t = this.currentTestament;
+                var b = this.currentBook;
+                var c = this.currentChapter;
 
-                const verses = BIBLE_DATA[t]?.[b]?.[c];
+                if (BIBLE_DATA[t] && BIBLE_DATA[t][b] && BIBLE_DATA[t][b][c]) {
+                    verses = BIBLE_DATA[t][b][c];
+                }
 
-                if (!verses) {
-                    ui.showMessage("No data available for this selection in Demo mode.");
+                if (verses.length === 0) {
+                    ui.els.colKjv.innerHTML = '<div style="padding:20px">No verses found.</div>';
                     return;
                 }
 
-                verses.forEach(v => {
-                    const vid = `${b}-${c}-${v.v}`;
-                    ui.renderVerse(ui.els.colKjv, v.v, v.kjv, vid, 'kjv');
-                    ui.renderVerse(ui.els.colOrig, v.v, v.orig, vid, 'orig');
-                    ui.renderVerse(ui.els.colSpa, v.v, v.spa, vid, 'spa');
-                });
+                // Loop and render
+                for (var i = 0; i < verses.length; i++) {
+                    var v = verses[i];
+                    var vid = b + "-" + c + "-" + v.v;
+                    ui.addVerse(ui.els.colKjv, v.v, v.kjv, vid, 'kjv');
+                    ui.addVerse(ui.els.colOrig, v.v, v.orig, vid, 'orig');
+                    ui.addVerse(ui.els.colSpa, v.v, v.spa, vid, 'spa');
+                }
             },
 
-            handleVerseClick(vid) {
-                this.state.activeVid = vid;
+            clickVerse: function(vid) {
+                this.currentVid = vid;
                 
                 // Highlight
-                document.querySelectorAll('.verse-block').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll(`.verse-block[data-vid="${vid}"]`).forEach(b => b.classList.add('active'));
+                var all = document.querySelectorAll('.verse-block');
+                for(var i=0; i<all.length; i++) { all[i].classList.remove('active'); }
+                
+                var target = document.querySelectorAll('.verse-block[data-vid="'+vid+'"]');
+                for(var j=0; j<target.length; j++) { target[j].classList.add('active'); }
 
                 // Load Note
-                const saved = localStorage.getItem(`note_${vid}`) || "";
+                var saved = localStorage.getItem("note_" + vid) || "";
                 ui.openPanel(vid, saved);
             },
 
-            saveNote(text) {
-                if(!this.state.activeVid) return;
-                localStorage.setItem(`note_${this.state.activeVid}`, text);
-                
-                // UI Feedback
-                ui.els.status.classList.add('visible');
-                setTimeout(() => ui.els.status.classList.remove('visible'), 2000);
+            saveNote: function(text) {
+                if(!this.currentVid) return;
+                localStorage.setItem("note_" + this.currentVid, text);
+                ui.els.status.innerText = "Saved!";
+                setTimeout(function(){ ui.els.status.innerText = ""; }, 2000);
             },
 
-            exportNotes() {
-                const keys = Object.keys(localStorage).filter(k => k.startsWith("note_"));
-                if(keys.length === 0) return alert("No notes to export yet!");
-
-                let content = "MY BIBLE NOTES\n==============\n\n";
-                keys.sort().forEach(key => {
-                    const ref = key.replace("note_", "").replace(/-/g, " ");
-                    content += `[${ref}]\n${localStorage.getItem(key)}\n\n`;
-                });
-
-                const blob = new Blob([content], {type: "text/plain"});
-                const a = document.createElement("a");
-                a.href = URL.createObjectURL(blob);
-                a.download = "My_Bible_Notes.txt";
-                a.click();
+            exportNotes: function() {
+                alert("Export functionality requires a server or modern browser features.");
             }
         };
 
-        // Start App
+        // Run Init
         app.init();
 
     </script>
 </body>
-</html
+</html>
