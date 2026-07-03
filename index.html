@@ -3,387 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parallel Bible Study</title>
-    <style>
-        :root {
-            --primary: #2c3e50;
-            --accent: #2980b9;
-            --bg-light: #f4f6f7;
-            --border: #ccc;
-            --panel-width: 350px;
-        }
-
-        * { box-sizing: border-box; }
-
-        body {
-            font-family: sans-serif;
-            margin: 0;
-            background-color: var(--bg-light);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        /* Header */
-        header {
-            background-color: #fff;
-            height: 60px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 15px;
-            flex-shrink: 0; /* Prevents header from shrinking */
-        }
-
-        h1 { font-size: 1.2rem; color: var(--primary); margin: 0; }
-        
-        .controls { display: flex; gap: 8px; }
-        
-        select { padding: 6px; font-size: 1rem; border-radius: 4px; border: 1px solid #999; }
-        button { padding: 6px 12px; background: var(--accent); color: white; border: none; border-radius: 4px; cursor: pointer; }
-
-        /* Main Area */
-        .workspace {
-            display: flex;
-            flex: 1;
-            height: calc(100vh - 60px); /* Explicit height calculation */
-            position: relative;
-        }
-
-        .bible-grid {
-            flex: 1;
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 1px;
-            background-color: #ccc;
-            height: 100%;
-        }
-
-        .column {
-            background: #fff;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            overflow: hidden;
-        }
-
-        .col-header {
-            padding: 10px;
-            background: #f9f9f9;
-            border-bottom: 1px solid #ddd;
-            text-align: center;
-            font-weight: bold;
-            color: var(--accent);
-            font-size: 0.9rem;
-            flex-shrink: 0;
-        }
-
-        .col-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 10px;
-        }
-
-        /* Verses */
-        .verse-block {
-            padding: 8px 0;
-            border-bottom: 1px solid #eee;
-            cursor: pointer;
-        }
-        .verse-block:hover { background-color: #eaf6ff; }
-        .verse-block.active { background-color: #dbf0ff; border-left: 3px solid var(--accent); padding-left: 5px; }
-
-        .v-num { font-weight: bold; color: #888; margin-right: 5px; font-size: 0.8rem; }
-        .v-text { line-height: 1.5; color: #333; }
-        
-        /* Fonts */
-        .font-hebrew { font-family: 'Times New Roman', serif; font-size: 1.4rem; direction: rtl; text-align: right; }
-        .font-greek { font-family: 'Times New Roman', serif; font-size: 1.2rem; }
-
-        /* Notes Panel */
-        .side-panel {
-            width: var(--panel-width);
-            background: white;
-            border-left: 1px solid #ccc;
-            position: absolute;
-            right: 0; top: 0; bottom: 0;
-            transform: translateX(100%);
-            transition: transform 0.2s;
-            display: flex;
-            flex-direction: column;
-            z-index: 99;
-        }
-        .side-panel.open { transform: translateX(0); box-shadow: -5px 0 15px rgba(0,0,0,0.2); }
-
-        .panel-header { padding: 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; background: #f0f0f0; }
-        .panel-body { padding: 15px; flex: 1; }
-        textarea { width: 100%; height: 200px; padding: 10px; border: 1px solid #ccc; font-size: 1rem; }
-    </style>
+    <title>Business Empire Simulation</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
-    <header>
-        <h1>Study Bible</h1>
-        <div class="controls">
-            <select id="selTestament">
-                <option value="OT">Old Testament</option>
-                <option value="NT">New Testament</option>
-            </select>
-            <select id="selBook"></select>
-            <select id="selChapter"></select>
-            <button onclick="app.exportNotes()">Export Notes</button>
-        </div>
-    </header>
-
-    <div class="workspace">
-        <div class="bible-grid">
-            <div class="column">
-                <div class="col-header">English (KJV)</div>
-                <div class="col-content" id="view-kjv">Loading...</div>
-            </div>
-            <div class="column">
-                <div class="col-header" id="header-orig">Original</div>
-                <div class="col-content" id="view-orig">Loading...</div>
-            </div>
-            <div class="column">
-                <div class="col-header">Español (RV60)</div>
-                <div class="col-content" id="view-spa">Loading...</div>
-            </div>
+    <div id="game">
+        <h1>Business Empire Simulation</h1>
+        <div class="tabs">
+            <button class="tab-button" onclick="openTab('clicker')">Clicker</button>
+            <button class="tab-button" onclick="openTab('investments')">Investing</button>
+            <button class="tab-button" onclick="openTab('businesses')">Businesses</button>
+            <button class="tab-button" onclick="openTab('items')">Items</button>
+            <button class="tab-button" onclick="openTab('profile')">Profile</button>
         </div>
 
-        <div class="side-panel" id="notesPanel">
-            <div class="panel-header">
-                <strong id="notesTitle">Notes</strong>
-                <button onclick="ui.closePanel()">Close X</button>
+        <div id="clicker" class="tab-content">
+            <div id="click-area" onclick="earnMoney()">Click to Earn Money</div>
+            <p>Cash: $<span id="cash-clicker">0</span></p> <!-- Updated ID -->
+            <p>Click Value: $<span id="clickValue">1</span></p>
+            <p>Hourly Income: $<span id="hourlyIncome-clicker">0</span></p> <!-- Updated ID -->
+        </div>
+
+        <div id="investments" class="tab-content">
+            <button onclick="invest('stock')">Invest in Stock ($2000)</button>
+            <button onclick="invest('realEstate')">Invest in Real Estate ($8000)</button>
+        </div>
+
+        <div id="businesses" class="tab-content">
+            <button class="button-rounded" onclick="openBuyBusinessPopup()">Buy A New Business</button>
+            <button class="button-rounded" onclick="openMergerPopup()">Merge Businesses</button>
+            <div id="business-list"></div>
+        </div>
+
+        <div id="items" class="tab-content">
+            <p>Items like cars, houses, boats, islands, etc. can be listed here.</p>
+        </div>
+
+        <div id="profile" class="tab-content">
+            <p>Your total fortune: $<span id="cash-profile">0</span></p> <!-- Updated ID -->
+            <p>Hourly Income: $<span id="hourlyIncome-profile">0</span></p> <!-- Updated ID -->
+        </div>
+
+        <div id="buy-business-popup" class="popup">
+            <h2>Buy a New Business</h2>
+            <!-- Updated prices for businesses -->
+            <button onclick="buyBusiness('lemonadeStand')">Buy Lemonade Stand - $500</button>
+            <button onclick="buyBusiness('carWash')">Buy Car Wash - $12,500</button>
+            <button onclick="buyBusiness('localShop')">Buy Local Shop - $45,000</button>
+            <button onclick="buyBusiness('factory')">Buy Factory - $150,000</button>
+            <button onclick="buyBusiness('legalClinic')">Buy Legal Clinic - $200,000</button>
+            <button onclick="buyBusiness('bank')">Buy Bank - $10,000,000</button>
+            <button onclick="closeBuyBusinessPopup()">Close</button>
+        </div>
+        <div id="bank-popup" class="popup">
+            <div class="popup-content">
+                <h2>Bank</h2>
+                <p>Hourly Income: $<span id="bank-hourly-income">100,000</span></p>
+                <p>Vault Storage: <span id="bank-vault-storage">$10,000,000 / $10,000,000</span></p>
+                <p>Upgrade Cost: $<span id="bank-upgrade-cost">5,000,000</span></p>
+                <button id="bank-upgrade-button" onclick="upgradeBankVault()">Upgrade Vault</button>
+                <button onclick="closeBankPopup()">Close</button>
             </div>
-            <div class="panel-body">
-                <textarea id="notesInput" placeholder="Type notes here..."></textarea>
-                <div id="saveStatus" style="color:green; margin-top:5px; height:20px;"></div>
-            </div>
+        </div>
+        
+        <div id="business-merger-popup" class="popup">
+            <h2>Business Merger</h2>
+            <p>Select two max-level businesses to merge them.</p>
+            <div id="merger-business-list"></div>
+            <button id="merge-button" onclick="mergeSelectedBusinesses()" disabled>Merge</button>
+            <button onclick="closeMergerPopup()">Close</button>
+        </div>        
+        <div id="upgrade-business-popup" class="popup">
+            <h2>Upgrade <span id="business-name"></span></h2>
+            <p>Current Level: <span id="business-level"></span></p>
+            <p>Current Income: $<span id="business-income"></span> per hour</p>
+            <p>Upgrade Cost: $<span id="business-upgrade-cost"></span></p>
+            <button id="upgrade-button" class="button-rounded">Upgrade</button>
+            <button id="close-button" class="button-rounded button-red">Close Business</button>
+            <button class="button-rounded button-white" onclick="closeUpgradeBusinessPopup()">Close</button>
         </div>
     </div>
-
-    <script>
-        // --- 1. DATA (Fixed keys to be strictly strings to prevent errors) ---
-        const BIBLE_DATA = {
-            "OT": {
-                "Genesis": {
-                    "1": [
-                        { "v": 1, "kjv": "In the beginning God created the heaven and the earth.", "orig": "בְּרֵאשִׁית בָּרָא אֱלֹהִים אֵת הַשָּׁמַיִם וְאֵת הָאָרֶץ", "spa": "En el principio creó Dios los cielos y la tierra." },
-                        { "v": 2, "kjv": "And the earth was without form, and void; and darkness was upon the face of the deep.", "orig": "וְהָאָרֶץ הָיְתָה תֹהוּ וָבֹהוּ", "spa": "Y la tierra estaba desordenada y vacía..." },
-                        { "v": 3, "kjv": "And God said, Let there be light: and there was light.", "orig": "וַיֹּאמֶר אֱלֹהִים יְהִי אוֹר וַיְהִי־אוֹר", "spa": "Y dijo Dios: Sea la luz; y fue la luz." }
-                    ]
-                },
-                "Psalms": {
-                    "23": [
-                        { "v": 1, "kjv": "The LORD is my shepherd; I shall not want.", "orig": "יְהוָה רֹעִי לֹא אֶחְסָר", "spa": "Jehová es mi pastor; nada me faltará." },
-                        { "v": 2, "kjv": "He maketh me to lie down in green pastures...", "orig": "בִּנְאוֹת דֶּשֶׁא יַרְבִּיצֵנִי...", "spa": "En lugares de delicados pastos me hará descansar..." }
-                    ]
-                }
-            },
-            "NT": {
-                "John": {
-                    "1": [
-                        { "v": 1, "kjv": "In the beginning was the Word, and the Word was with God, and the Word was God.", "orig": "Ἐν ἀρχῇ ἦν ὁ λόγος...", "spa": "En el principio era el Verbo, y el Verbo era con Dios, y el Verbo era Dios." },
-                        { "v": 2, "kjv": "The same was in the beginning with God.", "orig": "οὗτος ἦν ἐν ἀρχῇ πρὸς τὸν θεόν.", "spa": "Este era en el principio con Dios." }
-                    ],
-                    "3": [
-                        { "v": 16, "kjv": "For God so loved the world...", "orig": "Οὕτως γὰρ ἠγάπησεν ὁ θεὸς τὸν κόσμον...", "spa": "Porque de tal manera amó Dios al mundo..." }
-                    ]
-                },
-                "Romans": {
-                    "8": [
-                        { "v": 1, "kjv": "There is therefore now no condemnation to them which are in Christ Jesus...", "orig": "Οὐδὲν ἄρα νῦν κατάκριμα...", "spa": "Ahora, pues, ninguna condenación hay para los que están en Cristo Jesús..." }
-                    ]
-                }
-            }
-        };
-
-        // --- 2. LOGIC (Simplified to run on all browsers) ---
-        
-        const ui = {
-            els: {
-                selTest: document.getElementById('selTestament'),
-                selBook: document.getElementById('selBook'),
-                selChap: document.getElementById('selChapter'),
-                colKjv: document.getElementById('view-kjv'),
-                colOrig: document.getElementById('view-orig'),
-                colSpa: document.getElementById('view-spa'),
-                headerOrig: document.getElementById('header-orig'),
-                panel: document.getElementById('notesPanel'),
-                noteTitle: document.getElementById('notesTitle'),
-                noteInput: document.getElementById('notesInput'),
-                status: document.getElementById('saveStatus')
-            },
-
-            clear() {
-                this.els.colKjv.innerHTML = '';
-                this.els.colOrig.innerHTML = '';
-                this.els.colSpa.innerHTML = '';
-            },
-
-            addVerse(container, vNum, text, vid, lang) {
-                const div = document.createElement('div');
-                div.className = 'verse-block';
-                div.setAttribute('data-vid', vid);
-                
-                let textClass = 'v-text';
-                if(lang === 'orig') {
-                    // Check global state
-                    if(app.currentTestament === 'OT') textClass += ' font-hebrew';
-                    else textClass += ' font-greek';
-                }
-
-                div.innerHTML = '<span class="v-num">' + vNum + '</span><span class="' + textClass + '">' + text + '</span>';
-                
-                div.onclick = function() { app.clickVerse(vid); };
-                container.appendChild(div);
-            },
-
-            openPanel(vid, content) {
-                this.els.noteTitle.innerText = "Notes: " + vid;
-                this.els.noteInput.value = content;
-                this.els.panel.className = "side-panel open";
-            },
-
-            closePanel() {
-                this.els.panel.className = "side-panel";
-                var all = document.querySelectorAll('.verse-block');
-                for (var i=0; i<all.length; i++) { all[i].classList.remove('active'); }
-                app.currentVid = null;
-            }
-        };
-
-        const app = {
-            currentTestament: 'OT',
-            currentBook: '',
-            currentChapter: '',
-            currentVid: null,
-
-            init: function() {
-                // Event Listeners
-                ui.els.selTest.onchange = function(e) { app.setTestament(e.target.value); };
-                ui.els.selBook.onchange = function(e) { app.setBook(e.target.value); };
-                ui.els.selChap.onchange = function(e) { app.setChapter(e.target.value); };
-                ui.els.noteInput.oninput = function(e) { app.saveNote(e.target.value); };
-
-                // Start
-                this.setTestament('OT');
-            },
-
-            setTestament: function(t) {
-                this.currentTestament = t;
-                ui.els.headerOrig.innerText = (t === 'OT') ? "Hebrew" : "Greek";
-                
-                // Get books safely
-                var books = [];
-                if (BIBLE_DATA[t]) {
-                    books = Object.keys(BIBLE_DATA[t]);
-                }
-
-                // Populate Book Dropdown
-                var html = '';
-                for(var i=0; i<books.length; i++) {
-                    html += '<option value="'+books[i]+'">'+books[i]+'</option>';
-                }
-                ui.els.selBook.innerHTML = html;
-
-                if(books.length > 0) {
-                    this.setBook(books[0]);
-                } else {
-                    ui.els.selBook.innerHTML = '<option>No Books</option>';
-                }
-            },
-
-            setBook: function(b) {
-                this.currentBook = b;
-                
-                // Get chapters safely
-                var chapters = [];
-                if (BIBLE_DATA[this.currentTestament] && BIBLE_DATA[this.currentTestament][b]) {
-                    chapters = Object.keys(BIBLE_DATA[this.currentTestament][b]);
-                }
-
-                // Populate Chapter Dropdown
-                var html = '';
-                for(var i=0; i<chapters.length; i++) {
-                    html += '<option value="'+chapters[i]+'">'+chapters[i]+'</option>';
-                }
-                ui.els.selChapter.innerHTML = html;
-
-                if (chapters.length > 0) {
-                    this.setChapter(chapters[0]);
-                } else {
-                    ui.els.selChapter.innerHTML = '';
-                }
-            },
-
-            setChapter: function(c) {
-                this.currentChapter = c;
-                this.render();
-            },
-
-            render: function() {
-                ui.closePanel();
-                ui.clear();
-
-                // Retrieve verses safely using standard IF checks (No optional chaining)
-                var verses = [];
-                var t = this.currentTestament;
-                var b = this.currentBook;
-                var c = this.currentChapter;
-
-                if (BIBLE_DATA[t] && BIBLE_DATA[t][b] && BIBLE_DATA[t][b][c]) {
-                    verses = BIBLE_DATA[t][b][c];
-                }
-
-                if (verses.length === 0) {
-                    ui.els.colKjv.innerHTML = '<div style="padding:20px">No verses found.</div>';
-                    return;
-                }
-
-                // Loop and render
-                for (var i = 0; i < verses.length; i++) {
-                    var v = verses[i];
-                    var vid = b + "-" + c + "-" + v.v;
-                    ui.addVerse(ui.els.colKjv, v.v, v.kjv, vid, 'kjv');
-                    ui.addVerse(ui.els.colOrig, v.v, v.orig, vid, 'orig');
-                    ui.addVerse(ui.els.colSpa, v.v, v.spa, vid, 'spa');
-                }
-            },
-
-            clickVerse: function(vid) {
-                this.currentVid = vid;
-                
-                // Highlight
-                var all = document.querySelectorAll('.verse-block');
-                for(var i=0; i<all.length; i++) { all[i].classList.remove('active'); }
-                
-                var target = document.querySelectorAll('.verse-block[data-vid="'+vid+'"]');
-                for(var j=0; j<target.length; j++) { target[j].classList.add('active'); }
-
-                // Load Note
-                var saved = localStorage.getItem("note_" + vid) || "";
-                ui.openPanel(vid, saved);
-            },
-
-            saveNote: function(text) {
-                if(!this.currentVid) return;
-                localStorage.setItem("note_" + this.currentVid, text);
-                ui.els.status.innerText = "Saved!";
-                setTimeout(function(){ ui.els.status.innerText = ""; }, 2000);
-            },
-
-            exportNotes: function() {
-                alert("Export functionality requires a server or modern browser features.");
-            }
-        };
-
-        // Run Init
-        app.init();
-
-    </script>
+    <script src="main.js"></script>
+    <script src="bank.js"></script>
+    <script src="business.js"></script>
+    <script src="merger.js"></script>
 </body>
 </html>
