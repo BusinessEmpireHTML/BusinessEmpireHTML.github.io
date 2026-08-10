@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Business Empire Simulation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <header id="masthead">
+    <div class="masthead-inner">
+      <div class="brand">
+        <span class="brand-mark">&#9670;</span>
+        <h1>Business Empire</h1>
+      </div>
+      <div class="ticker" aria-label="Current balance and income">
+        <div class="ticker-item">
+          <span class="ticker-label">Cash</span>
+          <span class="ticker-value" id="cash-ticker">$0.00</span>
+        </div>
+        <div class="ticker-rule"></div>
+        <div class="ticker-item">
+          <span class="ticker-label">Per Hour</span>
+          <span class="ticker-value ticker-value--income" id="income-ticker">$0.00</span>
+        </div>
+      </div>
+    </div>
+    <nav class="tabs">
+      <button class="tab-button" data-tab="clicker" onclick="openTab('clicker')">Clicker</button>
+      <button class="tab-button" data-tab="investments" onclick="openTab('investments')">Investing</button>
+      <button class="tab-button" data-tab="businesses" onclick="openTab('businesses')">Businesses</button>
+      <button class="tab-button" data-tab="items" onclick="openTab('items')">Items</button>
+      <button class="tab-button" data-tab="profile" onclick="openTab('profile')">Profile</button>
+    </nav>
+  </header>
+
+  <main id="game">
+
+    <section id="clicker" class="tab-content">
+      <p class="section-eyebrow">Hustle</p>
+      <h2 class="section-title">Every dollar starts here</h2>
+      <div id="click-stage">
+        <button id="click-area" onclick="earnMoney(event)">
+          <span class="click-coin-inner">
+            <span class="click-coin-value">$<span id="clickValue">1</span></span>
+            <span class="click-coin-label">Tap to earn</span>
+          </span>
+        </button>
+      </div>
+      <p class="hint-text">Click value grows the more you hustle. Once you can afford it, put your cash to work in a business instead of clicking forever.</p>
+    </section>
+
+    <section id="investments" class="tab-content">
+      <p class="section-eyebrow">Portfolio</p>
+      <h2 class="section-title">Passive positions</h2>
+      <p class="hint-text">Stocks and property don't need your attention &mdash; buy in once and they pay out every hour, on top of whatever your businesses earn.</p>
+      <div id="investment-list"></div>
+    </section>
+
+    <section id="businesses" class="tab-content">
+      <p class="section-eyebrow">Holdings</p>
+      <h2 class="section-title">Your empire</h2>
+      <div class="action-row">
+        <button class="button-rounded button-gold" onclick="openBuyBusinessPopup()">Buy a Business</button>
+        <button class="button-rounded button-outline" onclick="openMergerPopup()">Merge Businesses</button>
+      </div>
+      <div id="business-list"></div>
+      <p id="business-empty-state" class="empty-state">You don't own any businesses yet. Buy your first one to start earning while you're away.</p>
+    </section>
+
+    <section id="items" class="tab-content">
+      <p class="section-eyebrow">Vault</p>
+      <h2 class="section-title">Trophies</h2>
+      <p class="hint-text">Cars, houses, boats, islands &mdash; the things your empire will eventually afford. Coming soon.</p>
+    </section>
+
+    <section id="profile" class="tab-content">
+      <p class="section-eyebrow">Ledger</p>
+      <h2 class="section-title">Your fortune</h2>
+      <div class="profile-grid">
+        <div class="profile-card">
+          <span class="profile-label">Total Fortune</span>
+          <span class="profile-value" id="cash-profile">$0.00</span>
+        </div>
+        <div class="profile-card">
+          <span class="profile-label">Hourly Income</span>
+          <span class="profile-value" id="hourlyIncome-profile">$0.00</span>
+        </div>
+        <div class="profile-card">
+          <span class="profile-label">Businesses Owned</span>
+          <span class="profile-value" id="business-count-profile">0</span>
+        </div>
+        <div class="profile-card">
+          <span class="profile-label">Total Clicks</span>
+          <span class="profile-value" id="clicks-profile">0</span>
+        </div>
+      </div>
+      <button class="button-rounded button-outline button-danger" onclick="resetGame()">Reset Game</button>
+    </section>
+
+  </main>
+
+  <div id="popup-backdrop" onclick="closeAllPopups()"></div>
+
+  <div id="buy-business-popup" class="popup">
+    <button class="popup-close" onclick="closeBuyBusinessPopup()" aria-label="Close">&times;</button>
+    <h2>Buy a New Business</h2>
+    <div id="buy-business-list"></div>
+  </div>
+
+  <div id="bank-popup" class="popup">
+    <button class="popup-close" onclick="closeBankPopup()" aria-label="Close">&times;</button>
+    <div class="popup-content">
+      <h2>Bank</h2>
+      <p class="popup-line">Hourly Income: <span id="bank-hourly-income">$0.00</span></p>
+      <p class="popup-line">Vault Storage: <span id="bank-vault-storage">$0 / $0</span></p>
+      <div class="vault-gauge"><div class="vault-gauge-fill" id="bank-vault-gauge"></div></div>
+      <p class="popup-line">Upgrade Cost: <span id="bank-upgrade-cost">$0</span></p>
+      <button id="bank-upgrade-button" class="button-rounded button-gold">Upgrade Vault</button>
+    </div>
+  </div>
+
+  <div id="business-merger-popup" class="popup">
+    <button class="popup-close" onclick="closeMergerPopup()" aria-label="Close">&times;</button>
+    <h2>Business Merger</h2>
+    <p class="hint-text">Select two eligible max-level businesses to merge them into something bigger.</p>
+    <div id="merger-business-list"></div>
+    <p id="merger-empty-state" class="empty-state">No businesses are ready to merge yet. Level a business up to its max level first.</p>
+    <button id="merge-button" class="button-rounded button-gold" onclick="mergeSelectedBusinesses()" disabled>Merge</button>
+  </div>
+
+  <div id="upgrade-business-popup" class="popup">
+    <button class="popup-close" onclick="closeUpgradeBusinessPopup()" aria-label="Close">&times;</button>
+    <h2 id="business-name"></h2>
+    <p class="popup-line">Level: <span id="business-level"></span></p>
+    <div class="level-gauge"><div class="level-gauge-fill" id="business-level-gauge"></div></div>
+    <p class="popup-line">Current Income: <span id="business-income"></span> / hr</p>
+    <p class="popup-line">Upgrade Cost: <span id="business-upgrade-cost"></span></p>
+    <div class="popup-actions">
+      <button id="upgrade-button" class="button-rounded button-gold">Upgrade</button>
+      <button id="close-button" class="button-rounded button-outline button-danger">Close Business</button>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <script src="main.js"></script>
+  <script src="bank.js"></script>
+  <script src="business.js"></script>
+  <script src="investments.js"></script>
+  <script src="merger.js"></script>
+</body>
+</html>
