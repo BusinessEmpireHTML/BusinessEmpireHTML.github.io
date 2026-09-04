@@ -173,10 +173,10 @@ function renderBuyBusinessPopup() {
   list.innerHTML = '';
 
   Object.entries(BUSINESS_TYPES).forEach(([type, config]) => {
-    list.appendChild(buildShopCard(type, config, config.cost, `${formatMoney(config.income)} / hr`, ownsBusinessType(type)));
+    list.appendChild(buildShopCard(type, config, config.cost, `${formatMoney(config.income)} / hr`));
   });
 
-  list.appendChild(buildShopCard('bank', bank, bank.baseCost, 'Income scales with vault', ownsBusinessType('bank')));
+  list.appendChild(buildShopCard('bank', bank, bank.baseCost, 'Income scales with vault'));
 }
 
 function buildShopCard(type, source, cost, subLabel, owned) {
