@@ -7,7 +7,7 @@
    regardless of tick frequency.
    ============================================================ */
 
-const VAULT_FILL_RATE_PER_HOUR = 100000000000000000000000000000000; // $1B/hr flows into the vault until it's full
+const VAULT_FILL_RATE_PER_HOUR = 1e9; // $1B/hr flows into the vault until it's full
 
 let bank = {
   name: 'Bank',
