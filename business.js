@@ -135,10 +135,6 @@ function buyBusiness(type) {
   const config = BUSINESS_TYPES[type];
   if (!config) return;
 
-  if (ownsBusinessType(type)) {
-    toast(`You already own a ${config.name}.`, 'error');
-    return;
-  }
   if (cash < config.cost) {
     toast('Not enough cash for that.', 'error');
     return;
