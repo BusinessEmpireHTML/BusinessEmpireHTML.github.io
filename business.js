@@ -135,6 +135,10 @@ function buyBusiness(type) {
   const config = BUSINESS_TYPES[type];
   if (!config) return;
 
+  if (ownsBusinessType(type)) {
+    toast(`You already own a ${config.name}.`, 'error');
+    return;
+  }
   if (cash < config.cost) {
     toast('Not enough cash for that.', 'error');
     return;
@@ -169,10 +173,10 @@ function renderBuyBusinessPopup() {
   list.innerHTML = '';
 
   Object.entries(BUSINESS_TYPES).forEach(([type, config]) => {
-    list.appendChild(buildShopCard(type, config, config.cost, `${formatMoney(config.income)} / hr`));
+    list.appendChild(buildShopCard(type, config, config.cost, `${formatMoney(config.income)} / hr`, ownsBusinessType(type)));
   });
 
-  list.appendChild(buildShopCard('bank', bank, bank.baseCost, 'Income scales with vault'));
+  list.appendChild(buildShopCard('bank', bank, bank.baseCost, 'Income scales with vault', ownsBusinessType('bank')));
 }
 
 function buildShopCard(type, source, cost, subLabel, owned) {
