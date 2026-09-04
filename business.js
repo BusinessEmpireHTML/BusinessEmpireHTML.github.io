@@ -311,5 +311,3 @@ function closeBusiness(index) {
     toast(`${business.name} closed.`, 'error');
   }
 }
-
-let selectedBusinesses = [];

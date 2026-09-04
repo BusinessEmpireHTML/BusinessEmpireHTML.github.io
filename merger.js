@@ -5,6 +5,34 @@
    this file only fixes how income gets recalculated afterward.
    ============================================================ */
 
+const mergeRecipes = [
+  // Tier 1 -> Tier 2
+  // Note: every recipe pairs two DIFFERENT business types. Buying a business
+  // blocks owning a second of that same type at once (see ownsBusinessType
+  // in business.js), so a "Gym + Gym" style recipe would be impossible to
+  // ever complete. Factory (and a few cross-business pairings) fill the
+  // "second ingredient" role instead.
+  { inputs: ['Lemonade Stand', 'Factory'], output: 'Lemonade Factory' },
+  { inputs: ['Local Shop', 'Factory'], output: 'Restaurant' },
+  { inputs: ['Car Wash', 'Factory'], output: 'Car Dealership' },
+  { inputs: ['Legal Clinic', 'Bank'], output: 'Law Firm' },
+  { inputs: ['Bank', 'Real Estate Agency'], output: 'Investment Bank' },
+  { inputs: ['Gym', 'Factory'], output: 'Fitness Empire' },
+  { inputs: ['Pharmacy', 'Factory'], output: 'Pharmacy Chain' },
+  { inputs: ['Hotel', 'Factory'], output: 'Hotel Chain' },
+  { inputs: ['Movie Theater', 'Factory'], output: 'Entertainment Group' },
+  { inputs: ['Supermarket', 'Factory'], output: 'Retail Empire' },
+  { inputs: ['Tech Startup', 'Factory'], output: 'Tech Corporation' },
+  { inputs: ['Real Estate Agency', 'Factory'], output: 'Real Estate Empire' },
+  { inputs: ['Pharmacy', 'Legal Clinic'], output: 'Healthcare Corporation' },
+  { inputs: ['Hotel', 'Restaurant'], output: 'Hospitality Group' },
+
+  // Tier 2 -> Tier 3 (capstones — see canMergeAgain below)
+  { inputs: ['Restaurant', 'Factory'], output: 'Chain of Restaurants' },
+  { inputs: ['Tech Corporation', 'Tech Startup'], output: 'Tech Conglomerate' },
+  { inputs: ['Real Estate Empire', 'Real Estate Agency'], output: 'Global Real Estate' },
+];
+
 const mergedBusinesses = [
   // Tier 2 — first merges, carried over from the original game (real artwork)
   { name: 'Lemonade Factory', income: 600000, imageSrc: 'images/LemonadeFactory.jpg' },
@@ -31,118 +59,93 @@ const mergedBusinesses = [
   { name: 'Global Real Estate', income: 1000000000, icon: '🌍' },
 ];
 
-const mergedCombinations = {
-  // Tier 1 -> Tier 2
-  // Note: every recipe below pairs two DIFFERENT business types. Buying a
-  // business blocks owning a second of that same type at once (see
-  // ownsBusinessType in business.js), so a "Gym + Gym" style recipe would
-  // be impossible to ever complete — there's no way to hold two Gyms
-  // simultaneously. Factory (and a few cross-business pairings) fill the
-  // "second ingredient" role instead.
-  'Lemonade Stand+Factory': 'Lemonade Factory',
-  'Local Shop+Factory': 'Restaurant',
-  'Car Wash+Factory': 'Car Dealership',
-  'Legal Clinic+Bank': 'Law Firm',
-  'Bank+Real Estate Agency': 'Investment Bank',
-  'Gym+Factory': 'Fitness Empire',
-  'Pharmacy+Factory': 'Pharmacy Chain',
-  'Hotel+Factory': 'Hotel Chain',
-  'Movie Theater+Factory': 'Entertainment Group',
-  'Supermarket+Factory': 'Retail Empire',
-  'Tech Startup+Factory': 'Tech Corporation',
-  'Real Estate Agency+Factory': 'Real Estate Empire',
-  'Pharmacy+Legal Clinic': 'Healthcare Corporation',
-  'Hotel+Restaurant': 'Hospitality Group',
-
-  // Tier 2 -> Tier 3 (capstones — see canMergeAgain below)
-  'Restaurant+Factory': 'Chain of Restaurants',
-  'Tech Corporation+Tech Startup': 'Tech Conglomerate',
-  'Real Estate Empire+Real Estate Agency': 'Global Real Estate',
-};
-
 // Businesses that are an intermediate rung rather than a final capstone —
 // they're eligible to merge a second time, and they're excluded from the
 // Mars Colonization requirements below since a further merge supersedes them.
 const INTERMEDIATE_MERGE_NAMES = ['Restaurant', 'Tech Corporation', 'Real Estate Empire'];
 
+// Looks up the display template (imageSrc/icon) for any business NAME,
+// whether it's a base type (from BUSINESS_TYPES), the Bank, or a merged
+// tier-2/tier-3 output (from mergedBusinesses). Used to render recipe icons.
+function findBusinessTemplateByName(name) {
+  if (name === 'Bank') return bank;
+  const baseMatch = Object.values(BUSINESS_TYPES).find(cfg => cfg.name === name);
+  if (baseMatch) return baseMatch;
+  return mergedBusinesses.find(b => b.name === name);
+}
+
+function isEligibleForMerge(business) {
+  return (
+    (business.level === business.maxLevel && !business.merged) ||
+    (business.merged && canMergeAgain(business)) ||
+    (business.type === 'bank' && business.currentMoneyInVault === business.maxVaultStorage)
+  );
+}
+
+function findEligibleBusinessIndex(name) {
+  return businesses.findIndex(b => b.name === name && isEligibleForMerge(b));
+}
+
 function closeMergerPopup() {
   hidePopup('business-merger-popup');
-  selectedBusinesses = [];
-  document.getElementById('merge-button').disabled = true;
 }
 
 function openMergerPopup() {
-  const list = document.getElementById('merger-business-list');
-  const emptyState = document.getElementById('merger-empty-state');
-  list.innerHTML = '';
-  selectedBusinesses = [];
-  document.getElementById('merge-button').disabled = true;
-
-  let eligibleCount = 0;
-
-  businesses.forEach((business, index) => {
-    const isEligible =
-      (business.level === business.maxLevel && !business.merged) ||
-      (business.merged && canMergeAgain(business)) ||
-      (business.type === 'bank' && business.currentMoneyInVault === business.maxVaultStorage);
-
-    if (!isEligible) return;
-    eligibleCount++;
-
-    const card = document.createElement('div');
-    card.className = 'card merger-card';
-    card.appendChild(createCardMedia(business));
-
-    const body = document.createElement('div');
-    body.className = 'card-body';
-    body.innerHTML = `<div class="card-title-row"><span class="card-title">${business.name}</span></div>`;
-
-    card.appendChild(body);
-    card.onclick = () => toggleBusinessSelection(index, card);
-
-    list.appendChild(card);
-  });
-
-  emptyState.classList.toggle('visible', eligibleCount === 0);
+  renderMergerRecipes();
   showPopup('business-merger-popup');
 }
 
-function toggleBusinessSelection(index, cardEl) {
-  const pos = selectedBusinesses.indexOf(index);
-  if (pos === -1) {
-    if (selectedBusinesses.length < 2) {
-      selectedBusinesses.push(index);
-      cardEl.classList.add('selected');
+function renderMergerRecipes() {
+  const list = document.getElementById('merger-business-list');
+  list.innerHTML = '';
+
+  mergeRecipes.forEach(recipe => {
+    const [name1, name2] = recipe.inputs;
+    const index1 = findEligibleBusinessIndex(name1);
+    const index2 = findEligibleBusinessIndex(name2);
+    const ready1 = index1 !== -1;
+    const ready2 = index2 !== -1;
+    const bothReady = ready1 && ready2;
+
+    const card = document.createElement('div');
+    card.className = 'recipe-card';
+
+    const header = document.createElement('div');
+    header.className = 'recipe-header';
+    header.innerHTML = `
+      <span class="recipe-title">${name1} + ${name2}</span>
+      <span class="recipe-arrow">&rarr;</span>
+      <span class="recipe-output">${recipe.output}</span>
+    `;
+
+    const reqRow = document.createElement('div');
+    reqRow.className = 'recipe-requirements';
+    reqRow.innerHTML = `
+      <span class="recipe-chip${ready1 ? ' ready' : ''}">${name1}</span>
+      <span class="recipe-chip${ready2 ? ' ready' : ''}">${name2}</span>
+    `;
+
+    const mergeButton = document.createElement('button');
+    mergeButton.className = 'button-rounded button-gold recipe-merge-button';
+    mergeButton.textContent = 'Merge';
+    mergeButton.disabled = !bothReady;
+    if (bothReady) {
+      mergeButton.onclick = () => {
+        performMerge(businesses[index1], businesses[index2], recipe.output);
+        toast(`Merged into a ${recipe.output}!`, 'success');
+        renderMergerRecipes();
+      };
     }
-  } else {
-    selectedBusinesses.splice(pos, 1);
-    cardEl.classList.remove('selected');
-  }
-  document.getElementById('merge-button').disabled = selectedBusinesses.length !== 2;
+
+    card.appendChild(header);
+    card.appendChild(reqRow);
+    card.appendChild(mergeButton);
+    list.appendChild(card);
+  });
 }
 
 function canMergeAgain(business) {
   return INTERMEDIATE_MERGE_NAMES.includes(business.name);
-}
-
-function isMergeCompatible(business1, business2) {
-  const combination1 = `${business1.name}+${business2.name}`;
-  const combination2 = `${business2.name}+${business1.name}`;
-  return mergedCombinations[combination1] || mergedCombinations[combination2];
-}
-
-function mergeSelectedBusinesses() {
-  const [business1, business2] = selectedBusinesses.map(index => businesses[index]);
-  const mergedName = business1 && business2 ? isMergeCompatible(business1, business2) : null;
-
-  if (mergedName) {
-    performMerge(business1, business2, mergedName);
-    toast(`Merged into a ${mergedName}!`, 'success');
-  } else {
-    toast('Those two businesses cannot be merged together.', 'error');
-  }
-
-  closeMergerPopup();
 }
 
 function performMerge(business1, business2, mergedName) {
