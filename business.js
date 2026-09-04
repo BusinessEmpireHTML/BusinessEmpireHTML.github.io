@@ -46,10 +46,84 @@ const BUSINESS_TYPES = {
     maxLevel: 10,
     imageSrc: 'images/LegalClinic.jpg',
   },
+  gym: {
+    name: 'Gym',
+    cost: 250000,
+    income: 20000,
+    upgradeMultiplier: 1.3,
+    maxLevel: 20,
+    icon: '🏋️',
+  },
+  hotel: {
+    name: 'Hotel',
+    cost: 300000,
+    income: 25000,
+    upgradeMultiplier: 1.35,
+    maxLevel: 30,
+    icon: '🏨',
+  },
+  pharmacy: {
+    name: 'Pharmacy',
+    cost: 400000,
+    income: 30000,
+    upgradeMultiplier: 1.25,
+    maxLevel: 25,
+    icon: '💊',
+  },
+  movieTheater: {
+    name: 'Movie Theater',
+    cost: 600000,
+    income: 40000,
+    upgradeMultiplier: 1.4,
+    maxLevel: 35,
+    icon: '🎬',
+  },
+  supermarket: {
+    name: 'Supermarket',
+    cost: 800000,
+    income: 60000,
+    upgradeMultiplier: 1.35,
+    maxLevel: 40,
+    icon: '🛒',
+  },
+  techStartup: {
+    name: 'Tech Startup',
+    cost: 1000000,
+    income: 50000,
+    upgradeMultiplier: 1.4,
+    maxLevel: 40,
+    icon: '💻',
+  },
+  realEstate: {
+    name: 'Real Estate Agency',
+    cost: 5000000,
+    income: 200000,
+    upgradeMultiplier: 1.35,
+    maxLevel: 35,
+    icon: '🏙️',
+  },
 };
 
 function ownsBusinessType(type) {
   return businesses.some(b => b.type === type);
+}
+
+// Renders either a photo (imageSrc) or a lettered/emoji monogram, for
+// business types and merge tiers that don't have on-disk artwork yet.
+// Used by business.js, merger.js, and the Mars popup so every list of
+// business "cards" looks consistent no matter what it's showing.
+function createCardMedia(source) {
+  if (source.imageSrc) {
+    const img = document.createElement('img');
+    img.src = source.imageSrc;
+    img.alt = `${source.name} image`;
+    img.className = 'card-image';
+    return img;
+  }
+  const el = document.createElement('div');
+  el.className = 'card-monogram';
+  el.textContent = source.icon || '★';
+  return el;
 }
 
 function buyBusiness(type) {
@@ -81,6 +155,7 @@ function buyBusiness(type) {
     upgradeMultiplier: config.upgradeMultiplier,
     maxLevel: config.maxLevel,
     imageSrc: config.imageSrc,
+    icon: config.icon,
     merged: false,
   });
 
@@ -98,27 +173,24 @@ function renderBuyBusinessPopup() {
   list.innerHTML = '';
 
   Object.entries(BUSINESS_TYPES).forEach(([type, config]) => {
-    list.appendChild(buildShopCard(type, config.name, config.imageSrc, config.cost, `${formatMoney(config.income)} / hr`, ownsBusinessType(type)));
+    list.appendChild(buildShopCard(type, config, config.cost, `${formatMoney(config.income)} / hr`, ownsBusinessType(type)));
   });
 
-  list.appendChild(buildShopCard('bank', bank.name, bank.imageSrc, bank.baseCost, 'Income scales with vault', ownsBusinessType('bank')));
+  list.appendChild(buildShopCard('bank', bank, bank.baseCost, 'Income scales with vault', ownsBusinessType('bank')));
 }
 
-function buildShopCard(type, name, imageSrc, cost, subLabel, owned) {
+function buildShopCard(type, source, cost, subLabel, owned) {
   const card = document.createElement('div');
   card.className = 'card' + (owned ? ' owned' : '');
   if (!owned) card.onclick = () => buyBusiness(type);
 
-  const img = document.createElement('img');
-  img.src = imageSrc;
-  img.alt = `${name} image`;
-  img.className = 'card-image';
+  card.appendChild(createCardMedia(source));
 
   const body = document.createElement('div');
   body.className = 'card-body';
   body.innerHTML = `
     <div class="card-title-row">
-      <span class="card-title">${name}</span>
+      <span class="card-title">${source.name}</span>
       ${owned ? '<span class="card-badge max">Owned</span>' : ''}
     </div>
     <div class="card-sub">${subLabel}</div>
@@ -128,7 +200,6 @@ function buildShopCard(type, name, imageSrc, cost, subLabel, owned) {
   price.className = 'card-price';
   price.textContent = owned ? '' : formatMoney(cost);
 
-  card.appendChild(img);
   card.appendChild(body);
   card.appendChild(price);
   return card;
@@ -145,10 +216,7 @@ function renderBusinesses() {
     const card = document.createElement('div');
     card.className = 'card';
 
-    const img = document.createElement('img');
-    img.src = business.imageSrc;
-    img.alt = `${business.name} image`;
-    img.className = 'card-image';
+    card.appendChild(createCardMedia(business));
 
     const body = document.createElement('div');
     body.className = 'card-body';
@@ -178,7 +246,6 @@ function renderBusinesses() {
       `;
     }
 
-    card.appendChild(img);
     card.appendChild(body);
 
     if (business.type === 'bank') {

@@ -67,6 +67,7 @@
       <div class="action-row">
         <button class="button-rounded button-gold" onclick="openBuyBusinessPopup()">Buy a Business</button>
         <button class="button-rounded button-outline" onclick="openMergerPopup()">Merge Businesses</button>
+        <button class="button-rounded button-mars" onclick="openMarsPopup()">Go To Mars</button>
       </div>
       <div id="business-list"></div>
       <p id="business-empty-state" class="empty-state">You don't own any businesses yet. Buy your first one to start earning while you're away.</p>
@@ -131,6 +132,16 @@
     <div id="merger-business-list"></div>
     <p id="merger-empty-state" class="empty-state">No businesses are ready to merge yet. Level a business up to its max level first.</p>
     <button id="merge-button" class="button-rounded button-gold" onclick="mergeSelectedBusinesses()" disabled>Merge</button>
+  </div>
+
+  <div id="mars-popup" class="popup">
+    <button class="popup-close" onclick="closeMarsPopup()" aria-label="Close">&times;</button>
+    <h2>Mars Colonization</h2>
+    <p class="hint-text">Assemble one of every capstone business &mdash; the final tier of each merge line &mdash; and you can fold your entire empire into a single, planet-sized venture.</p>
+    <p class="popup-line"><span id="mars-progress-label">0 / 0 acquired</span></p>
+    <div class="mars-gauge"><div class="mars-gauge-fill" id="mars-progress-fill" style="width:0%"></div></div>
+    <div id="mars-business-list"></div>
+    <button id="mars-colonize-button" class="button-rounded button-mars" onclick="colonizeMars()" disabled>Colonize Mars</button>
   </div>
 
   <div id="upgrade-business-popup" class="popup">

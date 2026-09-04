@@ -284,7 +284,7 @@ body {
 
 /* ---------- Cards (business / investment / merger) ---------- */
 
-#business-list, #investment-list, #buy-business-list, #merger-business-list {
+#business-list, #investment-list, #buy-business-list, #merger-business-list, #mars-business-list {
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -398,6 +398,10 @@ body {
 
 .card.selected { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold); }
 
+.card.missing { opacity: 0.45; cursor: default; }
+.card.missing:hover { transform: none; border-color: var(--hairline); background: var(--bg-panel); }
+.card.missing .card-badge { color: var(--ink-faint); background: rgba(255,255,255,0.05); border-color: var(--hairline-strong); }
+
 .empty-state {
   color: var(--ink-faint);
   font-size: 0.85rem;
@@ -444,6 +448,14 @@ body {
 
 .button-danger { color: var(--rust-bright); border-color: rgba(181, 88, 60, 0.4); }
 .button-danger:hover:not(:disabled) { border-color: var(--rust-bright); color: var(--rust-bright); }
+
+.button-mars {
+  background: transparent;
+  color: var(--rust-bright);
+  border: 1px solid rgba(181, 88, 60, 0.5);
+}
+
+.button-mars:hover:not(:disabled) { border-color: var(--rust-bright); background: rgba(181, 88, 60, 0.1); }
 
 /* ---------- Popups ---------- */
 
@@ -524,6 +536,20 @@ body {
 .vault-gauge-fill, .level-gauge-fill {
   height: 100%;
   background: linear-gradient(90deg, var(--emerald-dim), var(--gold));
+  transition: width 0.3s ease;
+}
+
+.mars-gauge {
+  height: 8px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 10px 0 16px;
+}
+
+.mars-gauge-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--rust), var(--rust-bright));
   transition: width 0.3s ease;
 }
 
