@@ -24,10 +24,6 @@ let bank = {
 };
 
 function buyBank() {
-  if (ownsBusinessType('bank')) {
-    toast('You already own a Bank.', 'error');
-    return;
-  }
   if (cash < bank.baseCost) {
     toast('Not enough cash for that.', 'error');
     return;
