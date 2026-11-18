@@ -71,9 +71,16 @@ const MARKETS = {
 // supply: shares outstanding / coins in circulation (market cap = price × supply).
 // volatility: standard deviation of the per-tick log-price move.
 const MARKET_ASSETS = [
+  // ---- Stocks: the founder's own ventures (listed first, tagged "Your project") ----
+  { symbol: 'OZEN', market: 'stocks', founder: true, name: 'Ozen Hebrew', sector: 'Language learning', icon: '👂', color: '#4f9dde', basePrice: 48.2, supply: 3.0e8, volatility: 0.012 },
+  { symbol: 'ORBI', market: 'stocks', founder: true, name: 'Orbital Idle', sector: 'Gaming', icon: '🪐', color: '#9d7bea', basePrice: 61.9, supply: 2.0e8, volatility: 0.014 },
+  { symbol: 'SCRL', market: 'stocks', founder: true, name: 'Script Learner', sector: 'Education', icon: '✍️', color: '#e0a458', basePrice: 33.75, supply: 2.8e8, volatility: 0.011 },
+  { symbol: 'MEBA', market: 'stocks', founder: true, name: 'Mebae', sector: 'Startup', icon: '🌱', color: '#7cc576', basePrice: 27.4, supply: 2.5e8, volatility: 0.013 },
+  { symbol: 'SUBT', market: 'stocks', founder: true, name: 'SubTwine', sector: 'Startup', icon: '🧵', color: '#e46f9a', basePrice: 19.6, supply: 3.2e8, volatility: 0.013 },
+
   // ---- Stocks ----
   { symbol: 'NVBT', market: 'stocks', name: 'Novabyte Systems', sector: 'Technology', icon: '💻', color: '#5b8def', basePrice: 412.5, supply: 2.1e9, volatility: 0.007 },
-  { symbol: 'ORBD', market: 'stocks', name: 'Orbital Dynamics', sector: 'Aerospace', icon: '🛰️', color: '#8f7cf0', basePrice: 186.2, supply: 1.4e9, volatility: 0.009 },
+  { symbol: 'STRX', market: 'stocks', name: 'Stratos Aerospace', sector: 'Aerospace', icon: '🛰️', color: '#8f7cf0', basePrice: 186.2, supply: 1.4e9, volatility: 0.009 },
   { symbol: 'MDCL', market: 'stocks', name: 'Medicore Labs', sector: 'Biotech', icon: '🧬', color: '#e06aa0', basePrice: 74.1, supply: 3.2e9, volatility: 0.011 },
   { symbol: 'CBLT', market: 'stocks', name: 'Cobalt Bank Holdings', sector: 'Finance', icon: '🏦', color: '#3fa7a0', basePrice: 58.75, supply: 4.0e9, volatility: 0.004 },
   { symbol: 'IRCM', market: 'stocks', name: 'Ironclad Motors', sector: 'Automotive', icon: '🚗', color: '#d0563b', basePrice: 129.4, supply: 1.6e9, volatility: 0.008 },
@@ -492,6 +499,7 @@ function buildMarketRows() {
         <div class="card-title-row">
           <span class="card-title">${asset.name}</span>
           <span class="asset-symbol">${asset.symbol}</span>
+          ${asset.founder ? '<span class="founder-tag">★ Your project</span>' : ''}
           <span class="card-badge" hidden></span>
         </div>
         <div class="asset-meta"><span class="asset-cap"></span><span class="asset-stake"></span></div>
@@ -613,7 +621,7 @@ function openTradePopup(symbol) {
   iconSlot.innerHTML = '';
   iconSlot.appendChild(createAssetIcon(asset, 'asset-icon--lg'));
   document.getElementById('trade-name').textContent = asset.name;
-  document.getElementById('trade-sub').textContent = `${asset.symbol} · ${asset.sector}`;
+  document.getElementById('trade-sub').textContent = `${asset.symbol} · ${asset.sector}${asset.founder ? ' · ★ Your project' : ''}`;
   document.getElementById('trade-supply-label').textContent = asset.market === 'crypto' ? 'Circulating supply' : 'Shares outstanding';
   document.getElementById('trade-unit-label').textContent = market.unitPlural;
 

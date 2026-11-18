@@ -581,6 +581,17 @@ body {
   color: var(--ink-faint);
 }
 
+.founder-tag {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #1a1006;
+  background: linear-gradient(180deg, var(--gold-bright), var(--gold));
+  border-radius: 999px;
+  padding: 1px 8px;
+}
+
 .asset-meta {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
