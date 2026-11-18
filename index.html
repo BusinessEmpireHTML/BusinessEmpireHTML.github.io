@@ -55,10 +55,42 @@
     </section>
 
     <section id="investments" class="tab-content">
-      <p class="section-eyebrow">Portfolio</p>
-      <h2 class="section-title">Passive positions</h2>
-      <p class="hint-text">Stocks and property don't need your attention &mdash; buy in once and they pay out every hour, on top of whatever your businesses earn.</p>
-      <div id="investment-list"></div>
+      <p class="section-eyebrow">Markets</p>
+      <h2 class="section-title">Trade the floor</h2>
+
+      <div class="portfolio-summary">
+        <div class="profile-card">
+          <span class="profile-label">Portfolio Value</span>
+          <span class="profile-value" id="portfolio-value">$0.00</span>
+        </div>
+        <div class="profile-card">
+          <span class="profile-label">Unrealized P/L</span>
+          <span class="profile-value" id="portfolio-pl">$0.00</span>
+        </div>
+      </div>
+
+      <div class="segmented" role="tablist" aria-label="Market">
+        <button class="segment active" data-market="stocks" onclick="openMarket('stocks')">Stocks</button>
+        <button class="segment" data-market="crypto" onclick="openMarket('crypto')">Crypto</button>
+        <button class="segment" data-market="property" onclick="openMarket('property')">Property</button>
+      </div>
+
+      <div class="market-panel active" id="market-stocks">
+        <p class="hint-text">Share prices move up and down every few seconds. Buy low, sell high, and watch the headlines. Big orders move the price, so you pay more the more of a company you buy.</p>
+        <p class="market-news" id="news-stocks"></p>
+        <div class="market-list" id="stocks-list"></div>
+      </div>
+
+      <div class="market-panel" id="market-crypto">
+        <p class="hint-text">Same idea, much wilder swings. Coins update every 3 seconds, can be bought in fractions, and a single headline can move them 35% either way.</p>
+        <p class="market-news" id="news-crypto"></p>
+        <div class="market-list" id="crypto-list"></div>
+      </div>
+
+      <div class="market-panel" id="market-property">
+        <p class="hint-text">Property doesn't need your attention. Buy in once and it pays out every hour, on top of whatever your businesses earn.</p>
+        <div id="property-list"></div>
+      </div>
     </section>
 
     <section id="businesses" class="tab-content">
@@ -98,6 +130,14 @@
         <div class="profile-card">
           <span class="profile-label">Total Clicks</span>
           <span class="profile-value" id="clicks-profile">0</span>
+        </div>
+        <div class="profile-card">
+          <span class="profile-label">Portfolio Value</span>
+          <span class="profile-value" id="portfolio-profile">$0.00</span>
+        </div>
+        <div class="profile-card">
+          <span class="profile-label">Net Worth</span>
+          <span class="profile-value" id="networth-profile">$0.00</span>
         </div>
       </div>
       <button class="button-rounded button-outline button-danger" onclick="resetGame()">Reset Game</button>
@@ -155,12 +195,50 @@
     </div>
   </div>
 
+  <div id="trade-popup" class="popup">
+    <button class="popup-close" onclick="closeTradePopup()" aria-label="Close">&times;</button>
+    <div class="trade-header">
+      <div id="trade-icon"></div>
+      <div class="trade-heading">
+        <h2 id="trade-name"></h2>
+        <span class="trade-sub" id="trade-sub"></span>
+      </div>
+    </div>
+    <div class="trade-quote">
+      <span class="trade-price" id="trade-price"></span>
+      <span class="asset-change" id="trade-change"></span>
+    </div>
+    <svg id="trade-chart" class="trade-chart" viewBox="0 0 300 110" preserveAspectRatio="none" aria-hidden="true"></svg>
+    <p class="popup-line">Market cap <span id="trade-mcap"></span></p>
+    <p class="popup-line"><span id="trade-supply-label">Shares outstanding</span> <span id="trade-supply"></span></p>
+    <p class="popup-line">You own <span id="trade-owned"></span></p>
+    <p class="popup-line">Position value <span id="trade-value"></span></p>
+    <p class="popup-line">Profit / loss <span id="trade-pl"></span></p>
+
+    <div class="trade-mode" role="tablist" aria-label="Order side">
+      <button data-mode="buy" class="active" onclick="setTradeMode('buy')">Buy</button>
+      <button data-mode="sell" onclick="setTradeMode('sell')">Sell</button>
+    </div>
+    <label class="trade-qty-label" for="trade-qty">Quantity (<span id="trade-unit-label">shares</span>)</label>
+    <input type="number" id="trade-qty" class="trade-qty" min="0" step="1" inputmode="decimal" placeholder="0" oninput="onTradeQtyInput()" onkeydown="onTradeQtyKey(event)">
+    <div class="trade-chips">
+      <button data-pct="0.25" onclick="setTradeFraction(0.25)">25%</button>
+      <button data-pct="0.5" onclick="setTradeFraction(0.5)">50%</button>
+      <button data-pct="0.75" onclick="setTradeFraction(0.75)">75%</button>
+      <button data-pct="1" onclick="setTradeFraction(1)">Max</button>
+    </div>
+    <p class="popup-line">Estimated total <span id="trade-total">&mdash;</span></p>
+    <p class="popup-line">Price impact <span id="trade-impact">&mdash;</span></p>
+    <button id="trade-confirm" class="button-rounded button-gold trade-confirm" onclick="confirmTrade()">Buy</button>
+  </div>
+
   <div id="toast-container"></div>
 
   <script src="main.js"></script>
   <script src="bank.js"></script>
   <script src="business.js"></script>
   <script src="investments.js"></script>
+  <script src="markets.js"></script>
   <script src="merger.js"></script>
 </body>
 </html>
