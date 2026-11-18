@@ -560,8 +560,10 @@ body {
   align-items: center;
   justify-content: center;
   font-size: 1.35rem;
+  font-weight: 700;
   line-height: 1;
   flex-shrink: 0;
+  color: color-mix(in srgb, var(--asset-color) 55%, #ffffff); /* tints text glyphs like あ; emoji keep their own colours */
   background: color-mix(in srgb, var(--asset-color) 22%, var(--bg-deep));
   border: 2px solid var(--asset-color);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--asset-color) 12%, transparent);
