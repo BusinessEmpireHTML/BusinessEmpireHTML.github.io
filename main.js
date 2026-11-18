@@ -71,7 +71,10 @@ function recalcHourlyIncome() {
 
 /* ---------------- persistence ---------------- */
 
+let isResetting = false; // stops the game loop re-saving between resetGame() and the reload
+
 function saveProgress() {
+  if (isResetting) return;
   localStorage.setItem('cash', cash);
   localStorage.setItem('hourlyIncome', hourlyIncome);
   localStorage.setItem('clickValue', clickValue);
@@ -87,7 +90,12 @@ function loadProgress() {
   clicks = parseInt(localStorage.getItem('clicks')) || 0;
   lastUpdate = localStorage.getItem('lastUpdate') ? new Date(localStorage.getItem('lastUpdate')) : new Date();
   businesses = JSON.parse(localStorage.getItem('businesses')) || [];
-  investments = JSON.parse(localStorage.getItem('investments')) || getDefaultInvestments();
+  const normalized = normalizeInvestments(JSON.parse(localStorage.getItem('investments')));
+  investments = normalized.state;
+  if (normalized.refund > 0) {
+    cash = roundToHundredths(cash + normalized.refund);
+    toast(`Stocks are now a live market! Your old Stock Portfolio was refunded: ${formatMoney(normalized.refund)}.`, 'success');
+  }
 
   businesses.forEach(business => {
     if (!business.merged) business.merged = false;
@@ -102,8 +110,10 @@ function loadProgress() {
     }
   });
 
+  migrateMergedIncomes();
   calculateOfflineIncome();
   recalcHourlyIncome();
+  loadMarkets();
   saveProgress();
   updateStats();
   renderBusinesses();
@@ -140,12 +150,13 @@ function calculateOfflineIncome() {
 /* ---------------- clicker ---------------- */
 
 function earnMoney(event) {
-  cash = roundToHundredths(cash + clickValue);
+  const earned = clickValue;
+  cash = roundToHundredths(cash + earned);
   clicks++;
   clickValue = roundToHundredths(Math.min(1 + Math.sqrt(clicks) / 10, 100));
   saveProgress();
   updateStats();
-  spawnFloatText(`+${formatMoney(clickValue)}`);
+  spawnFloatText(`+${formatMoney(earned)}`);
 }
 
 function spawnFloatText(text) {
@@ -172,6 +183,10 @@ function updateStats() {
   document.getElementById('clickValue').textContent = roundToHundredths(clickValue).toLocaleString(undefined, { minimumFractionDigits: 2 });
   document.getElementById('business-count-profile').textContent = formatInt(businesses.length);
   document.getElementById('clicks-profile').textContent = formatInt(clicks);
+
+  const portfolio = getPortfolioValue();
+  document.getElementById('portfolio-profile').textContent = formatMoney(portfolio);
+  document.getElementById('networth-profile').textContent = formatMoney(cash + portfolio);
 }
 
 function setTextIfChanged(id, text, pulseOnChange) {
@@ -198,6 +213,8 @@ function startGameLoop() {
     tickBankVaults(1 / 3600); // one second's worth of an hourly fill rate
     recalcHourlyIncome();
     cash = roundToHundredths(cash + hourlyIncome / 3600);
+    tickMarkets();
+    refreshOpenPopups();
     updateStats();
     saveProgress();
   }, 1000);
@@ -228,6 +245,9 @@ function hidePopup(id) {
 
 function closeAllPopups() {
   document.querySelectorAll('.popup').forEach(p => (p.style.display = 'none'));
+  openUpgradeIndex = null;
+  openBankIndex = null;
+  trade.symbol = null;
   document.getElementById('popup-backdrop').classList.remove('visible');
 }
 
@@ -236,8 +256,8 @@ function openBuyBusinessPopup() {
   showPopup('buy-business-popup');
 }
 function closeBuyBusinessPopup() { hidePopup('buy-business-popup'); }
-function closeBankPopup() { hidePopup('bank-popup'); }
-function closeUpgradeBusinessPopup() { hidePopup('upgrade-business-popup'); }
+function closeBankPopup() { hidePopup('bank-popup'); openBankIndex = null; }
+function closeUpgradeBusinessPopup() { hidePopup('upgrade-business-popup'); openUpgradeIndex = null; }
 
 /* ---------------- toasts ---------------- */
 
@@ -255,7 +275,8 @@ function toast(message, kind) {
 
 function resetGame() {
   if (!confirm('This will permanently erase your empire and start over. Are you sure?')) return;
-  ['cash', 'hourlyIncome', 'clickValue', 'clicks', 'lastUpdate', 'businesses', 'investments'].forEach(key =>
+  isResetting = true;
+  ['cash', 'hourlyIncome', 'clickValue', 'clicks', 'lastUpdate', 'businesses', 'investments', 'markets'].forEach(key =>
     localStorage.removeItem(key)
   );
   location.reload();

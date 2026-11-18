@@ -251,7 +251,7 @@ function renderBusinesses() {
     if (business.type === 'bank') {
       card.onclick = () => openBankPopup(index);
     } else if (business.merged) {
-      card.onclick = () => closeMergedBusiness(index);
+      card.onclick = () => openMergedBusinessPopup(index);
     } else {
       card.onclick = () => openUpgradeBusinessPopup(index);
     }
@@ -278,8 +278,19 @@ function upgradeBusiness(index) {
   }
 }
 
+let openUpgradeIndex = null;
+
 function openUpgradeBusinessPopup(index) {
+  openUpgradeIndex = index;
+  renderUpgradePopup(index);
+  showPopup('upgrade-business-popup');
+}
+
+// Fills in the upgrade popup. Also called every second by the game loop
+// while it's open, so the Upgrade button enables the moment you can afford it.
+function renderUpgradePopup(index) {
   const business = businesses[index];
+  if (!business) return;
   document.getElementById('business-name').textContent = business.name;
   document.getElementById('business-level').textContent = `${business.level} / ${business.maxLevel}`;
   document.getElementById('business-level-gauge').style.width = `${Math.min(100, (business.level / business.maxLevel) * 100)}%`;
@@ -296,7 +307,18 @@ function openUpgradeBusinessPopup(index) {
 
   upgradeButton.onclick = () => upgradeBusiness(index);
   document.getElementById('close-button').onclick = () => closeBusiness(index);
-  showPopup('upgrade-business-popup');
+}
+
+function isPopupOpen(id) {
+  const el = document.getElementById(id);
+  return !!el && el.style.display === 'block';
+}
+
+// Keeps any open business/bank popup in step with your cash and the
+// bank vault, which both change every second.
+function refreshOpenPopups() {
+  if (openUpgradeIndex !== null && isPopupOpen('upgrade-business-popup')) renderUpgradePopup(openUpgradeIndex);
+  if (openBankIndex !== null && isPopupOpen('bank-popup')) renderBankPopup(openBankIndex);
 }
 
 function closeBusiness(index) {
