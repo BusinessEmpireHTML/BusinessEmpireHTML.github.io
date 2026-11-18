@@ -58,8 +58,17 @@ function advanceBankVaults(hours) {
   });
 }
 
+let openBankIndex = null;
+
 function openBankPopup(index) {
+  openBankIndex = index;
+  renderBankPopup(index);
+  showPopup('bank-popup');
+}
+
+function renderBankPopup(index) {
   const b = businesses[index];
+  if (!b || b.type !== 'bank') return;
   document.getElementById('bank-hourly-income').textContent = formatMoney(b.income);
   document.getElementById('bank-vault-storage').textContent = `${formatMoney(b.currentMoneyInVault)} / ${formatMoney(b.maxVaultStorage)}`;
   document.getElementById('bank-vault-gauge').style.width = `${Math.min(100, (b.currentMoneyInVault / b.maxVaultStorage) * 100)}%`;
@@ -69,8 +78,6 @@ function openBankPopup(index) {
   const upgradeButton = document.getElementById('bank-upgrade-button');
   upgradeButton.disabled = atMaxLevel || cash < b.upgradeCost;
   upgradeButton.onclick = () => upgradeBankVault(index);
-
-  showPopup('bank-popup');
 }
 
 function upgradeBankVault(index) {

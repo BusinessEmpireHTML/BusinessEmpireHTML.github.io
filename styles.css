@@ -436,6 +436,13 @@ body {
   font-weight: 600;
 }
 
+.recipe-income {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--emerald);
+  margin-left: auto;
+}
+
 .recipe-requirements {
   display: flex;
   gap: 8px;
@@ -767,6 +774,8 @@ body {
 .trade-chips button:hover { border-color: var(--gold); color: var(--gold-bright); }
 
 .trade-confirm { width: 100%; margin-top: 16px; }
+
+.merged-note { margin: 14px 0 0; font-size: 0.85rem; }
 
 .button-sell {
   background: linear-gradient(180deg, var(--rust-bright), var(--rust));

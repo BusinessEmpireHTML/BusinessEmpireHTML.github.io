@@ -33,31 +33,61 @@ const mergeRecipes = [
   { inputs: ['Real Estate Empire', 'Real Estate Agency'], output: 'Global Real Estate' },
 ];
 
+// Incomes are balanced against what the two ingredients earn at max level
+// (noted after each line), at roughly 1.5–2× their combined income, so a
+// merge is always an upgrade and no single line dwarfs the rest. On top
+// of this, performMerge() guarantees at least MERGE_INCOME_FLOOR × the
+// ingredients' actual income (this matters for the Bank, whose income
+// depends on how far its vault has been upgraded).
 const mergedBusinesses = [
   // Tier 2 — first merges, carried over from the original game (real artwork)
-  { name: 'Lemonade Factory', income: 600000, imageSrc: 'images/LemonadeFactory.jpg' },
-  { name: 'Restaurant', income: 800000, imageSrc: 'images/Restaurant.jpg' },
-  { name: 'Car Dealership', income: 500000, imageSrc: 'images/CarDealership.jpg' },
-  { name: 'Law Firm', income: 25000000000, imageSrc: 'images/LawFirm.jpg' },
+  { name: 'Lemonade Factory', income: 750000, imageSrc: 'images/LemonadeFactory.jpg' }, // ~3.8K + ~479K
+  { name: 'Restaurant', income: 1000000, imageSrc: 'images/Restaurant.jpg' }, // ~136K + ~479K
+  { name: 'Car Dealership', income: 800000, imageSrc: 'images/CarDealership.jpg' }, // ~30K + ~479K
+  { name: 'Law Firm', income: 500000, imageSrc: 'images/LawFirm.jpg' }, // ~42K + Bank (100K base, scales with vault)
 
   // Tier 2 — new lines. No on-disk artwork for these yet, so they get a
   // monogram icon (see createCardMedia in business.js) instead of a photo.
-  { name: 'Investment Bank', income: 50000000000, icon: '🏦' },
-  { name: 'Fitness Empire', income: 120000000, icon: '💪' },
-  { name: 'Pharmacy Chain', income: 180000000, icon: '⚕️' },
-  { name: 'Hotel Chain', income: 200000000, icon: '🏩' },
-  { name: 'Entertainment Group', income: 250000000, icon: '🎭' },
-  { name: 'Retail Empire', income: 400000000, icon: '🛍️' },
-  { name: 'Tech Corporation', income: 100000000, icon: '🖥️' },
-  { name: 'Real Estate Empire', income: 500000000, icon: '🏙️' },
-  { name: 'Healthcare Corporation', income: 350000000, icon: '🏥' },
-  { name: 'Hospitality Group', income: 280000000, icon: '🛎️' },
+  { name: 'Investment Bank', income: 10000000000, icon: '🏦' }, // Bank + ~5.4B
+  { name: 'Fitness Empire', income: 6000000, icon: '💪' }, // ~2.9M + ~479K
+  { name: 'Pharmacy Chain', income: 12000000, icon: '⚕️' }, // ~6.4M + ~479K
+  { name: 'Hotel Chain', income: 250000000, icon: '🏩' }, // ~150M + ~479K
+  { name: 'Entertainment Group', income: 6000000000, icon: '🎭' }, // ~3.7B + ~479K
+  { name: 'Retail Empire', income: 12000000000, icon: '🛍️' }, // ~7.3B + ~479K
+  { name: 'Tech Corporation', income: 40000000000, icon: '🖥️' }, // ~25B + ~479K
+  { name: 'Real Estate Empire', income: 9000000000, icon: '🏙️' }, // ~5.4B + ~479K
+  { name: 'Healthcare Corporation', income: 11000000, icon: '🏥' }, // ~6.4M + ~42K
+  { name: 'Hospitality Group', income: 300000000, icon: '🛎️' }, // ~150M + 1M (Restaurant)
 
   // Tier 3 — merge an eligible tier-2 business again for the capstone version
-  { name: 'Chain of Restaurants', income: 2400000, imageSrc: 'images/ChainOfRestaurants.jpg' },
-  { name: 'Tech Conglomerate', income: 300000000, icon: '🌐' },
-  { name: 'Global Real Estate', income: 1000000000, icon: '🌍' },
+  { name: 'Chain of Restaurants', income: 3000000, imageSrc: 'images/ChainOfRestaurants.jpg' }, // 1M + ~479K
+  { name: 'Tech Conglomerate', income: 120000000000, icon: '🌐' }, // 40B + ~25B
+  { name: 'Global Real Estate', income: 25000000000, icon: '🌍' }, // 9B + ~5.4B
 ];
+
+// A merge always pays at least this multiple of what its ingredients earned.
+const MERGE_INCOME_FLOOR = 1.5;
+
+// Mars Colony pays this, or MARS_INCOME_FLOOR × your business income at the
+// moment you colonize, whichever is higher, so colonizing is never a downgrade.
+const MARS_BASE_INCOME = 1e12;
+const MARS_INCOME_FLOOR = 2;
+
+function getMergeIncome(template, business1, business2) {
+  const inputs = (business1.income || 0) + (business2.income || 0);
+  return roundToHundredths(Math.max(template.income, inputs * MERGE_INCOME_FLOOR));
+}
+
+// Older saves stored merged incomes from before the rebalance. Raise any
+// that are now below their template; never lower one, so nobody's
+// existing empire gets weaker.
+function migrateMergedIncomes() {
+  businesses.forEach(business => {
+    if (!business.merged || business.type === 'marsColony') return;
+    const template = mergedBusinesses.find(b => b.name === business.name);
+    if (template && business.income < template.income) business.income = template.income;
+  });
+}
 
 // Businesses that are an intermediate rung rather than a final capstone —
 // they're eligible to merge a second time, and they're excluded from the
@@ -116,6 +146,7 @@ function renderMergerRecipes() {
       <span class="recipe-title">${name1} + ${name2}</span>
       <span class="recipe-arrow">&rarr;</span>
       <span class="recipe-output">${recipe.output}</span>
+      <span class="recipe-income">${formatMoney(mergedBusinesses.find(b => b.name === recipe.output).income)} / hr</span>
     `;
 
     const reqRow = document.createElement('div');
@@ -151,6 +182,7 @@ function canMergeAgain(business) {
 function performMerge(business1, business2, mergedName) {
   const template = mergedBusinesses.find(b => b.name === mergedName);
   if (!template) return;
+  const income = getMergeIncome(template, business1, business2);
 
   const index1 = businesses.indexOf(business1);
   businesses.splice(index1, 1);
@@ -160,7 +192,7 @@ function performMerge(business1, business2, mergedName) {
   businesses.push({
     name: template.name,
     level: 1,
-    income: template.income,
+    income,
     baseCost: 0,
     upgradeCost: 0,
     upgradeMultiplier: 1,
@@ -176,14 +208,52 @@ function performMerge(business1, business2, mergedName) {
   renderBusinesses();
 }
 
+// Tapping a merged business shows its details first. Closing it is a
+// separate, confirmed action, so one stray tap can't destroy it.
+function openMergedBusinessPopup(index) {
+  const business = businesses[index];
+  if (!business) return;
+  const isColony = business.type === 'marsColony';
+
+  const media = document.getElementById('merged-media');
+  media.innerHTML = '';
+  media.appendChild(createCardMedia(business));
+  document.getElementById('merged-name').textContent = business.name;
+  document.getElementById('merged-income').textContent = `${formatMoney(business.income)} / hr`;
+
+  let tier = 'Merged business';
+  let note = 'A final-tier business. Collect one of every capstone to colonize Mars.';
+  if (isColony) {
+    tier = 'Off-world empire';
+    note = 'Your entire empire now runs from Mars. The colony can\'t be closed.';
+  } else if (canMergeAgain(business)) {
+    tier = 'Merged business · can merge again';
+    note = 'This business can be merged again into a bigger capstone. Check the Merge menu.';
+  }
+  document.getElementById('merged-tier').textContent = tier;
+  document.getElementById('merged-note').textContent = note;
+
+  const closeButton = document.getElementById('merged-close-button');
+  closeButton.hidden = isColony;
+  closeButton.onclick = () => closeMergedBusiness(index);
+
+  showPopup('merged-business-popup');
+}
+
+function closeMergedBusinessPopup() {
+  hidePopup('merged-business-popup');
+}
+
 function closeMergedBusiness(index) {
   const business = businesses[index];
+  if (!business || business.type === 'marsColony') return;
   if (confirm(`Are you sure you want to close the ${business.name}? This cannot be undone.`)) {
     businesses.splice(index, 1);
     recalcHourlyIncome();
     saveProgress();
     updateStats();
     renderBusinesses();
+    closeMergedBusinessPopup();
     toast(`${business.name} closed.`, 'error');
   }
 }
@@ -266,11 +336,14 @@ function colonizeMars() {
   }
   if (!confirm('Colonizing Mars merges your ENTIRE empire into a single Mars Colony. This cannot be undone. Continue?')) return;
 
+  const businessIncome = businesses.reduce((sum, b) => sum + (b.income || 0), 0);
+  const colonyIncome = roundToHundredths(Math.max(MARS_BASE_INCOME, businessIncome * MARS_INCOME_FLOOR));
+
   businesses = [{
     type: 'marsColony',
     name: 'Mars Colony',
     level: 1,
-    income: 1000000000000,
+    income: colonyIncome,
     baseCost: 0,
     upgradeCost: 0,
     upgradeMultiplier: 1,

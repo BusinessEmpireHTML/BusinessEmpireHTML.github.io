@@ -195,6 +195,23 @@
     </div>
   </div>
 
+  <div id="merged-business-popup" class="popup">
+    <button class="popup-close" onclick="closeMergedBusinessPopup()" aria-label="Close">&times;</button>
+    <div class="trade-header">
+      <div id="merged-media"></div>
+      <div class="trade-heading">
+        <h2 id="merged-name"></h2>
+        <span class="trade-sub" id="merged-tier"></span>
+      </div>
+    </div>
+    <p class="popup-line">Income <span id="merged-income"></span></p>
+    <p class="hint-text merged-note" id="merged-note"></p>
+    <div class="popup-actions">
+      <button class="button-rounded button-outline" onclick="closeMergedBusinessPopup()">Done</button>
+      <button id="merged-close-button" class="button-rounded button-outline button-danger">Close Business</button>
+    </div>
+  </div>
+
   <div id="trade-popup" class="popup">
     <button class="popup-close" onclick="closeTradePopup()" aria-label="Close">&times;</button>
     <div class="trade-header">

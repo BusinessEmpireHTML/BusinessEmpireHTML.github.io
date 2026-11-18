@@ -110,6 +110,7 @@ function loadProgress() {
     }
   });
 
+  migrateMergedIncomes();
   calculateOfflineIncome();
   recalcHourlyIncome();
   loadMarkets();
@@ -213,6 +214,7 @@ function startGameLoop() {
     recalcHourlyIncome();
     cash = roundToHundredths(cash + hourlyIncome / 3600);
     tickMarkets();
+    refreshOpenPopups();
     updateStats();
     saveProgress();
   }, 1000);
@@ -243,6 +245,9 @@ function hidePopup(id) {
 
 function closeAllPopups() {
   document.querySelectorAll('.popup').forEach(p => (p.style.display = 'none'));
+  openUpgradeIndex = null;
+  openBankIndex = null;
+  trade.symbol = null;
   document.getElementById('popup-backdrop').classList.remove('visible');
 }
 
@@ -251,8 +256,8 @@ function openBuyBusinessPopup() {
   showPopup('buy-business-popup');
 }
 function closeBuyBusinessPopup() { hidePopup('buy-business-popup'); }
-function closeBankPopup() { hidePopup('bank-popup'); }
-function closeUpgradeBusinessPopup() { hidePopup('upgrade-business-popup'); }
+function closeBankPopup() { hidePopup('bank-popup'); openBankIndex = null; }
+function closeUpgradeBusinessPopup() { hidePopup('upgrade-business-popup'); openUpgradeIndex = null; }
 
 /* ---------------- toasts ---------------- */
 
