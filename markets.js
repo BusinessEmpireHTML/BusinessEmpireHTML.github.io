@@ -75,8 +75,8 @@ const MARKET_ASSETS = [
   { symbol: 'OZEN', market: 'stocks', founder: true, name: 'Ozen Hebrew', sector: 'Language learning', icon: '👂', color: '#4f9dde', basePrice: 48.2, supply: 3.0e8, volatility: 0.012 },
   { symbol: 'ORBI', market: 'stocks', founder: true, name: 'Orbital Idle', sector: 'Gaming', icon: '🪐', color: '#9d7bea', basePrice: 61.9, supply: 2.0e8, volatility: 0.014 },
   { symbol: 'SCRL', market: 'stocks', founder: true, name: 'Script Learner', sector: 'Education', icon: '✍️', color: '#e0a458', basePrice: 33.75, supply: 2.8e8, volatility: 0.011 },
-  { symbol: 'MEBA', market: 'stocks', founder: true, name: 'Mebae', sector: 'Startup', icon: '🌱', color: '#7cc576', basePrice: 27.4, supply: 2.5e8, volatility: 0.013 },
-  { symbol: 'SUBT', market: 'stocks', founder: true, name: 'SubTwine', sector: 'Startup', icon: '🧵', color: '#e46f9a', basePrice: 19.6, supply: 3.2e8, volatility: 0.013 },
+  { symbol: 'MEBA', market: 'stocks', founder: true, name: 'Mebae Japanese', sector: 'Language learning', icon: '🌱', color: '#7cc576', basePrice: 27.4, supply: 2.5e8, volatility: 0.013 },
+  { symbol: 'SUBT', market: 'stocks', founder: true, name: 'SubTwine', sector: 'Language learning', icon: '🧵', color: '#e46f9a', basePrice: 19.6, supply: 3.2e8, volatility: 0.013 },
 
   // ---- Stocks ----
   { symbol: 'NVBT', market: 'stocks', name: 'Novabyte Systems', sector: 'Technology', icon: '💻', color: '#5b8def', basePrice: 412.5, supply: 2.1e9, volatility: 0.007 },
