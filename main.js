@@ -10,7 +10,6 @@ let clickValue = parseFloat(localStorage.getItem('clickValue')) || 1;
 let clicks = parseInt(localStorage.getItem('clicks')) || 0;
 let lastUpdate = localStorage.getItem('lastUpdate') ? new Date(localStorage.getItem('lastUpdate')) : new Date();
 let businesses = JSON.parse(localStorage.getItem('businesses')) || [];
-let investments = JSON.parse(localStorage.getItem('investments')) || null;
 
 const MAX_OFFLINE_HOURS = 24; // cap offline earnings so a wrong system clock can't break the economy
 
@@ -61,11 +60,7 @@ function recalcHourlyIncome() {
     }
     total += business.income || 0;
   });
-  if (investments) {
-    Object.values(investments).forEach(inv => {
-      total += inv.owned * inv.income;
-    });
-  }
+  total += getRentIncome();
   hourlyIncome = roundToHundredths(total);
 }
 
@@ -81,7 +76,20 @@ function saveProgress() {
   localStorage.setItem('clicks', clicks);
   localStorage.setItem('lastUpdate', new Date().toISOString());
   localStorage.setItem('businesses', JSON.stringify(businesses));
-  localStorage.setItem('investments', JSON.stringify(investments));
+  localStorage.setItem('properties', JSON.stringify(ownedProperties));
+  localStorage.setItem('trophies', JSON.stringify(ownedTrophies));
+}
+
+// Reads a saved array of ids, dropping any that no longer exist in `catalog`.
+function loadIdList(key, catalog) {
+  let saved = null;
+  try {
+    saved = JSON.parse(localStorage.getItem(key));
+  } catch (e) {
+    saved = null;
+  }
+  if (!Array.isArray(saved)) return [];
+  return [...new Set(saved)].filter(id => catalog[id]);
 }
 
 function loadProgress() {
@@ -90,11 +98,12 @@ function loadProgress() {
   clicks = parseInt(localStorage.getItem('clicks')) || 0;
   lastUpdate = localStorage.getItem('lastUpdate') ? new Date(localStorage.getItem('lastUpdate')) : new Date();
   businesses = JSON.parse(localStorage.getItem('businesses')) || [];
-  const normalized = normalizeInvestments(JSON.parse(localStorage.getItem('investments')));
-  investments = normalized.state;
-  if (normalized.refund > 0) {
-    cash = roundToHundredths(cash + normalized.refund);
-    toast(`Stocks are now a live market! Your old Stock Portfolio was refunded: ${formatMoney(normalized.refund)}.`, 'success');
+  loadProperties();
+  loadTrophies();
+  const legacyRefund = migrateLegacyInvestments();
+  if (legacyRefund > 0) {
+    cash = roundToHundredths(cash + legacyRefund);
+    toast(`Investing got an overhaul! Everything you spent on the old Stock Portfolio and Real Estate was refunded: ${formatMoney(legacyRefund)}.`, 'success');
   }
 
   businesses.forEach(business => {
@@ -117,7 +126,8 @@ function loadProgress() {
   saveProgress();
   updateStats();
   renderBusinesses();
-  renderInvestments();
+  renderProperties();
+  renderItems();
 }
 
 // Fast-forwards the bank vault and pays out the income that would have
@@ -186,7 +196,53 @@ function updateStats() {
 
   const portfolio = getPortfolioValue();
   document.getElementById('portfolio-profile').textContent = formatMoney(portfolio);
-  document.getElementById('networth-profile').textContent = formatMoney(cash + portfolio);
+  document.getElementById('networth-profile').textContent = formatMoney(cash + portfolio + getPropertyValue() + getTrophyValue());
+
+  updateCollectionStats();
+  refreshAffordability();
+}
+
+/* ---------------- shop cards (properties & trophies) ---------------- */
+
+// One card shape for anything you buy once and can sell back: icon,
+// name, a sub-line, and the price (or the resale offer once owned).
+function buildCollectibleCard({ icon, name, sub, subClass, price, owned, sellLabel, onClick }) {
+  const card = document.createElement('div');
+  card.className = 'card collectible' + (owned ? ' is-owned' : '');
+  card.dataset.price = price;
+  card.onclick = onClick;
+
+  const media = document.createElement('div');
+  media.className = 'card-monogram';
+  media.textContent = icon;
+
+  const body = document.createElement('div');
+  body.className = 'card-body';
+  body.innerHTML = `
+    <div class="card-title-row">
+      <span class="card-title"></span>
+      ${owned ? '<span class="card-badge max">Owned</span>' : ''}
+    </div>
+    <div class="card-sub${subClass ? ' ' + subClass : ''}"></div>
+  `;
+  body.querySelector('.card-title').textContent = name;
+  body.querySelector('.card-sub').textContent = sub;
+
+  const priceEl = document.createElement('div');
+  priceEl.className = 'card-price';
+  priceEl.textContent = owned ? sellLabel : formatMoney(price);
+
+  card.appendChild(media);
+  card.appendChild(body);
+  card.appendChild(priceEl);
+  return card;
+}
+
+// Dims shop cards you can't afford yet. Runs every second as cash grows.
+function refreshAffordability() {
+  document.querySelectorAll('.card.collectible:not(.is-owned)').forEach(card => {
+    card.classList.toggle('locked', cash < Number(card.dataset.price));
+  });
 }
 
 function setTextIfChanged(id, text, pulseOnChange) {
@@ -276,7 +332,7 @@ function toast(message, kind) {
 function resetGame() {
   if (!confirm('This will permanently erase your empire and start over. Are you sure?')) return;
   isResetting = true;
-  ['cash', 'hourlyIncome', 'clickValue', 'clicks', 'lastUpdate', 'businesses', 'investments', 'markets'].forEach(key =>
+  ['cash', 'hourlyIncome', 'clickValue', 'clicks', 'lastUpdate', 'businesses', 'investments', 'markets', 'properties', 'trophies'].forEach(key =>
     localStorage.removeItem(key)
   );
   location.reload();

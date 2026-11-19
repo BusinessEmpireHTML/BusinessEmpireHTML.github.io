@@ -88,7 +88,11 @@
       </div>
 
       <div class="market-panel" id="market-property">
-        <p class="hint-text">Property doesn't need your attention. Buy in once and it pays out every hour, on top of whatever your businesses earn.</p>
+        <p class="hint-text">Every property pays rent every hour, on top of whatever your businesses earn. The pricier the property, the bigger the rent. Sell one back any time for 80% of what you paid.</p>
+        <div class="property-summary">
+          <span id="property-summary-count">0 / 41 owned</span>
+          <span id="property-summary-rent">$0.00 / hr rent</span>
+        </div>
         <div id="property-list"></div>
       </div>
     </section>
@@ -108,7 +112,25 @@
     <section id="items" class="tab-content">
       <p class="section-eyebrow">Vault</p>
       <h2 class="section-title">Trophies</h2>
-      <p class="hint-text">Cars, houses, boats, islands &mdash; the things your empire will eventually afford. Coming soon.</p>
+
+      <div class="collection-summary">
+        <button class="profile-card collection-card" onclick="goToProperties()">
+          <span class="profile-label">Properties Owned</span>
+          <span class="profile-value"><span id="items-property-count">0</span><span class="collection-total" id="items-property-total"> / 41</span></span>
+          <span class="card-progress"><span class="card-progress-fill" id="items-property-bar" style="width:0%"></span></span>
+          <span class="collection-meta"><span id="items-property-rent">$0.00 / hr rent</span><span class="collection-link">Manage &rarr;</span></span>
+        </button>
+        <div class="profile-card collection-card">
+          <span class="profile-label">Trophies Collected</span>
+          <span class="profile-value"><span id="items-trophy-count">0</span><span class="collection-total" id="items-trophy-total"> / 43</span></span>
+          <span class="card-progress"><span class="card-progress-fill" id="items-trophy-bar" style="width:0%"></span></span>
+          <span class="collection-meta"><span id="items-trophy-value">Worth $0.00</span></span>
+        </div>
+      </div>
+
+      <p class="hint-text">Cars, yachts, islands and more. They don't earn a cent &mdash; that's the point. Sell one back for half what you paid.</p>
+      <div class="category-chips" id="trophy-categories" role="tablist" aria-label="Trophy category"></div>
+      <div id="trophy-list"></div>
     </section>
 
     <section id="profile" class="tab-content">
@@ -138,6 +160,14 @@
         <div class="profile-card">
           <span class="profile-label">Net Worth</span>
           <span class="profile-value" id="networth-profile">$0.00</span>
+        </div>
+        <div class="profile-card">
+          <span class="profile-label">Properties</span>
+          <span class="profile-value" id="properties-profile">0 / 41</span>
+        </div>
+        <div class="profile-card">
+          <span class="profile-label">Trophies</span>
+          <span class="profile-value" id="trophies-profile">0 / 43</span>
         </div>
       </div>
       <button class="button-rounded button-outline button-danger" onclick="resetGame()">Reset Game</button>
@@ -254,7 +284,8 @@
   <script src="main.js"></script>
   <script src="bank.js"></script>
   <script src="business.js"></script>
-  <script src="investments.js"></script>
+  <script src="properties.js"></script>
+  <script src="trophies.js"></script>
   <script src="markets.js"></script>
   <script src="merger.js"></script>
 </body>
