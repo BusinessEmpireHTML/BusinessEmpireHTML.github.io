@@ -31,7 +31,14 @@
   --radius-l: 18px;
 }
 
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+  /* Disables double-tap-to-zoom on phones so rapid taps (the clicker,
+     buy buttons) register as taps. Pinch-to-zoom and scrolling still work. */
+  touch-action: manipulation;
+}
+
+button, .card, .category-chip, .segment { -webkit-tap-highlight-color: transparent; }
 
 body {
   margin: 0;
@@ -235,6 +242,10 @@ body {
     inset 0 0 24px rgba(201, 162, 76, 0.12);
   transition: transform 0.08s ease, box-shadow 0.15s ease;
   padding: 0;
+  /* Hammering the coin shouldn't select its text or open the long-press menu. */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 
 #click-area:hover {
