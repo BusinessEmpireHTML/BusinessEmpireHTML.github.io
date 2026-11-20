@@ -68,11 +68,6 @@ const mergedBusinesses = [
 // A merge always pays at least this multiple of what its ingredients earned.
 const MERGE_INCOME_FLOOR = 1.5;
 
-// Mars Colony pays this, or MARS_INCOME_FLOOR × your business income at the
-// moment you colonize, whichever is higher, so colonizing is never a downgrade.
-const MARS_BASE_INCOME = 1e12;
-const MARS_INCOME_FLOOR = 2;
-
 function getMergeIncome(template, business1, business2) {
   const inputs = (business1.income || 0) + (business2.income || 0);
   return roundToHundredths(Math.max(template.income, inputs * MERGE_INCOME_FLOOR));
@@ -113,7 +108,7 @@ function isEligibleForMerge(business) {
 }
 
 function findEligibleBusinessIndex(name) {
-  return businesses.findIndex(b => b.name === name && isEligibleForMerge(b));
+  return planetBusinesses().findIndex(b => b.name === name && isEligibleForMerge(b));
 }
 
 function closeMergerPopup() {
@@ -129,7 +124,8 @@ function renderMergerRecipes() {
   const list = document.getElementById('merger-business-list');
   list.innerHTML = '';
 
-  mergeRecipes.forEach(recipe => {
+  const p = planet();
+  p.recipes.forEach(recipe => {
     const [name1, name2] = recipe.inputs;
     const index1 = findEligibleBusinessIndex(name1);
     const index2 = findEligibleBusinessIndex(name2);
@@ -146,7 +142,7 @@ function renderMergerRecipes() {
       <span class="recipe-title">${name1} + ${name2}</span>
       <span class="recipe-arrow">&rarr;</span>
       <span class="recipe-output">${recipe.output}</span>
-      <span class="recipe-income">${formatMoney(mergedBusinesses.find(b => b.name === recipe.output).income)} / hr</span>
+      <span class="recipe-income">${formatFunds(p.mergedTemplates.find(b => b.name === recipe.output).income)} / hr</span>
     `;
 
     const reqRow = document.createElement('div');
@@ -162,7 +158,7 @@ function renderMergerRecipes() {
     mergeButton.disabled = !bothReady;
     if (bothReady) {
       mergeButton.onclick = () => {
-        performMerge(businesses[index1], businesses[index2], recipe.output);
+        performMerge(planetBusinesses()[index1], planetBusinesses()[index2], recipe.output);
         toast(`Merged into a ${recipe.output}!`, 'success');
         renderMergerRecipes();
       };
@@ -176,20 +172,19 @@ function renderMergerRecipes() {
 }
 
 function canMergeAgain(business) {
-  return INTERMEDIATE_MERGE_NAMES.includes(business.name);
+  return planet().intermediates.includes(business.name);
 }
 
 function performMerge(business1, business2, mergedName) {
-  const template = mergedBusinesses.find(b => b.name === mergedName);
+  const template = planet().mergedTemplates.find(b => b.name === mergedName);
   if (!template) return;
   const income = getMergeIncome(template, business1, business2);
 
-  const index1 = businesses.indexOf(business1);
-  businesses.splice(index1, 1);
-  const index2 = businesses.indexOf(business2);
-  businesses.splice(index2, 1);
+  const list = planetBusinesses();
+  list.splice(list.indexOf(business1), 1);
+  list.splice(list.indexOf(business2), 1);
 
-  businesses.push({
+  list.push({
     name: template.name,
     level: 1,
     income,
@@ -211,7 +206,7 @@ function performMerge(business1, business2, mergedName) {
 // Tapping a merged business shows its details first. Closing it is a
 // separate, confirmed action, so one stray tap can't destroy it.
 function openMergedBusinessPopup(index) {
-  const business = businesses[index];
+  const business = planetBusinesses()[index];
   if (!business) return;
   const isColony = business.type === 'marsColony';
 
@@ -219,13 +214,13 @@ function openMergedBusinessPopup(index) {
   media.innerHTML = '';
   media.appendChild(createCardMedia(business));
   document.getElementById('merged-name').textContent = business.name;
-  document.getElementById('merged-income').textContent = `${formatMoney(business.income)} / hr`;
+  document.getElementById('merged-income').textContent = `${formatFunds(business.income)} / hr`;
 
   let tier = 'Merged business';
-  let note = 'A final-tier business. Collect one of every capstone to colonize Mars.';
+  let note = planet().text.capstoneNote;
   if (isColony) {
-    tier = 'Off-world empire';
-    note = 'Your entire empire now runs from Mars. The colony can\'t be closed.';
+    tier = 'First colony';
+    note = 'The original Mars Colony, from before Mars was a whole planet. It keeps paying out on Earth and can\'t be closed.';
   } else if (canMergeAgain(business)) {
     tier = 'Merged business · can merge again';
     note = 'This business can be merged again into a bigger capstone. Check the Merge menu.';
@@ -245,10 +240,10 @@ function closeMergedBusinessPopup() {
 }
 
 function closeMergedBusiness(index) {
-  const business = businesses[index];
+  const business = planetBusinesses()[index];
   if (!business || business.type === 'marsColony') return;
   if (confirm(`Are you sure you want to close the ${business.name}? This cannot be undone.`)) {
-    businesses.splice(index, 1);
+    planetBusinesses().splice(index, 1);
     recalcHourlyIncome();
     saveProgress();
     updateStats();
@@ -259,19 +254,20 @@ function closeMergedBusiness(index) {
 }
 
 /* ============================================================
-   MARS COLONIZATION
-   The ultimate prestige move: own one of every capstone business
-   at once (every merge line's final tier, i.e. every entry in
-   mergedBusinesses that isn't itself eligible to merge again) and
-   you can fold your entire empire into a single Mars Colony.
+   MARS
+   Own one of every Earth capstone (every merge line's final tier)
+   at the same time and you can launch a colony. Nothing is turned
+   in: your Earth empire keeps running, and Mars opens up as a second
+   planet with its own currency and businesses (see planets.js).
    ============================================================ */
 
+// Always Earth's capstones, whichever planet you're looking from.
 function getMarsRequirements() {
-  return mergedBusinesses.filter(b => !canMergeAgain(b));
+  return mergedBusinesses.filter(b => !INTERMEDIATE_MERGE_NAMES.includes(b.name));
 }
 
 function isMarsColonized() {
-  return businesses.some(b => b.type === 'marsColony');
+  return mars.unlocked;
 }
 
 function openMarsPopup() {
@@ -282,10 +278,12 @@ function openMarsPopup() {
   list.innerHTML = '';
 
   if (isMarsColonized()) {
-    list.innerHTML = '<p class="empty-state visible">Mars has already been colonized. Your empire now runs entirely off-world.</p>';
-    progressLabel.textContent = 'Complete';
+    list.innerHTML = '<p class="empty-state visible">Your colony is up and running. Travel there any time. Your Earth empire keeps earning while you\'re away.</p>';
+    progressLabel.textContent = 'Colony established';
     progressFill.style.width = '100%';
-    colonizeButton.disabled = true;
+    colonizeButton.textContent = '🔴 Travel to Mars';
+    colonizeButton.disabled = false;
+    colonizeButton.onclick = () => travelTo('mars');
     showPopup('mars-popup');
     return;
   }
@@ -316,7 +314,9 @@ function openMarsPopup() {
 
   progressLabel.textContent = `${readyCount} / ${requirements.length} acquired`;
   progressFill.style.width = `${(readyCount / requirements.length) * 100}%`;
+  colonizeButton.textContent = '🚀 Launch to Mars';
   colonizeButton.disabled = readyCount < requirements.length;
+  colonizeButton.onclick = colonizeMars;
 
   showPopup('mars-popup');
 }
@@ -326,36 +326,21 @@ function closeMarsPopup() {
 }
 
 function colonizeMars() {
-  const requirements = getMarsRequirements();
-  const ownedNames = businesses.map(b => b.name);
-  const ready = requirements.every(req => ownedNames.includes(req.name));
-
-  if (!ready) {
-    toast('You need one of every capstone business before you can colonize Mars.', 'error');
+  if (isMarsColonized()) {
+    travelTo('mars');
     return;
   }
-  if (!confirm('Colonizing Mars merges your ENTIRE empire into a single Mars Colony. This cannot be undone. Continue?')) return;
+  const ownedNames = businesses.map(b => b.name);
+  const ready = getMarsRequirements().every(req => ownedNames.includes(req.name));
+  if (!ready) {
+    toast('You need one of every capstone business before you can launch to Mars.', 'error');
+    return;
+  }
+  if (!confirm(`Launch a colony to Mars? You keep your entire Earth empire, and the colony starts with a ${formatCredits(MARS_COLONY_GRANT)} grant.`)) return;
 
-  const businessIncome = businesses.reduce((sum, b) => sum + (b.income || 0), 0);
-  const colonyIncome = roundToHundredths(Math.max(MARS_BASE_INCOME, businessIncome * MARS_INCOME_FLOOR));
-
-  businesses = [{
-    type: 'marsColony',
-    name: 'Mars Colony',
-    level: 1,
-    income: colonyIncome,
-    baseCost: 0,
-    upgradeCost: 0,
-    upgradeMultiplier: 1,
-    maxLevel: 1,
-    icon: '🚀',
-    merged: true,
-  }];
-
-  recalcHourlyIncome();
+  mars.unlocked = true;
+  mars.credits = roundToHundredths(mars.credits + MARS_COLONY_GRANT);
   saveProgress();
-  updateStats();
-  renderBusinesses();
-  closeMarsPopup();
-  toast('Humanity has reached Mars. Your empire now runs entirely off-world.', 'success');
+  travelTo('mars');
+  toast(`Humanity has reached Mars! Your colony grant of ${formatCredits(MARS_COLONY_GRANT)} is waiting.`, 'success');
 }

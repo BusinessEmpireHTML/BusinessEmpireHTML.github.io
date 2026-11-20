@@ -16,10 +16,14 @@
       <div class="brand">
         <span class="brand-mark">&#9670;</span>
         <h1>Business Empire</h1>
+        <div class="planet-switch mars-unlocked-only" role="tablist" aria-label="Planet" hidden>
+          <button data-planet="earth" onclick="travelTo('earth')" aria-label="Earth">🌍<span>Earth</span></button>
+          <button data-planet="mars" onclick="travelTo('mars')" aria-label="Mars">🔴<span>Mars</span></button>
+        </div>
       </div>
       <div class="ticker" aria-label="Current balance and income">
         <div class="ticker-item">
-          <span class="ticker-label">Cash</span>
+          <span class="ticker-label" id="cash-label">Cash</span>
           <span class="ticker-value" id="cash-ticker">$0.00</span>
         </div>
         <div class="ticker-rule"></div>
@@ -27,6 +31,11 @@
           <span class="ticker-label">Per Hour</span>
           <span class="ticker-value ticker-value--income" id="income-ticker">$0.00</span>
         </div>
+        <div class="ticker-rule mars-unlocked-only" hidden></div>
+        <button class="ticker-item ticker-item--other mars-unlocked-only" onclick="openExchangePopup()" title="Open the Interplanetary Exchange" hidden>
+          <span class="ticker-label" id="other-label">Mars</span>
+          <span class="ticker-value ticker-value--other" id="other-ticker">₥0.00</span>
+        </button>
       </div>
     </div>
     <nav class="tabs">
@@ -41,22 +50,23 @@
   <main id="game">
 
     <section id="clicker" class="tab-content">
-      <p class="section-eyebrow">Hustle</p>
-      <h2 class="section-title">Every dollar starts here</h2>
+      <p class="section-eyebrow" id="clicker-eyebrow">Hustle</p>
+      <h2 class="section-title" id="clicker-title">Every dollar starts here</h2>
       <div id="click-stage">
         <button id="click-area" onclick="earnMoney(event)">
           <span class="click-coin-inner">
-            <span class="click-coin-value">$<span id="clickValue">1</span></span>
+            <span class="click-coin-value" id="clickValue">$1.00</span>
             <span class="click-coin-label">Tap to earn</span>
           </span>
         </button>
       </div>
-      <p class="hint-text">Click value grows the more you hustle. Once you can afford it, put your cash to work in a business instead of clicking forever.</p>
+      <p class="hint-text" id="clicker-hint">Click value grows the more you hustle. Once you can afford it, put your cash to work in a business instead of clicking forever.</p>
     </section>
 
     <section id="investments" class="tab-content">
       <p class="section-eyebrow">Markets</p>
       <h2 class="section-title">Trade the floor</h2>
+      <p class="earth-funds-note">🌍 Stocks, crypto and property are paid from your Earth balance: <span class="earth-balance">$0.00</span></p>
 
       <div class="portfolio-summary">
         <div class="profile-card">
@@ -98,12 +108,13 @@
     </section>
 
     <section id="businesses" class="tab-content">
-      <p class="section-eyebrow">Holdings</p>
-      <h2 class="section-title">Your empire</h2>
+      <p class="section-eyebrow" id="businesses-eyebrow">Holdings</p>
+      <h2 class="section-title" id="businesses-title">Your empire</h2>
       <div class="action-row">
         <button class="button-rounded button-gold" onclick="openBuyBusinessPopup()">Buy a Business</button>
         <button class="button-rounded button-outline" onclick="openMergerPopup()">Merge Businesses</button>
-        <button class="button-rounded button-mars" onclick="openMarsPopup()">Go To Mars</button>
+        <button class="button-rounded button-mars" id="mars-button" onclick="openMarsPopup()">Go To Mars</button>
+        <button class="button-rounded button-outline mars-unlocked-only" onclick="openExchangePopup()" hidden>💱 Exchange</button>
       </div>
       <div id="business-list"></div>
       <p id="business-empty-state" class="empty-state">You don't own any businesses yet. Buy your first one to start earning while you're away.</p>
@@ -112,6 +123,7 @@
     <section id="items" class="tab-content">
       <p class="section-eyebrow">Vault</p>
       <h2 class="section-title">Trophies</h2>
+      <p class="earth-funds-note">🌍 Trophies are paid from your Earth balance: <span class="earth-balance">$0.00</span></p>
 
       <div class="collection-summary">
         <button class="profile-card collection-card" onclick="goToProperties()">
@@ -138,11 +150,11 @@
       <h2 class="section-title">Your fortune</h2>
       <div class="profile-grid">
         <div class="profile-card">
-          <span class="profile-label">Total Fortune</span>
+          <span class="profile-label">Earth Cash</span>
           <span class="profile-value" id="cash-profile">$0.00</span>
         </div>
         <div class="profile-card">
-          <span class="profile-label">Hourly Income</span>
+          <span class="profile-label">Earth Income / hr</span>
           <span class="profile-value" id="hourlyIncome-profile">$0.00</span>
         </div>
         <div class="profile-card">
@@ -168,6 +180,14 @@
         <div class="profile-card">
           <span class="profile-label">Trophies</span>
           <span class="profile-value" id="trophies-profile">0 / 43</span>
+        </div>
+        <div class="profile-card mars-unlocked-only" hidden>
+          <span class="profile-label">Mars Credits</span>
+          <span class="profile-value" id="mars-credits-profile">₥0.00</span>
+        </div>
+        <div class="profile-card mars-unlocked-only" hidden>
+          <span class="profile-label">Mars Income / hr</span>
+          <span class="profile-value" id="mars-income-profile">₥0.00</span>
         </div>
       </div>
       <button class="button-rounded button-outline button-danger" onclick="resetGame()">Reset Game</button>
@@ -205,11 +225,11 @@
   <div id="mars-popup" class="popup">
     <button class="popup-close" onclick="closeMarsPopup()" aria-label="Close">&times;</button>
     <h2>Mars Colonization</h2>
-    <p class="hint-text">Assemble one of every capstone business &mdash; the final tier of each merge line &mdash; and you can fold your entire empire into a single, planet-sized venture.</p>
+    <p class="hint-text">Own one of every capstone business &mdash; the final tier of each merge line &mdash; and you can launch a colony to Mars. You keep your whole Earth empire, and Mars opens up as a new planet with its own currency, businesses and mergers.</p>
     <p class="popup-line"><span id="mars-progress-label">0 / 0 acquired</span></p>
     <div class="mars-gauge"><div class="mars-gauge-fill" id="mars-progress-fill" style="width:0%"></div></div>
     <div id="mars-business-list"></div>
-    <button id="mars-colonize-button" class="button-rounded button-mars" onclick="colonizeMars()" disabled>Colonize Mars</button>
+    <button id="mars-colonize-button" class="button-rounded button-mars" onclick="colonizeMars()" disabled>🚀 Launch to Mars</button>
   </div>
 
   <div id="upgrade-business-popup" class="popup">
@@ -279,6 +299,29 @@
     <button id="trade-confirm" class="button-rounded button-gold trade-confirm" onclick="confirmTrade()">Buy</button>
   </div>
 
+  <div id="exchange-popup" class="popup">
+    <button class="popup-close" onclick="closeExchangePopup()" aria-label="Close">&times;</button>
+    <h2>Interplanetary Exchange</h2>
+    <p class="hint-text">Move money between your two economies. <strong>₥1 = $1.00B</strong>, minus a 2% transfer fee each way.</p>
+    <div class="trade-mode exchange-mode" role="tablist" aria-label="Direction">
+      <button data-dir="toMars" class="active" onclick="setExchangeDirection('toMars')">🌍 $ → ₥ 🔴</button>
+      <button data-dir="toEarth" onclick="setExchangeDirection('toEarth')">🔴 ₥ → $ 🌍</button>
+    </div>
+    <p class="popup-line">You have <span id="exchange-have">$0.00</span></p>
+    <label class="trade-qty-label" for="exchange-amount">Amount (<span id="exchange-unit">dollars</span>)</label>
+    <input type="number" id="exchange-amount" class="trade-qty" min="0" step="any" inputmode="decimal" placeholder="0" oninput="onExchangeInput()" onkeydown="onExchangeKey(event)">
+    <div class="trade-chips">
+      <button onclick="setExchangeFraction(0.25)">25%</button>
+      <button onclick="setExchangeFraction(0.5)">50%</button>
+      <button onclick="setExchangeFraction(0.75)">75%</button>
+      <button onclick="setExchangeFraction(1)">Max</button>
+    </div>
+    <p class="popup-line">Sending <span id="exchange-send">&mdash;</span></p>
+    <p class="popup-line">Transfer fee (2%) <span id="exchange-fee">&mdash;</span></p>
+    <p class="popup-line">You receive <span id="exchange-receive">&mdash;</span></p>
+    <button id="exchange-confirm" class="button-rounded button-gold trade-confirm" onclick="confirmExchange()">Send to Mars</button>
+  </div>
+
   <div id="toast-container"></div>
 
   <script src="main.js"></script>
@@ -288,5 +331,6 @@
   <script src="trophies.js"></script>
   <script src="markets.js"></script>
   <script src="merger.js"></script>
+  <script src="planets.js"></script>
 </body>
 </html>
