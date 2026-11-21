@@ -14,6 +14,7 @@
   --gold: #c9a24c;
   --gold-bright: #e0bd6a;
   --emerald: #4caf7d;
+  --gain: #4caf7d; /* price/P&L gains: stays green on every planet */
   --emerald-dim: #3a8763;
   --rust: #b5583c;
   --rust-bright: #cf6c4d;
@@ -74,7 +75,121 @@ body {
   gap: 12px;
 }
 
-.brand { display: flex; align-items: baseline; gap: 8px; }
+.brand { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+
+[hidden] { display: none !important; }
+
+/* ---------- Planet switcher (Earth / Mars) ---------- */
+
+.planet-switch {
+  display: flex;
+  align-self: center;
+  gap: 2px;
+  margin-left: 6px;
+  padding: 3px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+}
+
+.planet-switch button {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  border-radius: 999px;
+  padding: 4px 10px;
+  color: var(--ink-faint);
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.planet-switch button:hover { color: var(--ink); }
+
+.planet-switch button.active {
+  background: var(--bg-panel-raised);
+  color: var(--gold-bright);
+  box-shadow: inset 0 0 0 1px var(--hairline-strong);
+}
+
+.ticker-item--other {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+.ticker-value--other { font-size: 0.85rem; color: var(--ink-dim); }
+.ticker-item--other:hover .ticker-value--other { color: var(--gold-bright); }
+
+.earth-funds-note {
+  display: none;
+  font-size: 0.82rem;
+  color: var(--ink-dim);
+  background: var(--bg-panel);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-s);
+  padding: 8px 12px;
+  margin: -4px 0 16px;
+}
+
+.earth-funds-note .earth-balance { font-family: var(--font-mono); color: var(--gold-bright); }
+
+body.planet-mars .earth-funds-note { display: block; }
+
+.exchange-mode button.active {
+  background: rgba(201, 162, 76, 0.16);
+  color: var(--gold-bright);
+}
+
+/* ---------- Mars theme ----------
+   Same layout, red-planet palette: rust panels, dusty-amber accents
+   (taking over from emerald), with gains still shown in green. */
+
+body.planet-mars {
+  --bg-deep: #1a0b07;
+  --bg-panel: #27120b;
+  --bg-panel-raised: #33180f;
+  --hairline: #4f2618;
+  --hairline-strong: #6e3522;
+  --emerald: #eda05a;
+  --emerald-dim: #b8682f;
+  --ink-dim: #cfb1a2;
+  --ink-faint: #93705f;
+  background: radial-gradient(ellipse at top, #42190b 0%, var(--bg-deep) 60%);
+}
+
+body.planet-mars #masthead {
+  background: linear-gradient(180deg, #24100a 0%, #1e0d08 100%);
+}
+
+body.planet-mars .brand-mark { color: var(--rust-bright); }
+
+body.planet-mars #click-area {
+  border-color: var(--rust-bright);
+  background: radial-gradient(circle at 35% 30%, #6b2d17 0%, #2a120a 70%);
+  box-shadow:
+    0 0 0 6px rgba(207, 108, 77, 0.12),
+    0 14px 30px rgba(0, 0, 0, 0.5),
+    inset 0 0 24px rgba(237, 160, 90, 0.18);
+}
+
+body.planet-mars .card-progress-fill,
+body.planet-mars .level-gauge-fill {
+  background: linear-gradient(90deg, var(--rust), var(--gold));
+}
+
+body.planet-warp #game { animation: planetWarp 0.6s ease; }
+
+@keyframes planetWarp {
+  0% { opacity: 0; transform: scale(0.985); filter: blur(4px); }
+  100% { opacity: 1; transform: none; filter: none; }
+}
 
 .brand-mark {
   color: var(--gold);
@@ -633,7 +748,7 @@ button.collection-card:hover { border-color: var(--gold); background: var(--bg-p
 
 /* ---------- Markets (stocks / crypto) ---------- */
 
-.up { color: var(--emerald); }
+.up { color: var(--gain); }
 .down { color: var(--rust-bright); }
 
 .portfolio-summary {
@@ -643,7 +758,7 @@ button.collection-card:hover { border-color: var(--gold); background: var(--bg-p
   margin-bottom: 18px;
 }
 
-.profile-value.up { color: var(--emerald); }
+.profile-value.up { color: var(--gain); }
 .profile-value.down { color: var(--rust-bright); }
 
 .segmented {
@@ -694,7 +809,7 @@ button.collection-card:hover { border-color: var(--gold); background: var(--bg-p
   line-height: 1.45;
 }
 
-.market-news.up { border-left-color: var(--emerald); color: var(--ink); }
+.market-news.up { border-left-color: var(--gain); color: var(--ink); }
 .market-news.down { border-left-color: var(--rust-bright); color: var(--ink); }
 
 .market-row { gap: 12px; }
@@ -862,7 +977,7 @@ button.collection-card:hover { border-color: var(--gold); background: var(--bg-p
 
 .trade-chart-area { fill: currentColor; opacity: 0.12; }
 
-.popup .popup-line span.up { color: var(--emerald); }
+.popup .popup-line span.up { color: var(--gain); }
 .popup .popup-line span.down { color: var(--rust-bright); }
 .popup-line #trade-supply-label { font-family: var(--font-body); color: var(--ink-dim); }
 
@@ -1168,6 +1283,8 @@ button.collection-card:hover { border-color: var(--gold); background: var(--bg-p
   .asset-quote { min-width: 0; }
   .market-row .card-title { font-size: 0.95rem; }
   #click-area { width: 168px; height: 168px; }
+  .planet-switch button span { display: none; } /* icons only on phones */
+  .ticker-value--other { font-size: 0.78rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

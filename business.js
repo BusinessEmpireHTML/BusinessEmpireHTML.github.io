@@ -104,8 +104,10 @@ const BUSINESS_TYPES = {
   },
 };
 
+// Everything below works on the planet you're currently on (see planets.js):
+// its own business list, its own wallet, and its own currency.
 function ownsBusinessType(type) {
-  return businesses.some(b => b.type === type);
+  return planetBusinesses().some(b => b.type === type);
 }
 
 // Renders either a photo (imageSrc) or a lettered/emoji monogram, for
@@ -128,24 +130,23 @@ function createCardMedia(source) {
 
 function buyBusiness(type) {
   if (type === 'bank') {
-    buyBank();
+    if (planet().hasBank) buyBank();
     return;
   }
 
-  const config = BUSINESS_TYPES[type];
+  const config = planet().businessTypes[type];
   if (!config) return;
 
   if (ownsBusinessType(type)) {
     toast(`You already own a ${config.name}.`, 'error');
     return;
   }
-  if (cash < config.cost) {
-    toast('Not enough cash for that.', 'error');
+  if (!spendFunds(config.cost)) {
+    toast(`Not enough ${planet().walletLabel.toLowerCase()} for that.`, 'error');
     return;
   }
 
-  cash = roundToHundredths(cash - config.cost);
-  businesses.push({
+  planetBusinesses().push({
     type,
     name: config.name,
     level: 1,
@@ -172,11 +173,13 @@ function renderBuyBusinessPopup() {
   if (!list) return;
   list.innerHTML = '';
 
-  Object.entries(BUSINESS_TYPES).forEach(([type, config]) => {
-    list.appendChild(buildShopCard(type, config, config.cost, `${formatMoney(config.income)} / hr`, ownsBusinessType(type)));
+  Object.entries(planet().businessTypes).forEach(([type, config]) => {
+    list.appendChild(buildShopCard(type, config, config.cost, `${formatFunds(config.income)} / hr`, ownsBusinessType(type)));
   });
 
-  list.appendChild(buildShopCard('bank', bank, bank.baseCost, 'Income scales with vault', ownsBusinessType('bank')));
+  if (planet().hasBank) {
+    list.appendChild(buildShopCard('bank', bank, bank.baseCost, 'Income scales with vault', ownsBusinessType('bank')));
+  }
 }
 
 function buildShopCard(type, source, cost, subLabel, owned) {
@@ -198,7 +201,7 @@ function buildShopCard(type, source, cost, subLabel, owned) {
 
   const price = document.createElement('div');
   price.className = 'card-price';
-  price.textContent = owned ? '' : formatMoney(cost);
+  price.textContent = owned ? '' : formatFunds(cost);
 
   card.appendChild(body);
   card.appendChild(price);
@@ -208,11 +211,12 @@ function buildShopCard(type, source, cost, subLabel, owned) {
 function renderBusinesses() {
   const businessList = document.getElementById('business-list');
   const emptyState = document.getElementById('business-empty-state');
+  const list = planetBusinesses();
   businessList.innerHTML = '';
 
-  emptyState.classList.toggle('visible', businesses.length === 0);
+  emptyState.classList.toggle('visible', list.length === 0);
 
-  businesses.forEach((business, index) => {
+  list.forEach((business, index) => {
     const card = document.createElement('div');
     card.className = 'card';
 
@@ -225,13 +229,13 @@ function renderBusinesses() {
       const pct = business.maxVaultStorage > 0 ? Math.min(100, (business.currentMoneyInVault / business.maxVaultStorage) * 100) : 0;
       body.innerHTML = `
         <div class="card-title-row"><span class="card-title">${business.name}</span></div>
-        <div class="card-sub">${formatMoney(business.income)} / hr</div>
+        <div class="card-sub">${formatFunds(business.income)} / hr</div>
         <div class="card-progress"><div class="card-progress-fill" style="width:${pct}%"></div></div>
       `;
     } else if (business.merged) {
       body.innerHTML = `
         <div class="card-title-row"><span class="card-title">${business.name}</span><span class="card-badge max">Merged</span></div>
-        <div class="card-sub">${formatMoney(business.income)} / hr</div>
+        <div class="card-sub">${formatFunds(business.income)} / hr</div>
       `;
     } else {
       const isMax = business.level >= business.maxLevel;
@@ -241,7 +245,7 @@ function renderBusinesses() {
           <span class="card-title">${business.name}</span>
           <span class="card-badge${isMax ? ' max' : ''}">Lv ${business.level}/${business.maxLevel}</span>
         </div>
-        <div class="card-sub">${formatMoney(business.income)} / hr</div>
+        <div class="card-sub">${formatFunds(business.income)} / hr</div>
         <div class="card-progress"><div class="card-progress-fill" style="width:${pct}%"></div></div>
       `;
     }
@@ -261,9 +265,8 @@ function renderBusinesses() {
 }
 
 function upgradeBusiness(index) {
-  const business = businesses[index];
-  if (cash >= business.upgradeCost && business.level < business.maxLevel) {
-    cash = roundToHundredths(cash - business.upgradeCost);
+  const business = planetBusinesses()[index];
+  if (business && business.level < business.maxLevel && spendFunds(business.upgradeCost)) {
     business.level += 1;
     business.income = roundToHundredths(business.income * business.upgradeMultiplier);
     business.upgradeCost = roundToHundredths(business.upgradeCost * 1.15);
@@ -274,7 +277,7 @@ function upgradeBusiness(index) {
     renderBusinesses();
     openUpgradeBusinessPopup(index);
   } else {
-    toast('Not enough cash or already at max level.', 'error');
+    toast(`Not enough ${planet().walletLabel.toLowerCase()} or already at max level.`, 'error');
   }
 }
 
@@ -289,20 +292,20 @@ function openUpgradeBusinessPopup(index) {
 // Fills in the upgrade popup. Also called every second by the game loop
 // while it's open, so the Upgrade button enables the moment you can afford it.
 function renderUpgradePopup(index) {
-  const business = businesses[index];
+  const business = planetBusinesses()[index];
   if (!business) return;
   document.getElementById('business-name').textContent = business.name;
   document.getElementById('business-level').textContent = `${business.level} / ${business.maxLevel}`;
   document.getElementById('business-level-gauge').style.width = `${Math.min(100, (business.level / business.maxLevel) * 100)}%`;
-  document.getElementById('business-income').textContent = formatMoney(business.income);
+  document.getElementById('business-income').textContent = formatFunds(business.income);
 
   const upgradeButton = document.getElementById('upgrade-button');
   if (business.level >= business.maxLevel) {
     document.getElementById('business-upgrade-cost').textContent = 'MAX LEVEL';
     upgradeButton.disabled = true;
   } else {
-    document.getElementById('business-upgrade-cost').textContent = formatMoney(business.upgradeCost);
-    upgradeButton.disabled = cash < business.upgradeCost;
+    document.getElementById('business-upgrade-cost').textContent = formatFunds(business.upgradeCost);
+    upgradeButton.disabled = planetFunds() < business.upgradeCost;
   }
 
   upgradeButton.onclick = () => upgradeBusiness(index);
@@ -319,12 +322,14 @@ function isPopupOpen(id) {
 function refreshOpenPopups() {
   if (openUpgradeIndex !== null && isPopupOpen('upgrade-business-popup')) renderUpgradePopup(openUpgradeIndex);
   if (openBankIndex !== null && isPopupOpen('bank-popup')) renderBankPopup(openBankIndex);
+  refreshExchangePopup();
 }
 
 function closeBusiness(index) {
-  const business = businesses[index];
+  const business = planetBusinesses()[index];
+  if (!business) return;
   if (confirm(`Are you sure you want to close the ${business.name}? This cannot be undone.`)) {
-    businesses.splice(index, 1);
+    planetBusinesses().splice(index, 1);
     recalcHourlyIncome();
     saveProgress();
     updateStats();

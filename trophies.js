@@ -179,10 +179,6 @@ function renderItems() {
 function updateCollectionStats() {
   const propertyCount = ownedProperties.length;
   const trophyCount = ownedTrophies.length;
-  const setText = (id, text) => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = text;
-  };
   const setWidth = (id, fraction) => {
     const el = document.getElementById(id);
     if (el) el.style.width = `${Math.min(100, fraction * 100)}%`;

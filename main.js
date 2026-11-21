@@ -26,10 +26,19 @@ function roundToHundredths(value) {
 }
 
 // Compact "$1.23M / hr" style formatting so big numbers stay readable.
-function formatMoney(value) {
+// Mars incomes reach far past trillions, hence the long suffix list.
+// `symbol` is "$" for Earth dollars and "₥" for Martian Credits.
+function formatMoney(value, symbol = '$') {
   const sign = value < 0 ? '-' : '';
   const abs = Math.abs(value);
   const units = [
+    { at: 1e33, suffix: 'Dc' },
+    { at: 1e30, suffix: 'No' },
+    { at: 1e27, suffix: 'Oc' },
+    { at: 1e24, suffix: 'Sp' },
+    { at: 1e21, suffix: 'Sx' },
+    { at: 1e18, suffix: 'Qi' },
+    { at: 1e15, suffix: 'Qa' },
     { at: 1e12, suffix: 'T' },
     { at: 1e9, suffix: 'B' },
     { at: 1e6, suffix: 'M' },
@@ -37,10 +46,10 @@ function formatMoney(value) {
   ];
   for (const u of units) {
     if (abs >= u.at) {
-      return `${sign}$${(abs / u.at).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}${u.suffix}`;
+      return `${sign}${symbol}${(abs / u.at).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}${u.suffix}`;
     }
   }
-  return `${sign}$${abs.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  return `${sign}${symbol}${abs.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
 function formatInt(value) {
@@ -62,6 +71,7 @@ function recalcHourlyIncome() {
   });
   total += getRentIncome();
   hourlyIncome = roundToHundredths(total);
+  calcMarsIncome();
 }
 
 /* ---------------- persistence ---------------- */
@@ -78,6 +88,7 @@ function saveProgress() {
   localStorage.setItem('businesses', JSON.stringify(businesses));
   localStorage.setItem('properties', JSON.stringify(ownedProperties));
   localStorage.setItem('trophies', JSON.stringify(ownedTrophies));
+  savePlanets();
 }
 
 // Reads a saved array of ids, dropping any that no longer exist in `catalog`.
@@ -119,15 +130,15 @@ function loadProgress() {
     }
   });
 
+  loadPlanets();
   migrateMergedIncomes();
   calculateOfflineIncome();
   recalcHourlyIncome();
   loadMarkets();
   saveProgress();
-  updateStats();
-  renderBusinesses();
   renderProperties();
   renderItems();
+  applyPlanet(false); // renders the current planet's businesses and stats
 }
 
 // Fast-forwards the bank vault and pays out the income that would have
@@ -148,10 +159,15 @@ function calculateOfflineIncome() {
 
   const averageIncome = (incomeBefore + incomeAfter) / 2;
   const earned = roundToHundredths(averageIncome * diffInHours);
+  const earnedOnMars = mars.unlocked ? roundToHundredths(marsHourlyIncome * diffInHours) : 0;
 
-  if (earned > 0.01) {
-    cash = roundToHundredths(cash + earned);
-    toast(`Welcome back! You earned ${formatMoney(earned)} while away.`, 'success');
+  if (earned > 0.01) cash = roundToHundredths(cash + earned);
+  if (earnedOnMars > 0.01) mars.credits = roundToHundredths(mars.credits + earnedOnMars);
+  if (earned > 0.01 || earnedOnMars > 0.01) {
+    const parts = [];
+    if (earned > 0.01) parts.push(formatMoney(earned));
+    if (earnedOnMars > 0.01) parts.push(`${formatCredits(earnedOnMars)} on Mars`);
+    toast(`Welcome back! You earned ${parts.join(' and ')} while away.`, 'success');
   }
 
   lastUpdate = now;
@@ -159,14 +175,12 @@ function calculateOfflineIncome() {
 
 /* ---------------- clicker ---------------- */
 
+// Taps pay into whichever planet you're on (see planets.js).
 function earnMoney(event) {
-  const earned = clickValue;
-  cash = roundToHundredths(cash + earned);
-  clicks++;
-  clickValue = roundToHundredths(Math.min(1 + Math.sqrt(clicks) / 10, 100));
+  const earned = planet().click();
   saveProgress();
   updateStats();
-  spawnFloatText(`+${formatMoney(earned)}`);
+  spawnFloatText(`+${formatFunds(earned)}`);
 }
 
 function spawnFloatText(text) {
@@ -183,20 +197,33 @@ function spawnFloatText(text) {
 /* ---------------- stats display ---------------- */
 
 function updateStats() {
-  const cashText = formatMoney(cash);
-  const incomeText = formatMoney(hourlyIncome);
+  const p = planet();
+  const onMars = currentPlanet === 'mars';
 
-  setTextIfChanged('cash-ticker', cashText, true);
-  setTextIfChanged('income-ticker', incomeText, true);
-  document.getElementById('cash-profile').textContent = cashText;
-  document.getElementById('hourlyIncome-profile').textContent = incomeText;
-  document.getElementById('clickValue').textContent = roundToHundredths(clickValue).toLocaleString(undefined, { minimumFractionDigits: 2 });
-  document.getElementById('business-count-profile').textContent = formatInt(businesses.length);
-  document.getElementById('clicks-profile').textContent = formatInt(clicks);
+  // Masthead ticker: the planet you're on, plus the other planet's wallet once Mars is unlocked.
+  setTextIfChanged('cash-ticker', p.format(p.getFunds()), true);
+  setTextIfChanged('income-ticker', p.format(p.getIncome()), true);
+  setText('other-label', onMars ? 'Earth' : 'Mars');
+  setText('other-ticker', onMars ? formatMoney(cash) : formatCredits(mars.credits));
+  setText('clickValue', p.format(p.getClickValue()));
+
+  const earthCashText = formatMoney(cash);
+  setText('cash-profile', earthCashText);
+  setText('hourlyIncome-profile', formatMoney(hourlyIncome));
+  setText('mars-credits-profile', formatCredits(mars.credits));
+  setText('mars-income-profile', formatCredits(marsHourlyIncome));
+  setText('business-count-profile', formatInt(businesses.length + mars.businesses.length));
+  setText('clicks-profile', formatInt(clicks + mars.clicks));
+
+  // Stocks, properties and trophies are always paid in Earth dollars.
+  document.querySelectorAll('.earth-balance').forEach(el => {
+    el.textContent = earthCashText;
+  });
 
   const portfolio = getPortfolioValue();
-  document.getElementById('portfolio-profile').textContent = formatMoney(portfolio);
-  document.getElementById('networth-profile').textContent = formatMoney(cash + portfolio + getPropertyValue() + getTrophyValue());
+  const marsInDollars = mars.credits * CREDIT_RATE;
+  setText('portfolio-profile', formatMoney(portfolio));
+  setText('networth-profile', formatMoney(cash + portfolio + getPropertyValue() + getTrophyValue() + marsInDollars));
 
   updateCollectionStats();
   refreshAffordability();
@@ -245,6 +272,11 @@ function refreshAffordability() {
   });
 }
 
+function setText(id, text) {
+  const el = document.getElementById(id);
+  if (el && el.textContent !== text) el.textContent = text;
+}
+
 function setTextIfChanged(id, text, pulseOnChange) {
   const el = document.getElementById(id);
   if (!el) return;
@@ -269,6 +301,7 @@ function startGameLoop() {
     tickBankVaults(1 / 3600); // one second's worth of an hourly fill rate
     recalcHourlyIncome();
     cash = roundToHundredths(cash + hourlyIncome / 3600);
+    if (mars.unlocked) mars.credits = roundToHundredths(mars.credits + marsHourlyIncome / 3600);
     tickMarkets();
     refreshOpenPopups();
     updateStats();
@@ -332,7 +365,7 @@ function toast(message, kind) {
 function resetGame() {
   if (!confirm('This will permanently erase your empire and start over. Are you sure?')) return;
   isResetting = true;
-  ['cash', 'hourlyIncome', 'clickValue', 'clicks', 'lastUpdate', 'businesses', 'investments', 'markets', 'properties', 'trophies'].forEach(key =>
+  ['cash', 'hourlyIncome', 'clickValue', 'clicks', 'lastUpdate', 'businesses', 'investments', 'markets', 'properties', 'trophies', 'mars', 'planet'].forEach(key =>
     localStorage.removeItem(key)
   );
   location.reload();
