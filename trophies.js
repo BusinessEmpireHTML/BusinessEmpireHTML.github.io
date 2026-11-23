@@ -100,6 +100,7 @@ function buyTrophy(id) {
     toast('Not enough cash for that.', 'error');
     return;
   }
+  if (!confirmSpend(trophy.price, cash, `${formatMoney(trophy.price)} on the ${trophy.name}`)) return;
   cash = roundToHundredths(cash - trophy.price);
   ownedTrophies.push(id);
   afterTrophyChange();
@@ -172,6 +173,30 @@ function renderItems() {
 
   updateCollectionStats();
   refreshAffordability();
+  renderShowroom();
+}
+
+// Profile showroom: every trophy you own, on display.
+function renderShowroom() {
+  const grid = document.getElementById('showroom-grid');
+  if (!grid) return;
+  setText('showroom-meta', ownedTrophies.length
+    ? `${ownedTrophies.length} / ${TROPHIES.length} trophies · worth ${formatMoney(getTrophyValue())}`
+    : 'Nothing on display yet.');
+  grid.innerHTML = '';
+  if (ownedTrophies.length === 0) {
+    grid.innerHTML = '<p class="showroom-empty">Your showroom is empty. Buy cars, yachts, islands and more in the Items tab and they\'ll be displayed here.</p>';
+    return;
+  }
+  TROPHIES.filter(t => ownsTrophy(t.id)).forEach(trophy => {
+    const tile = document.createElement('div');
+    tile.className = 'showroom-item';
+    tile.innerHTML = '<span class="showroom-icon" aria-hidden="true"></span><span class="showroom-name"></span>';
+    tile.querySelector('.showroom-icon').textContent = trophy.icon;
+    tile.querySelector('.showroom-name').textContent = trophy.name;
+    tile.title = `${trophy.name}: ${trophy.blurb}`;
+    grid.appendChild(tile);
+  });
 }
 
 // Counters shown on the Items tab, the Property panel and the Profile.

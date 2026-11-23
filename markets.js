@@ -246,9 +246,10 @@ function stepMarket(key, silent) {
     const event = stepAsset(asset, marketState.assets[asset.symbol], market);
     if (!event) return;
     marketState.news[key] = event;
+    if (!silent && !event.good && key === 'crypto' && holdingUnits(asset.symbol) > 0) recordStat('diamondHands');
     if (!silent && holdingUnits(asset.symbol) > 0) {
       const sign = event.good ? '+' : '-';
-      toast(`${event.good ? '📈' : '📉'} ${event.headline} (${asset.symbol} ${sign}${(event.size * 100).toFixed(0)}%)`, event.good ? 'success' : 'error');
+      toast(`${event.good ? '📈' : '📉'} ${event.headline} (${asset.symbol} ${sign}${(event.size * 100).toFixed(0)}%)`, event.good ? 'success' : 'error', null);
     }
   });
 }
@@ -445,6 +446,7 @@ function sellAsset(symbol, units) {
 }
 
 function afterTrade() {
+  recordStat('trades');
   saveMarkets();
   saveProgress();
   updateStats();

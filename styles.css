@@ -161,18 +161,24 @@ body.planet-mars {
   --emerald-dim: #b8682f;
   --ink-dim: #cfb1a2;
   --ink-faint: #93705f;
-  background: radial-gradient(ellipse at top, #42190b 0%, var(--bg-deep) 60%);
+  /* Terraforming stages override these (see below). */
+  --mars-glow: #42190b;
+  --mars-masthead: #22100a;
+  --mars-ring: var(--rust-bright);
+  --mars-coin-light: #6b2d17;
+  --mars-coin-dark: #2a120a;
+  background: radial-gradient(ellipse at top, var(--mars-glow) 0%, var(--bg-deep) 60%);
 }
 
 body.planet-mars #masthead {
-  background: linear-gradient(180deg, #24100a 0%, #1e0d08 100%);
+  background: linear-gradient(180deg, var(--mars-masthead) 0%, var(--bg-deep) 100%);
 }
 
-body.planet-mars .brand-mark { color: var(--rust-bright); }
+body.planet-mars .brand-mark { color: var(--mars-ring); }
 
 body.planet-mars #click-area {
-  border-color: var(--rust-bright);
-  background: radial-gradient(circle at 35% 30%, #6b2d17 0%, #2a120a 70%);
+  border-color: var(--mars-ring);
+  background: radial-gradient(circle at 35% 30%, var(--mars-coin-light) 0%, var(--mars-coin-dark) 70%);
   box-shadow:
     0 0 0 6px rgba(207, 108, 77, 0.12),
     0 14px 30px rgba(0, 0, 0, 0.5),
@@ -183,6 +189,93 @@ body.planet-mars .card-progress-fill,
 body.planet-mars .level-gauge-fill {
   background: linear-gradient(90deg, var(--rust), var(--gold));
 }
+
+/* Terraforming: each stage nudges Mars from red toward a blue-green world. */
+body.planet-mars.terraform-1 {
+  --bg-deep: #1a0e0a; --bg-panel: #27160f; --bg-panel-raised: #321d14;
+  --hairline: #4d2c1e; --hairline-strong: #6a3d29;
+  --mars-glow: #4a2614; --mars-masthead: #23130c; --mars-coin-light: #6e3a20; --mars-coin-dark: #2b160d;
+}
+body.planet-mars.terraform-2 {
+  --bg-deep: #1a110b; --bg-panel: #261a10; --bg-panel-raised: #312216;
+  --hairline: #4b3420; --hairline-strong: #67482c;
+  --emerald: #f0b866;
+  --mars-glow: #553317; --mars-masthead: #22170d; --mars-ring: #e39a52; --mars-coin-light: #72461f; --mars-coin-dark: #2c1a0c;
+}
+body.planet-mars.terraform-3 {
+  --bg-deep: #0f1418; --bg-panel: #172028; --bg-panel-raised: #1e2933;
+  --hairline: #2c3c4a; --hairline-strong: #3d5366;
+  --emerald: #7fbfe0; --emerald-dim: #4f8db0; --ink-dim: #b0bfc9; --ink-faint: #74838f;
+  --mars-glow: #1f3a52; --mars-masthead: #121b22; --mars-ring: #6aaed6; --mars-coin-light: #2b5373; --mars-coin-dark: #121e28;
+}
+body.planet-mars.terraform-4 {
+  --bg-deep: #0d1613; --bg-panel: #14221c; --bg-panel-raised: #1a2b23;
+  --hairline: #2a4234; --hairline-strong: #3b5a47;
+  --emerald: #8fd07a; --emerald-dim: #5d9c4f; --ink-dim: #adbfb0; --ink-faint: #71836f;
+  --mars-glow: #1f4430; --mars-masthead: #101c16; --mars-ring: #7cc66a; --mars-coin-light: #2c5a3c; --mars-coin-dark: #11211a;
+}
+body.planet-mars.terraform-5 {
+  --bg-deep: #0b1517; --bg-panel: #122326; --bg-panel-raised: #182d31;
+  --hairline: #264247; --hairline-strong: #355a60;
+  --emerald: #6fd6c4; --emerald-dim: #45a596; --ink-dim: #a9c2c2; --ink-faint: #6d8586;
+  --mars-glow: #1b4f55; --mars-masthead: #0f1d20; --mars-ring: #62cbbb; --mars-coin-light: #276068; --mars-coin-dark: #0f2226;
+}
+
+/* ---------- Terraform card (Mars Businesses tab) ---------- */
+
+body:not(.planet-mars) .mars-only { display: none; }
+
+.terraform-card {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--mars-glow, #42190b) 55%, var(--bg-panel)), var(--bg-panel) 70%);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-m);
+  padding: 16px;
+  margin-bottom: 18px;
+}
+
+.terraform-head { display: flex; align-items: center; gap: 14px; }
+
+.terraform-globe {
+  font-size: 2.2rem;
+  line-height: 1;
+  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--mars-ring, #cf6c4d) 60%, transparent));
+}
+
+.terraform-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--emerald);
+  margin: 0 0 2px;
+}
+
+.terraform-title { font-family: var(--font-display); font-weight: 600; font-size: 1.1rem; margin: 0; color: var(--ink); }
+
+.terraform-steps { display: flex; gap: 6px; margin: 14px 0 10px; }
+
+.terraform-step {
+  flex: 1;
+  text-align: center;
+  font-size: 1rem;
+  padding: 6px 0;
+  border-radius: var(--radius-s);
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--hairline);
+  filter: grayscale(1);
+  opacity: 0.45;
+}
+
+.terraform-step.done {
+  filter: none;
+  opacity: 1;
+  border-color: var(--mars-ring, var(--gold));
+  background: color-mix(in srgb, var(--mars-ring, #cf6c4d) 18%, transparent);
+}
+
+.terraform-text { font-size: 0.86rem; color: var(--ink-dim); line-height: 1.5; margin: 0 0 6px; }
+.terraform-bonus { font-family: var(--font-mono); font-size: 0.74rem; color: var(--emerald); margin: 0 0 12px; }
+.terraform-button { width: 100%; }
 
 body.planet-warp #game { animation: planetWarp 0.6s ease; }
 
@@ -215,6 +308,30 @@ body.planet-warp #game { animation: planetWarp 0.6s ease; }
   border: 1px solid var(--hairline);
   border-radius: var(--radius-m);
   padding: 8px 18px;
+}
+
+.ticker { position: relative; }
+
+.boost-pill {
+  position: absolute;
+  left: 50%;
+  bottom: -11px;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  font-weight: 600;
+  color: #1a1006;
+  background: linear-gradient(180deg, var(--gold-bright), var(--gold));
+  border-radius: 999px;
+  padding: 2px 10px;
+  box-shadow: 0 0 12px rgba(224, 189, 106, 0.55);
+  animation: boostGlow 1.6s ease-in-out infinite;
+  z-index: 1;
+}
+
+@keyframes boostGlow {
+  50% { box-shadow: 0 0 20px rgba(224, 189, 106, 0.85); }
 }
 
 .ticker-item { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.25; }
@@ -1170,6 +1287,32 @@ button.collection-card:hover { border-color: var(--gold); background: var(--bg-p
 }
 
 .popup-actions { display: flex; gap: 10px; margin-top: 18px; }
+
+.upgrade-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.upgrade-buttons #upgrade-button { grid-column: 1 / -1; }
+.upgrade-buttons .button-rounded { padding: 10px 8px; font-size: 0.8rem; }
+
+.manager-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-s);
+}
+
+.manager-text { flex: 1; font-size: 0.8rem; color: var(--ink-dim); line-height: 1.45; }
+.manager-box .button-rounded { flex-shrink: 0; padding: 8px 12px; font-size: 0.78rem; }
+
+.card-badge.manager-badge { padding: 0 6px; }
 .popup-actions .button-rounded { flex: 1; }
 
 .vault-gauge, .level-gauge {
@@ -1233,6 +1376,222 @@ button.collection-card:hover { border-color: var(--gold); background: var(--bg-p
   color: var(--gold-bright);
 }
 
+/* ---------- Profile sections & settings ---------- */
+
+.subsection-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.15rem;
+  color: var(--ink);
+  margin: 28px 0 10px;
+}
+
+.subsection-meta {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--emerald);
+  margin: -6px 0 12px;
+}
+
+.settings-list {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-panel);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-m);
+  margin-bottom: 24px;
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--hairline);
+  cursor: pointer;
+}
+
+.setting-row:last-child { border-bottom: none; }
+
+.setting-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.setting-text strong { font-size: 0.9rem; font-weight: 600; color: var(--ink); }
+.setting-text small { font-size: 0.76rem; color: var(--ink-faint); line-height: 1.4; }
+
+.switch {
+  appearance: none;
+  -webkit-appearance: none;
+  flex-shrink: 0;
+  width: 42px;
+  height: 24px;
+  border-radius: 999px;
+  background: var(--hairline-strong);
+  position: relative;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  margin: 0;
+}
+
+.switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--ink);
+  transition: transform 0.15s ease;
+}
+
+.switch:checked { background: var(--gold); }
+.switch:checked::after { transform: translateX(18px); background: #1a1006; }
+.switch:focus-visible, .setting-select:focus-visible { outline: 2px solid var(--gold-bright); outline-offset: 2px; }
+
+.setting-select {
+  flex-shrink: 0;
+  background: var(--bg-deep);
+  color: var(--ink);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-s);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  padding: 6px 8px;
+}
+
+.setting-row--stack { cursor: default; flex-wrap: wrap; }
+.setting-buttons { display: flex; gap: 8px; flex-shrink: 0; }
+.setting-button { padding: 8px 14px; font-size: 0.8rem; }
+
+.save-code {
+  width: 100%;
+  resize: vertical;
+  background: var(--bg-deep);
+  color: var(--ink);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-s);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  line-height: 1.4;
+  padding: 10px 12px;
+  word-break: break-all;
+}
+
+.save-code:focus { outline: none; border-color: var(--gold); }
+
+.import-error { color: var(--rust-bright); font-size: 0.82rem; min-height: 1.2em; margin: 8px 0 0; }
+
+.file-button { display: inline-flex; align-items: center; justify-content: center; text-align: center; }
+
+.hint-text code { font-family: var(--font-mono); color: var(--gold-bright); }
+
+/* ---------- Research Lab ---------- */
+
+.popup--wide { width: min(520px, calc(100vw - 40px)); }
+
+#research-list { display: flex; flex-direction: column; gap: 8px; }
+
+.research-summary {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  line-height: 1.6;
+  color: var(--emerald);
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-s);
+  padding: 8px 10px;
+  margin: 0 0 14px;
+}
+
+.research-card .card-monogram { width: 44px; height: 44px; font-size: 1.15rem; }
+.research-card.research-owned { cursor: default; border-color: rgba(201, 162, 76, 0.45); background: linear-gradient(90deg, rgba(201, 162, 76, 0.08), var(--bg-panel) 60%); }
+.research-card.research-owned .card-price { color: var(--emerald); }
+.research-card.research-available .card-price { color: var(--gold-bright); }
+.research-card.research-available.locked .card-price { color: var(--ink-faint); }
+.research-card.research-needs-prereq,
+.research-card.research-needs-mars { opacity: 0.5; cursor: default; }
+.research-card.research-owned:hover,
+.research-card.research-needs-prereq:hover,
+.research-card.research-needs-mars:hover { transform: none; }
+
+.popup-line .popup-line-label { font-family: var(--font-body); color: var(--ink-dim); }
+.popup-line .popup-line-label span { font-family: var(--font-body); color: inherit; }
+
+/* ---------- Next goal, achievements, showroom ---------- */
+
+.next-goal {
+  font-size: 0.85rem;
+  color: var(--ink);
+  background: var(--bg-panel);
+  border: 1px solid var(--hairline);
+  border-left: 3px solid var(--gold);
+  border-radius: var(--radius-s);
+  padding: 10px 12px;
+  margin: 4px 0 18px;
+  max-width: 52ch;
+  line-height: 1.45;
+}
+
+.achievement-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.achievement {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-panel);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-s);
+  padding: 9px 10px;
+  min-width: 0;
+  opacity: 0.55;
+}
+
+.achievement.earned {
+  opacity: 1;
+  border-color: rgba(201, 162, 76, 0.45);
+  background: linear-gradient(135deg, rgba(201, 162, 76, 0.12), var(--bg-panel) 70%);
+}
+
+.achievement-icon { font-size: 1.35rem; line-height: 1; flex-shrink: 0; }
+.achievement:not(.earned) .achievement-icon { filter: grayscale(1); }
+.achievement-text { display: flex; flex-direction: column; min-width: 0; }
+.achievement-text strong { font-size: 0.8rem; font-weight: 600; color: var(--ink); }
+.achievement-text small { font-size: 0.7rem; color: var(--ink-faint); line-height: 1.35; }
+.achievement.earned .achievement-text strong { color: var(--gold-bright); }
+
+.showroom-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 8px;
+}
+
+.showroom-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+  padding: 14px 8px 10px;
+  background: radial-gradient(circle at 50% 30%, rgba(201, 162, 76, 0.16), var(--bg-panel) 70%);
+  border: 1px solid rgba(201, 162, 76, 0.3);
+  border-radius: var(--radius-m);
+}
+
+.showroom-icon { font-size: 2.1rem; line-height: 1; filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.45)); }
+.showroom-name { font-size: 0.7rem; font-weight: 600; color: var(--ink-dim); line-height: 1.3; }
+
+.showroom-empty {
+  grid-column: 1 / -1;
+  color: var(--ink-faint);
+  font-size: 0.85rem;
+  font-style: italic;
+  margin: 0;
+}
+
 /* ---------- Toasts ---------- */
 
 #toast-container {
@@ -1260,6 +1619,60 @@ button.collection-card:hover { border-color: var(--gold); background: var(--bg-p
 }
 
 .toast.toast-error { border-left-color: var(--rust-bright); }
+.toast.toast-golden, .toast.toast-achievement { border-left-color: var(--gold-bright); background: linear-gradient(90deg, rgba(201, 162, 76, 0.18), var(--bg-panel-raised) 55%); }
+
+/* ---------- Golden coin ---------- */
+
+.golden-coin {
+  position: fixed;
+  left: 0;
+  z-index: 150;
+  width: 64px;
+  height: 64px;
+  margin-top: -32px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  background: radial-gradient(circle at 35% 30%, #fff3c4 0%, #f1cd6b 35%, #c9962f 75%, #8a6416 100%);
+  box-shadow: 0 0 0 3px rgba(255, 236, 170, 0.55), 0 0 28px rgba(255, 210, 90, 0.85), 0 8px 18px rgba(0, 0, 0, 0.45);
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+.golden-coin.from-left { animation-name: goldenAcrossLeft; }
+.golden-coin.from-right { animation-name: goldenAcrossRight; }
+
+.golden-coin-face {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: 1.7rem;
+  color: #7a5410;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+  animation: goldenBob 1.4s ease-in-out infinite;
+}
+
+@keyframes goldenAcrossLeft {
+  0% { transform: translateX(-90px); opacity: 0; }
+  6% { opacity: 1; }
+  94% { opacity: 1; }
+  100% { transform: translateX(calc(100vw + 30px)); opacity: 0; }
+}
+
+@keyframes goldenAcrossRight {
+  0% { transform: translateX(calc(100vw + 30px)); opacity: 0; }
+  6% { opacity: 1; }
+  94% { opacity: 1; }
+  100% { transform: translateX(-90px); opacity: 0; }
+}
+
+@keyframes goldenBob {
+  0%, 100% { transform: translateY(-6px) rotate(-8deg); }
+  50% { transform: translateY(6px) rotate(8deg); }
+}
 .toast.toast-success { border-left-color: var(--emerald); }
 
 @keyframes toastIn {
@@ -1279,6 +1692,7 @@ button.collection-card:hover { border-color: var(--gold); background: var(--bg-p
   .profile-grid { grid-template-columns: 1fr; }
   .sparkline { display: none; }
   .collection-summary { grid-template-columns: 1fr; }
+  .achievement-grid { grid-template-columns: 1fr 1fr; }
   .category-chips { flex-wrap: nowrap; } /* swipe sideways on phones */
   .asset-quote { min-width: 0; }
   .market-row .card-title { font-size: 0.95rem; }
@@ -1289,4 +1703,7 @@ button.collection-card:hover { border-color: var(--gold); background: var(--bg-p
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  /* No drifting: the golden coin waits in the middle of the screen instead. */
+  .golden-coin, .golden-coin-face { animation-name: none !important; }
+  .golden-coin { left: 50%; margin-left: -32px; }
 }

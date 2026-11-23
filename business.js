@@ -141,6 +141,7 @@ function buyBusiness(type) {
     toast(`You already own a ${config.name}.`, 'error');
     return;
   }
+  if (!confirmSpend(config.cost, planetFunds(), `${formatFunds(config.cost)} on a ${config.name}`)) return;
   if (!spendFunds(config.cost)) {
     toast(`Not enough ${planet().walletLabel.toLowerCase()} for that.`, 'error');
     return;
@@ -244,6 +245,7 @@ function renderBusinesses() {
         <div class="card-title-row">
           <span class="card-title">${business.name}</span>
           <span class="card-badge${isMax ? ' max' : ''}">Lv ${business.level}/${business.maxLevel}</span>
+          ${business.manager ? '<span class="card-badge manager-badge" title="Managed">👔</span>' : ''}
         </div>
         <div class="card-sub">${formatFunds(business.income)} / hr</div>
         <div class="card-progress"><div class="card-progress-fill" style="width:${pct}%"></div></div>
@@ -264,20 +266,108 @@ function renderBusinesses() {
   });
 }
 
-function upgradeBusiness(index) {
-  const business = planetBusinesses()[index];
-  if (business && business.level < business.maxLevel && spendFunds(business.upgradeCost)) {
-    business.level += 1;
-    business.income = roundToHundredths(business.income * business.upgradeMultiplier);
-    business.upgradeCost = roundToHundredths(business.upgradeCost * 1.15);
+/* ---------------- upgrades (×1, ×10, Max) ---------------- */
 
+const UPGRADE_COST_GROWTH = 1.15; // each level costs 15% more than the last
+
+function applyLevelUp(business) {
+  business.level += 1;
+  business.income = roundToHundredths(business.income * business.upgradeMultiplier);
+  business.upgradeCost = roundToHundredths(business.upgradeCost * UPGRADE_COST_GROWTH);
+}
+
+// What the next `levels` upgrades cost in total, and how many of the
+// requested levels can be bought with `funds` (never past max level).
+function planUpgrade(business, requested, funds) {
+  const remaining = business.maxLevel - business.level;
+  let levels = 0;
+  let total = 0;
+  let cost = business.upgradeCost;
+  while (levels < Math.min(requested, remaining) && total + cost <= funds) {
+    total += cost;
+    cost *= UPGRADE_COST_GROWTH;
+    levels++;
+  }
+  return { levels, total: roundToHundredths(total) };
+}
+
+function upgradeBusinessBy(index, requested) {
+  const business = planetBusinesses()[index];
+  if (!business || business.level >= business.maxLevel) return;
+  const plan = planUpgrade(business, requested, planetFunds());
+  if (plan.levels === 0 || !spendFunds(plan.total)) {
+    toast(`Not enough ${planet().walletLabel.toLowerCase()} for that upgrade.`, 'error');
+    return;
+  }
+  for (let i = 0; i < plan.levels; i++) applyLevelUp(business);
+  playSound('buy');
+  recalcHourlyIncome();
+  saveProgress();
+  updateStats();
+  renderBusinesses();
+  openUpgradeBusinessPopup(index);
+}
+
+function upgradeBusiness(index) {
+  upgradeBusinessBy(index, 1);
+}
+
+/* ---------------- managers ----------------
+   A manager auto-upgrades its business whenever the next level costs
+   at most MANAGER_SPEND_SHARE of that planet's balance, so they never
+   drain the money you're saving up. They keep working on whichever
+   planet you're not looking at. */
+
+const MANAGER_COST_MULTIPLE = 10; // a manager costs 10× the business's purchase price
+const MANAGER_SPEND_SHARE = 0.1;
+const MANAGER_LEVELS_PER_TICK = 3;
+
+function managerCost(business) {
+  return roundToHundredths((business.baseCost || 0) * MANAGER_COST_MULTIPLE);
+}
+
+function canHaveManager(business) {
+  return !!business && !business.merged && business.type !== 'bank' && business.baseCost > 0;
+}
+
+function hireManager(index) {
+  const business = planetBusinesses()[index];
+  if (!canHaveManager(business) || business.manager) return;
+  const cost = managerCost(business);
+  if (planetFunds() < cost) {
+    toast(`Not enough ${planet().walletLabel.toLowerCase()} to hire a manager.`, 'error');
+    return;
+  }
+  if (!confirmSpend(cost, planetFunds(), `${formatFunds(cost)} on a manager for your ${business.name}`)) return;
+  spendFunds(cost);
+  business.manager = true;
+  recordStat('managers');
+  toast(`👔 Manager hired for your ${business.name}.`, 'success');
+  saveProgress();
+  updateStats();
+  renderBusinesses();
+  renderUpgradePopup(index);
+}
+
+// Called once a second by the game loop.
+function tickManagers() {
+  const planetIds = mars.unlocked ? ['earth', 'mars'] : ['earth'];
+  let changed = false;
+  planetIds.forEach(id => {
+    const p = PLANETS[id];
+    p.getBusinesses().forEach(business => {
+      if (!business.manager) return;
+      for (let i = 0; i < MANAGER_LEVELS_PER_TICK && business.level < business.maxLevel; i++) {
+        if (business.upgradeCost > p.getFunds() * MANAGER_SPEND_SHARE) break;
+        p.setFunds(roundToHundredths(p.getFunds() - business.upgradeCost));
+        applyLevelUp(business);
+        changed = true;
+      }
+    });
+  });
+  if (changed) {
     recalcHourlyIncome();
-    saveProgress();
-    updateStats();
     renderBusinesses();
-    openUpgradeBusinessPopup(index);
-  } else {
-    toast(`Not enough ${planet().walletLabel.toLowerCase()} or already at max level.`, 'error');
   }
 }
 
@@ -297,18 +387,49 @@ function renderUpgradePopup(index) {
   document.getElementById('business-name').textContent = business.name;
   document.getElementById('business-level').textContent = `${business.level} / ${business.maxLevel}`;
   document.getElementById('business-level-gauge').style.width = `${Math.min(100, (business.level / business.maxLevel) * 100)}%`;
-  document.getElementById('business-income').textContent = formatFunds(business.income);
+  document.getElementById('business-income').textContent = `${formatFunds(business.income)} / hr`;
 
+  const funds = planetFunds();
+  const atMax = business.level >= business.maxLevel;
   const upgradeButton = document.getElementById('upgrade-button');
-  if (business.level >= business.maxLevel) {
-    document.getElementById('business-upgrade-cost').textContent = 'MAX LEVEL';
-    upgradeButton.disabled = true;
-  } else {
-    document.getElementById('business-upgrade-cost').textContent = formatFunds(business.upgradeCost);
-    upgradeButton.disabled = planetFunds() < business.upgradeCost;
-  }
+  const tenButton = document.getElementById('upgrade-10-button');
+  const maxButton = document.getElementById('upgrade-max-button');
 
-  upgradeButton.onclick = () => upgradeBusiness(index);
+  document.getElementById('business-upgrade-cost').textContent = atMax ? 'MAX LEVEL' : formatFunds(business.upgradeCost);
+  upgradeButton.disabled = atMax || funds < business.upgradeCost;
+
+  // ×10 shows the price of the next 10 levels (or however many are left).
+  const tenLevels = Math.min(10, business.maxLevel - business.level);
+  const tenPlan = planUpgrade(business, tenLevels, Infinity);
+  tenButton.textContent = atMax ? '×10' : `×${tenLevels} · ${formatFunds(tenPlan.total)}`;
+  tenButton.disabled = atMax || funds < tenPlan.total;
+
+  // Max buys as many levels as you can afford right now.
+  const maxPlan = planUpgrade(business, Infinity, funds);
+  maxButton.textContent = maxPlan.levels > 0 ? `Max ×${maxPlan.levels} · ${formatFunds(maxPlan.total)}` : 'Max';
+  maxButton.disabled = maxPlan.levels === 0;
+
+  upgradeButton.onclick = () => upgradeBusinessBy(index, 1);
+  tenButton.onclick = () => upgradeBusinessBy(index, tenLevels);
+  maxButton.onclick = () => upgradeBusinessBy(index, Infinity);
+
+  const managerBox = document.getElementById('manager-box');
+  const managerButton = document.getElementById('manager-button');
+  const managerText = document.getElementById('manager-text');
+  managerBox.hidden = !canHaveManager(business);
+  if (business.manager) {
+    managerText.textContent = atMax
+      ? '👔 Your manager got this business to max level.'
+      : '👔 Manager hired. Upgrades this business whenever a level costs 10% or less of your balance.';
+    managerButton.hidden = true;
+  } else {
+    const cost = managerCost(business);
+    managerText.textContent = '👔 Hire a manager to upgrade this business for you, even while you\'re on the other planet.';
+    managerButton.hidden = false;
+    managerButton.textContent = `Hire · ${formatFunds(cost)}`;
+    managerButton.disabled = funds < cost;
+    managerButton.onclick = () => hireManager(index);
+  }
   document.getElementById('close-button').onclick = () => closeBusiness(index);
 }
 

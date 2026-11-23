@@ -197,6 +197,7 @@ function performMerge(business1, business2, mergedName) {
     merged: true,
   });
 
+  recordStat('merges');
   recalcHourlyIncome();
   saveProgress();
   updateStats();

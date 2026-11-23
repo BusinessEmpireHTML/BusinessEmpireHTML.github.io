@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Business Empire Simulation</title>
+<meta name="description" content="Build a business empire from a lemonade stand to a colony on Mars.">
+<meta name="theme-color" content="#0e1c13">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Empire">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -22,6 +31,7 @@
         </div>
       </div>
       <div class="ticker" aria-label="Current balance and income">
+        <span class="boost-pill" id="boost-pill" role="status" hidden></span>
         <div class="ticker-item">
           <span class="ticker-label" id="cash-label">Cash</span>
           <span class="ticker-value" id="cash-ticker">$0.00</span>
@@ -60,6 +70,7 @@
           </span>
         </button>
       </div>
+      <p class="next-goal" id="next-goal" role="status"></p>
       <p class="hint-text" id="clicker-hint">Click value grows the more you hustle. Once you can afford it, put your cash to work in a business instead of clicking forever.</p>
     </section>
 
@@ -113,8 +124,22 @@
       <div class="action-row">
         <button class="button-rounded button-gold" onclick="openBuyBusinessPopup()">Buy a Business</button>
         <button class="button-rounded button-outline" onclick="openMergerPopup()">Merge Businesses</button>
+        <button class="button-rounded button-outline" onclick="openResearchPopup()">🔬 Research</button>
         <button class="button-rounded button-mars" id="mars-button" onclick="openMarsPopup()">Go To Mars</button>
         <button class="button-rounded button-outline mars-unlocked-only" onclick="openExchangePopup()" hidden>💱 Exchange</button>
+      </div>
+      <div class="terraform-card mars-only" id="terraform-card">
+        <div class="terraform-head">
+          <span class="terraform-globe" id="terraform-globe" aria-hidden="true">🔴</span>
+          <div>
+            <p class="terraform-eyebrow">Terraform Mars</p>
+            <h3 class="terraform-title" id="terraform-title">Stage 0 / 5 · Red Planet</h3>
+          </div>
+        </div>
+        <div class="terraform-steps" id="terraform-steps" aria-hidden="true"></div>
+        <p class="terraform-text" id="terraform-text"></p>
+        <p class="terraform-bonus" id="terraform-bonus"></p>
+        <button class="button-rounded button-mars terraform-button" id="terraform-button" onclick="fundTerraform()">Fund stage 1</button>
       </div>
       <div id="business-list"></div>
       <p id="business-empty-state" class="empty-state">You don't own any businesses yet. Buy your first one to start earning while you're away.</p>
@@ -190,6 +215,52 @@
           <span class="profile-value" id="mars-income-profile">₥0.00</span>
         </div>
       </div>
+      <h3 class="subsection-title">Achievements</h3>
+      <p class="subsection-meta" id="achievement-meta"></p>
+      <div class="achievement-grid" id="achievement-grid"></div>
+
+      <h3 class="subsection-title">Showroom</h3>
+      <p class="subsection-meta" id="showroom-meta"></p>
+      <div class="showroom-grid" id="showroom-grid"></div>
+
+      <h3 class="subsection-title">App &amp; backup</h3>
+      <div class="settings-list">
+        <div class="setting-row setting-row--stack">
+          <span class="setting-text"><strong>📲 Install the app</strong><small id="install-hint">Adds Business Empire to your home screen.</small></span>
+          <button class="button-rounded button-gold setting-button" id="install-button" onclick="installApp()" hidden>Install</button>
+        </div>
+        <div class="setting-row setting-row--stack">
+          <span class="setting-text"><strong>💾 Back up your save</strong><small>Your progress lives only in this browser. Export a save code to keep it safe or move it to another device.</small></span>
+          <span class="setting-buttons">
+            <button class="button-rounded button-outline setting-button" onclick="openExportPopup()">Export</button>
+            <button class="button-rounded button-outline setting-button" onclick="openImportPopup()">Import</button>
+          </span>
+        </div>
+      </div>
+
+      <h3 class="subsection-title">Settings</h3>
+      <div class="settings-list">
+        <label class="setting-row">
+          <span class="setting-text"><strong>Sound effects</strong><small>Coin clinks, purchase chimes and fanfares</small></span>
+          <input type="checkbox" class="switch" id="setting-sound" onchange="setSetting('sound', this.checked)">
+        </label>
+        <label class="setting-row">
+          <span class="setting-text"><strong>Vibrate on tap</strong><small>Android phones only. iPhones don't allow websites to vibrate.</small></span>
+          <input type="checkbox" class="switch" id="setting-vibration" onchange="setSetting('vibration', this.checked)">
+        </label>
+        <label class="setting-row">
+          <span class="setting-text"><strong>Confirm big purchases</strong><small>Ask before spending half or more of a balance</small></span>
+          <input type="checkbox" class="switch" id="setting-confirm" onchange="setSetting('confirmBig', this.checked)">
+        </label>
+        <label class="setting-row">
+          <span class="setting-text"><strong>Number style</strong><small>How big amounts are written</small></span>
+          <select id="setting-notation" class="setting-select" onchange="setSetting('notation', this.value)">
+            <option value="short">Short ($1.23T)</option>
+            <option value="scientific">Scientific ($1.23e12)</option>
+          </select>
+        </label>
+      </div>
+
       <button class="button-rounded button-outline button-danger" onclick="resetGame()">Reset Game</button>
     </section>
 
@@ -237,10 +308,18 @@
     <h2 id="business-name"></h2>
     <p class="popup-line">Level: <span id="business-level"></span></p>
     <div class="level-gauge"><div class="level-gauge-fill" id="business-level-gauge"></div></div>
-    <p class="popup-line">Current Income: <span id="business-income"></span> / hr</p>
-    <p class="popup-line">Upgrade Cost: <span id="business-upgrade-cost"></span></p>
-    <div class="popup-actions">
+    <p class="popup-line">Current Income: <span id="business-income"></span></p>
+    <p class="popup-line">Next level: <span id="business-upgrade-cost"></span></p>
+    <div class="upgrade-buttons">
       <button id="upgrade-button" class="button-rounded button-gold">Upgrade</button>
+      <button id="upgrade-10-button" class="button-rounded button-outline">×10</button>
+      <button id="upgrade-max-button" class="button-rounded button-outline">Max</button>
+    </div>
+    <div class="manager-box" id="manager-box">
+      <span class="manager-text" id="manager-text"></span>
+      <button id="manager-button" class="button-rounded button-outline">Hire</button>
+    </div>
+    <div class="popup-actions">
       <button id="close-button" class="button-rounded button-outline button-danger">Close Business</button>
     </div>
   </div>
@@ -302,7 +381,7 @@
   <div id="exchange-popup" class="popup">
     <button class="popup-close" onclick="closeExchangePopup()" aria-label="Close">&times;</button>
     <h2>Interplanetary Exchange</h2>
-    <p class="hint-text">Move money between your two economies. <strong>₥1 = $1.00B</strong>, minus a 2% transfer fee each way.</p>
+    <p class="hint-text">Move money between your two economies. <strong>₥1 = $1.00B</strong>, minus a <span id="exchange-fee-rate">2%</span> transfer fee each way.</p>
     <div class="trade-mode exchange-mode" role="tablist" aria-label="Direction">
       <button data-dir="toMars" class="active" onclick="setExchangeDirection('toMars')">🌍 $ → ₥ 🔴</button>
       <button data-dir="toEarth" onclick="setExchangeDirection('toEarth')">🔴 ₥ → $ 🌍</button>
@@ -317,13 +396,45 @@
       <button onclick="setExchangeFraction(1)">Max</button>
     </div>
     <p class="popup-line">Sending <span id="exchange-send">&mdash;</span></p>
-    <p class="popup-line">Transfer fee (2%) <span id="exchange-fee">&mdash;</span></p>
+    <p class="popup-line"><span class="popup-line-label">Transfer fee (<span id="exchange-fee-label">2%</span>)</span> <span id="exchange-fee">&mdash;</span></p>
     <p class="popup-line">You receive <span id="exchange-receive">&mdash;</span></p>
     <button id="exchange-confirm" class="button-rounded button-gold trade-confirm" onclick="confirmExchange()">Send to Mars</button>
   </div>
 
+  <div id="research-popup" class="popup popup--wide">
+    <button class="popup-close" onclick="closeResearchPopup()" aria-label="Close">&times;</button>
+    <h2>🔬 Research Lab</h2>
+    <p class="hint-text">Permanent upgrades, bought in order along each branch. Earth research costs dollars; Martian Science costs credits.</p>
+    <p class="research-summary" id="research-summary"></p>
+    <div id="research-list"></div>
+  </div>
+
+  <div id="export-popup" class="popup">
+    <button class="popup-close" onclick="closeExportPopup()" aria-label="Close">&times;</button>
+    <h2>Export save</h2>
+    <p class="hint-text">This code is your whole empire: both planets, stocks, properties, trophies, research and achievements. Keep it somewhere safe, or paste it into Import on another device.</p>
+    <textarea id="export-code" class="save-code" readonly rows="6" aria-label="Save code"></textarea>
+    <div class="popup-actions">
+      <button class="button-rounded button-gold" onclick="copySaveCode()">Copy code</button>
+      <button class="button-rounded button-outline" onclick="downloadSaveFile()">Download file</button>
+    </div>
+  </div>
+
+  <div id="import-popup" class="popup">
+    <button class="popup-close" onclick="closeImportPopup()" aria-label="Close">&times;</button>
+    <h2>Import save</h2>
+    <p class="hint-text">Paste a save code (it starts with <code>BE1:</code>) or open a downloaded save file. This replaces your current progress.</p>
+    <textarea id="import-code" class="save-code" rows="6" placeholder="BE1:..." aria-label="Save code to import"></textarea>
+    <p class="import-error" id="import-error" role="alert"></p>
+    <div class="popup-actions">
+      <label class="button-rounded button-outline file-button">Open file<input type="file" accept=".txt,text/plain" onchange="loadSaveFile(this)" hidden></label>
+      <button class="button-rounded button-gold" onclick="importSave()">Import</button>
+    </div>
+  </div>
+
   <div id="toast-container"></div>
 
+  <script src="settings.js"></script>
   <script src="main.js"></script>
   <script src="bank.js"></script>
   <script src="business.js"></script>
@@ -332,5 +443,9 @@
   <script src="markets.js"></script>
   <script src="merger.js"></script>
   <script src="planets.js"></script>
+  <script src="research.js"></script>
+  <script src="golden.js"></script>
+  <script src="achievements.js"></script>
+  <script src="save.js"></script>
 </body>
 </html>
