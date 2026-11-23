@@ -16,7 +16,11 @@
    long game: its top businesses earn far more than all of Earth. */
 
 const CREDIT_RATE = 1e9; // dollars per Martian Credit
-const EXCHANGE_FEE = 0.02; // charged on every transfer, either direction
+const EXCHANGE_FEE = 0.02; // charged on every transfer, either direction (Martian Science can lower it)
+
+function exchangeFee() {
+  return researchValue('exchangeFee', EXCHANGE_FEE, (a, b) => a < b);
+}
 const MARS_COLONY_GRANT = 1000; // credits handed to every new colony
 
 const MARS_BUSINESS_TYPES = {
@@ -74,9 +78,9 @@ const PLANETS = {
     setFunds: value => { cash = value; },
     getIncome: () => hourlyIncome,
     getBusinesses: () => businesses,
-    getClickValue: () => clickValue,
+    getClickValue: () => roundToHundredths(clickValue * clickMultiplier()),
     click() {
-      const earned = clickValue;
+      const earned = roundToHundredths(clickValue * clickMultiplier());
       cash = roundToHundredths(cash + earned);
       clicks++;
       clickValue = clickValueFor(clicks);
@@ -107,9 +111,9 @@ const PLANETS = {
     setFunds: value => { mars.credits = value; },
     getIncome: () => marsHourlyIncome,
     getBusinesses: () => mars.businesses,
-    getClickValue: () => mars.clickValue,
+    getClickValue: () => roundToHundredths(mars.clickValue * clickMultiplier()),
     click() {
-      const earned = mars.clickValue;
+      const earned = roundToHundredths(mars.clickValue * clickMultiplier());
       mars.credits = roundToHundredths(mars.credits + earned);
       mars.clicks++;
       mars.clickValue = clickValueFor(mars.clicks);
@@ -176,7 +180,8 @@ function clickValueFor(clickCount) {
 }
 
 function calcMarsIncome() {
-  marsHourlyIncome = roundToHundredths(mars.businesses.reduce((sum, b) => sum + (b.income || 0), 0));
+  const base = mars.businesses.reduce((sum, b) => sum + (b.income || 0), 0);
+  marsHourlyIncome = roundToHundredths(base * marsIncomeMultiplier());
 }
 
 /* ---------------- persistence ---------------- */
@@ -278,7 +283,7 @@ function exchangeSource(dir) {
 
 // What `amount` (in the source currency) turns into after the fee.
 function quoteExchange(dir, amount) {
-  const fee = amount * EXCHANGE_FEE;
+  const fee = amount * exchangeFee();
   const net = amount - fee;
   const receive = dir === 'toMars' ? net / CREDIT_RATE : net * CREDIT_RATE;
   return { fee, receive: Math.floor(receive * 100 + 1e-6) / 100 };
@@ -338,6 +343,9 @@ function refreshExchangePopup() {
     input.value = amount > 0 ? String(Math.floor(amount * 100) / 100) : '';
   }
 
+  const feePct = `${+(exchangeFee() * 100).toFixed(2)}%`;
+  document.getElementById('exchange-fee-rate').textContent = feePct;
+  document.getElementById('exchange-fee-label').textContent = feePct;
   document.getElementById('exchange-unit').textContent = source.unit;
   document.getElementById('exchange-have').textContent = source.format(source.have());
   document.getElementById('exchange-send').textContent = amount > 0 ? source.format(amount) : '—';

@@ -122,6 +122,7 @@
       <div class="action-row">
         <button class="button-rounded button-gold" onclick="openBuyBusinessPopup()">Buy a Business</button>
         <button class="button-rounded button-outline" onclick="openMergerPopup()">Merge Businesses</button>
+        <button class="button-rounded button-outline" onclick="openResearchPopup()">🔬 Research</button>
         <button class="button-rounded button-mars" id="mars-button" onclick="openMarsPopup()">Go To Mars</button>
         <button class="button-rounded button-outline mars-unlocked-only" onclick="openExchangePopup()" hidden>💱 Exchange</button>
       </div>
@@ -357,7 +358,7 @@
   <div id="exchange-popup" class="popup">
     <button class="popup-close" onclick="closeExchangePopup()" aria-label="Close">&times;</button>
     <h2>Interplanetary Exchange</h2>
-    <p class="hint-text">Move money between your two economies. <strong>₥1 = $1.00B</strong>, minus a 2% transfer fee each way.</p>
+    <p class="hint-text">Move money between your two economies. <strong>₥1 = $1.00B</strong>, minus a <span id="exchange-fee-rate">2%</span> transfer fee each way.</p>
     <div class="trade-mode exchange-mode" role="tablist" aria-label="Direction">
       <button data-dir="toMars" class="active" onclick="setExchangeDirection('toMars')">🌍 $ → ₥ 🔴</button>
       <button data-dir="toEarth" onclick="setExchangeDirection('toEarth')">🔴 ₥ → $ 🌍</button>
@@ -372,9 +373,17 @@
       <button onclick="setExchangeFraction(1)">Max</button>
     </div>
     <p class="popup-line">Sending <span id="exchange-send">&mdash;</span></p>
-    <p class="popup-line">Transfer fee (2%) <span id="exchange-fee">&mdash;</span></p>
+    <p class="popup-line"><span class="popup-line-label">Transfer fee (<span id="exchange-fee-label">2%</span>)</span> <span id="exchange-fee">&mdash;</span></p>
     <p class="popup-line">You receive <span id="exchange-receive">&mdash;</span></p>
     <button id="exchange-confirm" class="button-rounded button-gold trade-confirm" onclick="confirmExchange()">Send to Mars</button>
+  </div>
+
+  <div id="research-popup" class="popup popup--wide">
+    <button class="popup-close" onclick="closeResearchPopup()" aria-label="Close">&times;</button>
+    <h2>🔬 Research Lab</h2>
+    <p class="hint-text">Permanent upgrades, bought in order along each branch. Earth research costs dollars; Martian Science costs credits.</p>
+    <p class="research-summary" id="research-summary"></p>
+    <div id="research-list"></div>
   </div>
 
   <div id="export-popup" class="popup">
@@ -411,6 +420,7 @@
   <script src="markets.js"></script>
   <script src="merger.js"></script>
   <script src="planets.js"></script>
+  <script src="research.js"></script>
   <script src="save.js"></script>
 </body>
 </html>

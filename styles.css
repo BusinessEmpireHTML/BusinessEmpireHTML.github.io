@@ -1368,6 +1368,38 @@ button.collection-card:hover { border-color: var(--gold); background: var(--bg-p
 
 .hint-text code { font-family: var(--font-mono); color: var(--gold-bright); }
 
+/* ---------- Research Lab ---------- */
+
+.popup--wide { width: min(520px, calc(100vw - 40px)); }
+
+#research-list { display: flex; flex-direction: column; gap: 8px; }
+
+.research-summary {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  line-height: 1.6;
+  color: var(--emerald);
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-s);
+  padding: 8px 10px;
+  margin: 0 0 14px;
+}
+
+.research-card .card-monogram { width: 44px; height: 44px; font-size: 1.15rem; }
+.research-card.research-owned { cursor: default; border-color: rgba(201, 162, 76, 0.45); background: linear-gradient(90deg, rgba(201, 162, 76, 0.08), var(--bg-panel) 60%); }
+.research-card.research-owned .card-price { color: var(--emerald); }
+.research-card.research-available .card-price { color: var(--gold-bright); }
+.research-card.research-available.locked .card-price { color: var(--ink-faint); }
+.research-card.research-needs-prereq,
+.research-card.research-needs-mars { opacity: 0.5; cursor: default; }
+.research-card.research-owned:hover,
+.research-card.research-needs-prereq:hover,
+.research-card.research-needs-mars:hover { transform: none; }
+
+.popup-line .popup-line-label { font-family: var(--font-body); color: var(--ink-dim); }
+.popup-line .popup-line-label span { font-family: var(--font-body); color: inherit; }
+
 /* ---------- Toasts ---------- */
 
 #toast-container {

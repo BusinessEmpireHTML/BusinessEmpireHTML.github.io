@@ -67,21 +67,46 @@ function formatInt(value) {
   return Math.floor(value).toLocaleString();
 }
 
+/* ---------------- multipliers ----------------
+   Every boost in the game funnels through these, so they always stack
+   the same way: research, achievements, terraforming and golden coins
+   multiply together. Business cards show base income; the ticker's
+   per-hour figure includes every boost. */
+
+function earthIncomeMultiplier() {
+  return researchMultiplier('earthIncome');
+}
+
+function rentMultiplier() {
+  return researchMultiplier('rent');
+}
+
+function marsIncomeMultiplier() {
+  return researchMultiplier('marsIncome');
+}
+
+function clickMultiplier() {
+  return researchMultiplier('click');
+}
+
+function offlineCapHours() {
+  return researchValue('offlineHours', MAX_OFFLINE_HOURS, (a, b) => a > b);
+}
+
 /* ---------------- single source of truth for income ---------------- */
 
-// Every business/investment reports its own current income; this just
-// sums them so cash, upgrades, merges, and bank-vault growth can never
-// desync from what's actually displayed.
+// Every business/investment reports its own base income; this sums them
+// and applies the multipliers so cash, upgrades, merges, and bank-vault
+// growth can never desync from what's actually displayed.
 function recalcHourlyIncome() {
-  let total = 0;
+  let businessIncome = 0;
   businesses.forEach(business => {
     if (business.type === 'bank') {
       business.income = Math.floor(business.currentMoneyInVault / 100);
     }
-    total += business.income || 0;
+    businessIncome += business.income || 0;
   });
-  total += getRentIncome();
-  hourlyIncome = roundToHundredths(total);
+  hourlyIncome = roundToHundredths(businessIncome * earthIncomeMultiplier() + getRentIncome() * rentMultiplier());
   calcMarsIncome();
 }
 
@@ -99,6 +124,7 @@ function saveProgress() {
   localStorage.setItem('businesses', JSON.stringify(businesses));
   localStorage.setItem('properties', JSON.stringify(ownedProperties));
   localStorage.setItem('trophies', JSON.stringify(ownedTrophies));
+  saveResearch();
   savePlanets();
 }
 
@@ -122,6 +148,7 @@ function loadProgress() {
   businesses = JSON.parse(localStorage.getItem('businesses')) || [];
   loadProperties();
   loadTrophies();
+  loadResearch();
   const legacyRefund = migrateLegacyInvestments();
   if (legacyRefund > 0) {
     cash = roundToHundredths(cash + legacyRefund);
@@ -155,7 +182,7 @@ function loadProgress() {
 }
 
 // Fast-forwards the bank vault and pays out the income that would have
-// accrued while the tab was closed, capped at MAX_OFFLINE_HOURS.
+// accrued while the tab was closed, capped at offlineCapHours().
 function calculateOfflineIncome() {
   const now = new Date();
   let diffInHours = (now - lastUpdate) / 3600000;
@@ -163,7 +190,7 @@ function calculateOfflineIncome() {
     lastUpdate = now;
     return;
   }
-  diffInHours = Math.min(diffInHours, MAX_OFFLINE_HOURS);
+  diffInHours = Math.min(diffInHours, offlineCapHours());
 
   const incomeBefore = hourlyIncome;
   advanceBankVaults(diffInHours);
@@ -320,6 +347,7 @@ function startGameLoop() {
     if (mars.unlocked) mars.credits = roundToHundredths(mars.credits + marsHourlyIncome / 3600);
     tickMarkets();
     refreshOpenPopups();
+    refreshResearchAffordability();
     updateStats();
     saveProgress();
   }, 1000);
