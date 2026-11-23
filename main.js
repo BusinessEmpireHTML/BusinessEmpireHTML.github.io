@@ -314,6 +314,7 @@ function startGameLoop() {
   gameLoopStarted = true;
   setInterval(() => {
     tickBankVaults(1 / 3600); // one second's worth of an hourly fill rate
+    tickManagers();
     recalcHourlyIncome();
     cash = roundToHundredths(cash + hourlyIncome / 3600);
     if (mars.unlocked) mars.credits = roundToHundredths(mars.credits + marsHourlyIncome / 3600);

@@ -284,10 +284,18 @@
     <h2 id="business-name"></h2>
     <p class="popup-line">Level: <span id="business-level"></span></p>
     <div class="level-gauge"><div class="level-gauge-fill" id="business-level-gauge"></div></div>
-    <p class="popup-line">Current Income: <span id="business-income"></span> / hr</p>
-    <p class="popup-line">Upgrade Cost: <span id="business-upgrade-cost"></span></p>
-    <div class="popup-actions">
+    <p class="popup-line">Current Income: <span id="business-income"></span></p>
+    <p class="popup-line">Next level: <span id="business-upgrade-cost"></span></p>
+    <div class="upgrade-buttons">
       <button id="upgrade-button" class="button-rounded button-gold">Upgrade</button>
+      <button id="upgrade-10-button" class="button-rounded button-outline">×10</button>
+      <button id="upgrade-max-button" class="button-rounded button-outline">Max</button>
+    </div>
+    <div class="manager-box" id="manager-box">
+      <span class="manager-text" id="manager-text"></span>
+      <button id="manager-button" class="button-rounded button-outline">Hire</button>
+    </div>
+    <div class="popup-actions">
       <button id="close-button" class="button-rounded button-outline button-danger">Close Business</button>
     </div>
   </div>

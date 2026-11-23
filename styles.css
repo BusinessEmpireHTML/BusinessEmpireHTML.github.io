@@ -1170,6 +1170,32 @@ button.collection-card:hover { border-color: var(--gold); background: var(--bg-p
 }
 
 .popup-actions { display: flex; gap: 10px; margin-top: 18px; }
+
+.upgrade-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.upgrade-buttons #upgrade-button { grid-column: 1 / -1; }
+.upgrade-buttons .button-rounded { padding: 10px 8px; font-size: 0.8rem; }
+
+.manager-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-s);
+}
+
+.manager-text { flex: 1; font-size: 0.8rem; color: var(--ink-dim); line-height: 1.45; }
+.manager-box .button-rounded { flex-shrink: 0; padding: 8px 12px; font-size: 0.78rem; }
+
+.card-badge.manager-badge { padding: 0 6px; }
 .popup-actions .button-rounded { flex: 1; }
 
 .vault-gauge, .level-gauge {
