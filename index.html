@@ -127,6 +127,19 @@
         <button class="button-rounded button-mars" id="mars-button" onclick="openMarsPopup()">Go To Mars</button>
         <button class="button-rounded button-outline mars-unlocked-only" onclick="openExchangePopup()" hidden>💱 Exchange</button>
       </div>
+      <div class="terraform-card mars-only" id="terraform-card">
+        <div class="terraform-head">
+          <span class="terraform-globe" id="terraform-globe" aria-hidden="true">🔴</span>
+          <div>
+            <p class="terraform-eyebrow">Terraform Mars</p>
+            <h3 class="terraform-title" id="terraform-title">Stage 0 / 5 · Red Planet</h3>
+          </div>
+        </div>
+        <div class="terraform-steps" id="terraform-steps" aria-hidden="true"></div>
+        <p class="terraform-text" id="terraform-text"></p>
+        <p class="terraform-bonus" id="terraform-bonus"></p>
+        <button class="button-rounded button-mars terraform-button" id="terraform-button" onclick="fundTerraform()">Fund stage 1</button>
+      </div>
       <div id="business-list"></div>
       <p id="business-empty-state" class="empty-state">You don't own any businesses yet. Buy your first one to start earning while you're away.</p>
     </section>

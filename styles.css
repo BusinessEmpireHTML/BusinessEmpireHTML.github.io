@@ -161,18 +161,24 @@ body.planet-mars {
   --emerald-dim: #b8682f;
   --ink-dim: #cfb1a2;
   --ink-faint: #93705f;
-  background: radial-gradient(ellipse at top, #42190b 0%, var(--bg-deep) 60%);
+  /* Terraforming stages override these (see below). */
+  --mars-glow: #42190b;
+  --mars-masthead: #22100a;
+  --mars-ring: var(--rust-bright);
+  --mars-coin-light: #6b2d17;
+  --mars-coin-dark: #2a120a;
+  background: radial-gradient(ellipse at top, var(--mars-glow) 0%, var(--bg-deep) 60%);
 }
 
 body.planet-mars #masthead {
-  background: linear-gradient(180deg, #24100a 0%, #1e0d08 100%);
+  background: linear-gradient(180deg, var(--mars-masthead) 0%, var(--bg-deep) 100%);
 }
 
-body.planet-mars .brand-mark { color: var(--rust-bright); }
+body.planet-mars .brand-mark { color: var(--mars-ring); }
 
 body.planet-mars #click-area {
-  border-color: var(--rust-bright);
-  background: radial-gradient(circle at 35% 30%, #6b2d17 0%, #2a120a 70%);
+  border-color: var(--mars-ring);
+  background: radial-gradient(circle at 35% 30%, var(--mars-coin-light) 0%, var(--mars-coin-dark) 70%);
   box-shadow:
     0 0 0 6px rgba(207, 108, 77, 0.12),
     0 14px 30px rgba(0, 0, 0, 0.5),
@@ -183,6 +189,93 @@ body.planet-mars .card-progress-fill,
 body.planet-mars .level-gauge-fill {
   background: linear-gradient(90deg, var(--rust), var(--gold));
 }
+
+/* Terraforming: each stage nudges Mars from red toward a blue-green world. */
+body.planet-mars.terraform-1 {
+  --bg-deep: #1a0e0a; --bg-panel: #27160f; --bg-panel-raised: #321d14;
+  --hairline: #4d2c1e; --hairline-strong: #6a3d29;
+  --mars-glow: #4a2614; --mars-masthead: #23130c; --mars-coin-light: #6e3a20; --mars-coin-dark: #2b160d;
+}
+body.planet-mars.terraform-2 {
+  --bg-deep: #1a110b; --bg-panel: #261a10; --bg-panel-raised: #312216;
+  --hairline: #4b3420; --hairline-strong: #67482c;
+  --emerald: #f0b866;
+  --mars-glow: #553317; --mars-masthead: #22170d; --mars-ring: #e39a52; --mars-coin-light: #72461f; --mars-coin-dark: #2c1a0c;
+}
+body.planet-mars.terraform-3 {
+  --bg-deep: #0f1418; --bg-panel: #172028; --bg-panel-raised: #1e2933;
+  --hairline: #2c3c4a; --hairline-strong: #3d5366;
+  --emerald: #7fbfe0; --emerald-dim: #4f8db0; --ink-dim: #b0bfc9; --ink-faint: #74838f;
+  --mars-glow: #1f3a52; --mars-masthead: #121b22; --mars-ring: #6aaed6; --mars-coin-light: #2b5373; --mars-coin-dark: #121e28;
+}
+body.planet-mars.terraform-4 {
+  --bg-deep: #0d1613; --bg-panel: #14221c; --bg-panel-raised: #1a2b23;
+  --hairline: #2a4234; --hairline-strong: #3b5a47;
+  --emerald: #8fd07a; --emerald-dim: #5d9c4f; --ink-dim: #adbfb0; --ink-faint: #71836f;
+  --mars-glow: #1f4430; --mars-masthead: #101c16; --mars-ring: #7cc66a; --mars-coin-light: #2c5a3c; --mars-coin-dark: #11211a;
+}
+body.planet-mars.terraform-5 {
+  --bg-deep: #0b1517; --bg-panel: #122326; --bg-panel-raised: #182d31;
+  --hairline: #264247; --hairline-strong: #355a60;
+  --emerald: #6fd6c4; --emerald-dim: #45a596; --ink-dim: #a9c2c2; --ink-faint: #6d8586;
+  --mars-glow: #1b4f55; --mars-masthead: #0f1d20; --mars-ring: #62cbbb; --mars-coin-light: #276068; --mars-coin-dark: #0f2226;
+}
+
+/* ---------- Terraform card (Mars Businesses tab) ---------- */
+
+body:not(.planet-mars) .mars-only { display: none; }
+
+.terraform-card {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--mars-glow, #42190b) 55%, var(--bg-panel)), var(--bg-panel) 70%);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-m);
+  padding: 16px;
+  margin-bottom: 18px;
+}
+
+.terraform-head { display: flex; align-items: center; gap: 14px; }
+
+.terraform-globe {
+  font-size: 2.2rem;
+  line-height: 1;
+  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--mars-ring, #cf6c4d) 60%, transparent));
+}
+
+.terraform-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--emerald);
+  margin: 0 0 2px;
+}
+
+.terraform-title { font-family: var(--font-display); font-weight: 600; font-size: 1.1rem; margin: 0; color: var(--ink); }
+
+.terraform-steps { display: flex; gap: 6px; margin: 14px 0 10px; }
+
+.terraform-step {
+  flex: 1;
+  text-align: center;
+  font-size: 1rem;
+  padding: 6px 0;
+  border-radius: var(--radius-s);
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--hairline);
+  filter: grayscale(1);
+  opacity: 0.45;
+}
+
+.terraform-step.done {
+  filter: none;
+  opacity: 1;
+  border-color: var(--mars-ring, var(--gold));
+  background: color-mix(in srgb, var(--mars-ring, #cf6c4d) 18%, transparent);
+}
+
+.terraform-text { font-size: 0.86rem; color: var(--ink-dim); line-height: 1.5; margin: 0 0 6px; }
+.terraform-bonus { font-family: var(--font-mono); font-size: 0.74rem; color: var(--emerald); margin: 0 0 12px; }
+.terraform-button { width: 100%; }
 
 body.planet-warp #game { animation: planetWarp 0.6s ease; }
 

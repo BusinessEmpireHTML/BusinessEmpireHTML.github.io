@@ -74,15 +74,15 @@ function formatInt(value) {
    per-hour figure includes every boost. */
 
 function earthIncomeMultiplier() {
-  return researchMultiplier('earthIncome') * goldenIncomeMultiplier();
+  return researchMultiplier('earthIncome') * terraformEarthMultiplier() * goldenIncomeMultiplier();
 }
 
 function rentMultiplier() {
-  return researchMultiplier('rent') * goldenIncomeMultiplier();
+  return researchMultiplier('rent') * terraformEarthMultiplier() * goldenIncomeMultiplier();
 }
 
 function marsIncomeMultiplier() {
-  return researchMultiplier('marsIncome') * goldenIncomeMultiplier();
+  return researchMultiplier('marsIncome') * terraformMarsMultiplier() * goldenIncomeMultiplier();
 }
 
 function clickMultiplier() {
@@ -351,6 +351,7 @@ function startGameLoop() {
     tickMarkets();
     refreshOpenPopups();
     refreshResearchAffordability();
+    renderTerraform();
     updateStats();
     saveProgress();
   }, 1000);

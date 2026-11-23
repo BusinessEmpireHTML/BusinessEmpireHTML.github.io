@@ -143,7 +143,7 @@ let mars = defaultMarsState();
 let marsHourlyIncome = 0;
 
 function defaultMarsState() {
-  return { unlocked: false, credits: 0, clicks: 0, clickValue: 1, businesses: [] };
+  return { unlocked: false, credits: 0, clicks: 0, clickValue: 1, businesses: [], terraformStage: 0 };
 }
 
 function planet() {
@@ -195,7 +195,7 @@ function loadPlanets() {
   }
   mars = { ...defaultMarsState(), ...(saved && typeof saved === 'object' ? saved : {}) };
   if (!Array.isArray(mars.businesses)) mars.businesses = [];
-  ['credits', 'clicks', 'clickValue'].forEach(key => {
+  ['credits', 'clicks', 'clickValue', 'terraformStage'].forEach(key => {
     if (!isFinite(mars[key])) mars[key] = defaultMarsState()[key];
   });
 
@@ -267,8 +267,103 @@ function applyPlanet(animate) {
     el.hidden = !mars.unlocked;
   });
 
+  applyTerraformTheme();
+  renderTerraform();
   renderBusinesses();
   updateStats();
+}
+
+/* ---------------- Terraform Mars ----------------
+   The Mars endgame: five stages funded with credits. Each stage is a
+   permanent Mars income ×1.5 and Earth income +10%, and the planet's
+   colours shift from red toward a living blue-green world. */
+
+const TERRAFORM_STAGES = [
+  { name: 'Thicken the Atmosphere', icon: '🌫️', cost: 1e6, desc: 'Factories pump greenhouse gases into the thin Martian air.' },
+  { name: 'Warm the Poles', icon: '🔥', cost: 1e8, desc: 'Orbital mirrors focus sunlight on the polar ice caps.' },
+  { name: 'Liquid Oceans', icon: '🌊', cost: 1e10, desc: 'Meltwater floods the northern lowlands into a sea.' },
+  { name: 'First Forests', icon: '🌲', cost: 1e12, desc: 'Engineered trees take root across the highlands.' },
+  { name: 'Breathable Air', icon: '🌍', cost: 1e14, desc: 'Colonists walk the surface without a helmet.' },
+];
+const TERRAFORM_PLANET_ICONS = ['🔴', '🌫️', '🔥', '🌊', '🌲', '🌍'];
+const TERRAFORM_PLANET_NAMES = ['Red Planet', 'Hazy Skies', 'Thawing World', 'Ocean World', 'Green Frontier', 'Second Earth'];
+const TERRAFORM_MARS_MULTIPLIER = 1.5;
+const TERRAFORM_EARTH_BONUS = 0.1;
+
+function terraformStage() {
+  return Math.min(TERRAFORM_STAGES.length, Math.max(0, Math.floor(mars.terraformStage || 0)));
+}
+
+function terraformMarsMultiplier() {
+  return Math.pow(TERRAFORM_MARS_MULTIPLIER, terraformStage());
+}
+
+function terraformEarthMultiplier() {
+  return 1 + TERRAFORM_EARTH_BONUS * terraformStage();
+}
+
+function fundTerraform() {
+  const stage = terraformStage();
+  if (!mars.unlocked || stage >= TERRAFORM_STAGES.length) return;
+  const next = TERRAFORM_STAGES[stage];
+  if (mars.credits < next.cost) {
+    toast('Not enough credits for the next terraforming stage.', 'error');
+    return;
+  }
+  if (!confirmSpend(next.cost, mars.credits, `${formatCredits(next.cost)} on ${next.name}`)) return;
+
+  mars.credits = roundToHundredths(mars.credits - next.cost);
+  mars.terraformStage = stage + 1;
+  playSound('launch');
+  const done = mars.terraformStage >= TERRAFORM_STAGES.length;
+  toast(done
+    ? '🌍 Mars is terraformed! A second Earth, built by your empire.'
+    : `${next.icon} ${next.name} complete! Mars income ×${TERRAFORM_MARS_MULTIPLIER}, Earth income +${TERRAFORM_EARTH_BONUS * 100}%.`, 'achievement', null);
+  recalcHourlyIncome();
+  saveProgress();
+  applyTerraformTheme();
+  renderTerraform();
+  updateStats();
+}
+
+function applyTerraformTheme() {
+  const stage = terraformStage();
+  for (let i = 0; i <= TERRAFORM_STAGES.length; i++) {
+    document.body.classList.toggle(`terraform-${i}`, i === stage);
+  }
+  // The planet switcher's Mars icon follows the terraforming too.
+  const marsSwitch = document.querySelector('.planet-switch button[data-planet="mars"]');
+  if (marsSwitch && marsSwitch.firstChild) marsSwitch.firstChild.textContent = TERRAFORM_PLANET_ICONS[stage];
+}
+
+// Mars Businesses tab card. Cheap, so the game loop calls it every second.
+function renderTerraform() {
+  const card = document.getElementById('terraform-card');
+  if (!card || currentPlanet !== 'mars') return;
+  const stage = terraformStage();
+  const done = stage >= TERRAFORM_STAGES.length;
+
+  setText('terraform-globe', TERRAFORM_PLANET_ICONS[stage]);
+  setText('terraform-title', `Stage ${stage} / ${TERRAFORM_STAGES.length} · ${TERRAFORM_PLANET_NAMES[stage]}`);
+  setText('terraform-bonus', `Bonus now: Mars income ×${formatMultiplier(terraformMarsMultiplier())} · Earth income ×${formatMultiplier(terraformEarthMultiplier())}`);
+
+  const steps = document.getElementById('terraform-steps');
+  if (steps.childElementCount !== TERRAFORM_STAGES.length) {
+    steps.innerHTML = TERRAFORM_STAGES.map(s => `<span class="terraform-step" title="${s.name}">${s.icon}</span>`).join('');
+  }
+  [...steps.children].forEach((el, i) => el.classList.toggle('done', i < stage));
+
+  const button = document.getElementById('terraform-button');
+  if (done) {
+    setText('terraform-text', 'Mars is fully terraformed. Oceans, forests and breathable air: a second Earth, built by your empire.');
+    button.hidden = true;
+  } else {
+    const next = TERRAFORM_STAGES[stage];
+    setText('terraform-text', `Next: ${next.icon} ${next.name}. ${next.desc} Each stage is a permanent Mars income ×${TERRAFORM_MARS_MULTIPLIER} and Earth income +${TERRAFORM_EARTH_BONUS * 100}%.`);
+    button.hidden = false;
+    setText('terraform-button', `Fund stage ${stage + 1} · ${formatCredits(next.cost)}`);
+    button.disabled = mars.credits < next.cost;
+  }
 }
 
 /* ---------------- Interplanetary Exchange ---------------- */
