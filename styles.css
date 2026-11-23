@@ -1517,6 +1517,81 @@ button.collection-card:hover { border-color: var(--gold); background: var(--bg-p
 .popup-line .popup-line-label { font-family: var(--font-body); color: var(--ink-dim); }
 .popup-line .popup-line-label span { font-family: var(--font-body); color: inherit; }
 
+/* ---------- Next goal, achievements, showroom ---------- */
+
+.next-goal {
+  font-size: 0.85rem;
+  color: var(--ink);
+  background: var(--bg-panel);
+  border: 1px solid var(--hairline);
+  border-left: 3px solid var(--gold);
+  border-radius: var(--radius-s);
+  padding: 10px 12px;
+  margin: 4px 0 18px;
+  max-width: 52ch;
+  line-height: 1.45;
+}
+
+.achievement-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.achievement {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-panel);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-s);
+  padding: 9px 10px;
+  min-width: 0;
+  opacity: 0.55;
+}
+
+.achievement.earned {
+  opacity: 1;
+  border-color: rgba(201, 162, 76, 0.45);
+  background: linear-gradient(135deg, rgba(201, 162, 76, 0.12), var(--bg-panel) 70%);
+}
+
+.achievement-icon { font-size: 1.35rem; line-height: 1; flex-shrink: 0; }
+.achievement:not(.earned) .achievement-icon { filter: grayscale(1); }
+.achievement-text { display: flex; flex-direction: column; min-width: 0; }
+.achievement-text strong { font-size: 0.8rem; font-weight: 600; color: var(--ink); }
+.achievement-text small { font-size: 0.7rem; color: var(--ink-faint); line-height: 1.35; }
+.achievement.earned .achievement-text strong { color: var(--gold-bright); }
+
+.showroom-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 8px;
+}
+
+.showroom-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+  padding: 14px 8px 10px;
+  background: radial-gradient(circle at 50% 30%, rgba(201, 162, 76, 0.16), var(--bg-panel) 70%);
+  border: 1px solid rgba(201, 162, 76, 0.3);
+  border-radius: var(--radius-m);
+}
+
+.showroom-icon { font-size: 2.1rem; line-height: 1; filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.45)); }
+.showroom-name { font-size: 0.7rem; font-weight: 600; color: var(--ink-dim); line-height: 1.3; }
+
+.showroom-empty {
+  grid-column: 1 / -1;
+  color: var(--ink-faint);
+  font-size: 0.85rem;
+  font-style: italic;
+  margin: 0;
+}
+
 /* ---------- Toasts ---------- */
 
 #toast-container {
@@ -1617,6 +1692,7 @@ button.collection-card:hover { border-color: var(--gold); background: var(--bg-p
   .profile-grid { grid-template-columns: 1fr; }
   .sparkline { display: none; }
   .collection-summary { grid-template-columns: 1fr; }
+  .achievement-grid { grid-template-columns: 1fr 1fr; }
   .category-chips { flex-wrap: nowrap; } /* swipe sideways on phones */
   .asset-quote { min-width: 0; }
   .market-row .card-title { font-size: 0.95rem; }

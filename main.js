@@ -74,15 +74,15 @@ function formatInt(value) {
    per-hour figure includes every boost. */
 
 function earthIncomeMultiplier() {
-  return researchMultiplier('earthIncome') * terraformEarthMultiplier() * goldenIncomeMultiplier();
+  return researchMultiplier('earthIncome') * terraformEarthMultiplier() * achievementMultiplier() * goldenIncomeMultiplier();
 }
 
 function rentMultiplier() {
-  return researchMultiplier('rent') * terraformEarthMultiplier() * goldenIncomeMultiplier();
+  return researchMultiplier('rent') * terraformEarthMultiplier() * achievementMultiplier() * goldenIncomeMultiplier();
 }
 
 function marsIncomeMultiplier() {
-  return researchMultiplier('marsIncome') * terraformMarsMultiplier() * goldenIncomeMultiplier();
+  return researchMultiplier('marsIncome') * terraformMarsMultiplier() * achievementMultiplier() * goldenIncomeMultiplier();
 }
 
 function clickMultiplier() {
@@ -126,6 +126,7 @@ function saveProgress() {
   localStorage.setItem('trophies', JSON.stringify(ownedTrophies));
   saveResearch();
   saveStats();
+  saveAchievements();
   savePlanets();
 }
 
@@ -151,6 +152,7 @@ function loadProgress() {
   loadTrophies();
   loadResearch();
   loadStats();
+  loadAchievements();
   const legacyRefund = migrateLegacyInvestments();
   if (legacyRefund > 0) {
     cash = roundToHundredths(cash + legacyRefund);
@@ -181,6 +183,8 @@ function loadProgress() {
   applyPlanet(false); // renders the current planet's businesses and stats
   renderSettings();
   renderInstallOptions();
+  renderAchievements();
+  checkAchievements(true); // anything already earned unlocks quietly
 }
 
 // Fast-forwards the bank vault and pays out the income that would have
@@ -264,13 +268,17 @@ function updateStats() {
     el.textContent = earthCashText;
   });
 
-  const portfolio = getPortfolioValue();
-  const marsInDollars = mars.credits * CREDIT_RATE;
-  setText('portfolio-profile', formatMoney(portfolio));
-  setText('networth-profile', formatMoney(cash + portfolio + getPropertyValue() + getTrophyValue() + marsInDollars));
+  setText('portfolio-profile', formatMoney(getPortfolioValue()));
+  setText('networth-profile', formatMoney(getNetWorth()));
 
   updateCollectionStats();
   refreshAffordability();
+}
+
+// Cash, stocks and crypto, properties and trophies at their price, and
+// Mars credits converted at the exchange rate.
+function getNetWorth() {
+  return cash + getPortfolioValue() + getPropertyValue() + getTrophyValue() + mars.credits * CREDIT_RATE;
 }
 
 /* ---------------- shop cards (properties & trophies) ---------------- */
@@ -349,6 +357,7 @@ function startGameLoop() {
     cash = roundToHundredths(cash + hourlyIncome / 3600);
     if (mars.unlocked) mars.credits = roundToHundredths(mars.credits + marsHourlyIncome / 3600);
     tickMarkets();
+    checkAchievements(false);
     refreshOpenPopups();
     refreshResearchAffordability();
     renderTerraform();
