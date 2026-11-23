@@ -248,7 +248,7 @@ function stepMarket(key, silent) {
     marketState.news[key] = event;
     if (!silent && holdingUnits(asset.symbol) > 0) {
       const sign = event.good ? '+' : '-';
-      toast(`${event.good ? '📈' : '📉'} ${event.headline} (${asset.symbol} ${sign}${(event.size * 100).toFixed(0)}%)`, event.good ? 'success' : 'error');
+      toast(`${event.good ? '📈' : '📉'} ${event.headline} (${asset.symbol} ${sign}${(event.size * 100).toFixed(0)}%)`, event.good ? 'success' : 'error', null);
     }
   });
 }

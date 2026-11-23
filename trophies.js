@@ -100,6 +100,7 @@ function buyTrophy(id) {
     toast('Not enough cash for that.', 'error');
     return;
   }
+  if (!confirmSpend(trophy.price, cash, `${formatMoney(trophy.price)} on the ${trophy.name}`)) return;
   cash = roundToHundredths(cash - trophy.price);
   ownedTrophies.push(id);
   afterTrophyChange();

@@ -97,6 +97,7 @@ function buyProperty(id) {
     toast('Not enough cash for that.', 'error');
     return;
   }
+  if (!confirmSpend(property.price, cash, `${formatMoney(property.price)} on the ${property.name}`)) return;
   cash = roundToHundredths(cash - property.price);
   ownedProperties.push(id);
   afterPropertyChange();

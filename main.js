@@ -31,6 +31,9 @@ function roundToHundredths(value) {
 function formatMoney(value, symbol = '$') {
   const sign = value < 0 ? '-' : '';
   const abs = Math.abs(value);
+  if (typeof settings !== 'undefined' && settings.notation === 'scientific' && abs >= 1e6) {
+    return `${sign}${symbol}${abs.toExponential(2).replace('e+', 'e')}`;
+  }
   const units = [
     { at: 1e33, suffix: 'Dc' },
     { at: 1e30, suffix: 'No' },
@@ -139,6 +142,7 @@ function loadProgress() {
   renderProperties();
   renderItems();
   applyPlanet(false); // renders the current planet's businesses and stats
+  renderSettings();
 }
 
 // Fast-forwards the bank vault and pays out the income that would have
@@ -178,6 +182,8 @@ function calculateOfflineIncome() {
 // Taps pay into whichever planet you're on (see planets.js).
 function earnMoney(event) {
   const earned = planet().click();
+  playSound('coin');
+  vibrate(8);
   saveProgress();
   updateStats();
   spawnFloatText(`+${formatFunds(earned)}`);
@@ -350,7 +356,11 @@ function closeUpgradeBusinessPopup() { hidePopup('upgrade-business-popup'); open
 
 /* ---------------- toasts ---------------- */
 
-function toast(message, kind) {
+// `sound` defaults to the toast's kind (success chime, error buzz); pass
+// null for quiet toasts such as market headlines.
+function toast(message, kind, sound = kind) {
+  if (sound === 'success') playSound('buy');
+  else if (sound) playSound(sound);
   const container = document.getElementById('toast-container');
   if (!container) return;
   const el = document.createElement('div');

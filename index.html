@@ -190,6 +190,29 @@
           <span class="profile-value" id="mars-income-profile">₥0.00</span>
         </div>
       </div>
+      <h3 class="subsection-title">Settings</h3>
+      <div class="settings-list">
+        <label class="setting-row">
+          <span class="setting-text"><strong>Sound effects</strong><small>Coin clinks, purchase chimes and fanfares</small></span>
+          <input type="checkbox" class="switch" id="setting-sound" onchange="setSetting('sound', this.checked)">
+        </label>
+        <label class="setting-row">
+          <span class="setting-text"><strong>Vibrate on tap</strong><small>Android phones only. iPhones don't allow websites to vibrate.</small></span>
+          <input type="checkbox" class="switch" id="setting-vibration" onchange="setSetting('vibration', this.checked)">
+        </label>
+        <label class="setting-row">
+          <span class="setting-text"><strong>Confirm big purchases</strong><small>Ask before spending half or more of a balance</small></span>
+          <input type="checkbox" class="switch" id="setting-confirm" onchange="setSetting('confirmBig', this.checked)">
+        </label>
+        <label class="setting-row">
+          <span class="setting-text"><strong>Number style</strong><small>How big amounts are written</small></span>
+          <select id="setting-notation" class="setting-select" onchange="setSetting('notation', this.value)">
+            <option value="short">Short ($1.23T)</option>
+            <option value="scientific">Scientific ($1.23e12)</option>
+          </select>
+        </label>
+      </div>
+
       <button class="button-rounded button-outline button-danger" onclick="resetGame()">Reset Game</button>
     </section>
 
@@ -324,6 +347,7 @@
 
   <div id="toast-container"></div>
 
+  <script src="settings.js"></script>
   <script src="main.js"></script>
   <script src="bank.js"></script>
   <script src="business.js"></script>

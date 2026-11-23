@@ -141,6 +141,7 @@ function buyBusiness(type) {
     toast(`You already own a ${config.name}.`, 'error');
     return;
   }
+  if (!confirmSpend(config.cost, planetFunds(), `${formatFunds(config.cost)} on a ${config.name}`)) return;
   if (!spendFunds(config.cost)) {
     toast(`Not enough ${planet().walletLabel.toLowerCase()} for that.`, 'error');
     return;
