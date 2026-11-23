@@ -13,6 +13,14 @@ let businesses = JSON.parse(localStorage.getItem('businesses')) || [];
 
 const MAX_OFFLINE_HOURS = 24; // cap offline earnings so a wrong system clock can't break the economy
 
+// Every localStorage key that makes up a save. Reset, Export and Import all
+// use this list. Settings are deliberately left out so they survive a reset.
+const SAVE_KEYS = [
+  'cash', 'hourlyIncome', 'clickValue', 'clicks', 'lastUpdate', 'businesses',
+  'markets', 'properties', 'trophies', 'mars', 'planet',
+  'research', 'achievements', 'stats',
+];
+
 document.addEventListener('DOMContentLoaded', function () {
   loadProgress();
   openTab('clicker');
@@ -143,6 +151,7 @@ function loadProgress() {
   renderItems();
   applyPlanet(false); // renders the current planet's businesses and stats
   renderSettings();
+  renderInstallOptions();
 }
 
 // Fast-forwards the bank vault and pays out the income that would have
@@ -375,8 +384,6 @@ function toast(message, kind, sound = kind) {
 function resetGame() {
   if (!confirm('This will permanently erase your empire and start over. Are you sure?')) return;
   isResetting = true;
-  ['cash', 'hourlyIncome', 'clickValue', 'clicks', 'lastUpdate', 'businesses', 'investments', 'markets', 'properties', 'trophies', 'mars', 'planet'].forEach(key =>
-    localStorage.removeItem(key)
-  );
+  [...SAVE_KEYS, 'investments'].forEach(key => localStorage.removeItem(key));
   location.reload();
 }

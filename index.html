@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Business Empire Simulation</title>
+<meta name="description" content="Build a business empire from a lemonade stand to a colony on Mars.">
+<meta name="theme-color" content="#0e1c13">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Empire">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -190,6 +199,21 @@
           <span class="profile-value" id="mars-income-profile">₥0.00</span>
         </div>
       </div>
+      <h3 class="subsection-title">App &amp; backup</h3>
+      <div class="settings-list">
+        <div class="setting-row setting-row--stack">
+          <span class="setting-text"><strong>📲 Install the app</strong><small id="install-hint">Adds Business Empire to your home screen.</small></span>
+          <button class="button-rounded button-gold setting-button" id="install-button" onclick="installApp()" hidden>Install</button>
+        </div>
+        <div class="setting-row setting-row--stack">
+          <span class="setting-text"><strong>💾 Back up your save</strong><small>Your progress lives only in this browser. Export a save code to keep it safe or move it to another device.</small></span>
+          <span class="setting-buttons">
+            <button class="button-rounded button-outline setting-button" onclick="openExportPopup()">Export</button>
+            <button class="button-rounded button-outline setting-button" onclick="openImportPopup()">Import</button>
+          </span>
+        </div>
+      </div>
+
       <h3 class="subsection-title">Settings</h3>
       <div class="settings-list">
         <label class="setting-row">
@@ -345,6 +369,29 @@
     <button id="exchange-confirm" class="button-rounded button-gold trade-confirm" onclick="confirmExchange()">Send to Mars</button>
   </div>
 
+  <div id="export-popup" class="popup">
+    <button class="popup-close" onclick="closeExportPopup()" aria-label="Close">&times;</button>
+    <h2>Export save</h2>
+    <p class="hint-text">This code is your whole empire: both planets, stocks, properties, trophies, research and achievements. Keep it somewhere safe, or paste it into Import on another device.</p>
+    <textarea id="export-code" class="save-code" readonly rows="6" aria-label="Save code"></textarea>
+    <div class="popup-actions">
+      <button class="button-rounded button-gold" onclick="copySaveCode()">Copy code</button>
+      <button class="button-rounded button-outline" onclick="downloadSaveFile()">Download file</button>
+    </div>
+  </div>
+
+  <div id="import-popup" class="popup">
+    <button class="popup-close" onclick="closeImportPopup()" aria-label="Close">&times;</button>
+    <h2>Import save</h2>
+    <p class="hint-text">Paste a save code (it starts with <code>BE1:</code>) or open a downloaded save file. This replaces your current progress.</p>
+    <textarea id="import-code" class="save-code" rows="6" placeholder="BE1:..." aria-label="Save code to import"></textarea>
+    <p class="import-error" id="import-error" role="alert"></p>
+    <div class="popup-actions">
+      <label class="button-rounded button-outline file-button">Open file<input type="file" accept=".txt,text/plain" onchange="loadSaveFile(this)" hidden></label>
+      <button class="button-rounded button-gold" onclick="importSave()">Import</button>
+    </div>
+  </div>
+
   <div id="toast-container"></div>
 
   <script src="settings.js"></script>
@@ -356,5 +403,6 @@
   <script src="markets.js"></script>
   <script src="merger.js"></script>
   <script src="planets.js"></script>
+  <script src="save.js"></script>
 </body>
 </html>

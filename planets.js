@@ -233,6 +233,8 @@ function applyPlanet(animate) {
   const p = planet();
   const onMars = currentPlanet === 'mars';
   document.body.classList.toggle('planet-mars', onMars);
+  const themeColor = document.querySelector('meta[name="theme-color"]');
+  if (themeColor) themeColor.setAttribute('content', onMars ? '#1e0d08' : '#0e1c13');
   if (animate) {
     document.body.classList.remove('planet-warp');
     void document.body.offsetWidth; // restart animation
