@@ -341,7 +341,7 @@ function hireManager(index) {
   if (!confirmSpend(cost, planetFunds(), `${formatFunds(cost)} on a manager for your ${business.name}`)) return;
   spendFunds(cost);
   business.manager = true;
-  if (typeof recordStat === 'function') recordStat('managers');
+  recordStat('managers');
   toast(`👔 Manager hired for your ${business.name}.`, 'success');
   saveProgress();
   updateStats();

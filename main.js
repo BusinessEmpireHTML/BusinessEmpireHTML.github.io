@@ -74,19 +74,19 @@ function formatInt(value) {
    per-hour figure includes every boost. */
 
 function earthIncomeMultiplier() {
-  return researchMultiplier('earthIncome');
+  return researchMultiplier('earthIncome') * goldenIncomeMultiplier();
 }
 
 function rentMultiplier() {
-  return researchMultiplier('rent');
+  return researchMultiplier('rent') * goldenIncomeMultiplier();
 }
 
 function marsIncomeMultiplier() {
-  return researchMultiplier('marsIncome');
+  return researchMultiplier('marsIncome') * goldenIncomeMultiplier();
 }
 
 function clickMultiplier() {
-  return researchMultiplier('click');
+  return researchMultiplier('click') * goldenClickMultiplier();
 }
 
 function offlineCapHours() {
@@ -125,6 +125,7 @@ function saveProgress() {
   localStorage.setItem('properties', JSON.stringify(ownedProperties));
   localStorage.setItem('trophies', JSON.stringify(ownedTrophies));
   saveResearch();
+  saveStats();
   savePlanets();
 }
 
@@ -149,6 +150,7 @@ function loadProgress() {
   loadProperties();
   loadTrophies();
   loadResearch();
+  loadStats();
   const legacyRefund = migrateLegacyInvestments();
   if (legacyRefund > 0) {
     cash = roundToHundredths(cash + legacyRefund);
@@ -342,6 +344,7 @@ function startGameLoop() {
   setInterval(() => {
     tickBankVaults(1 / 3600); // one second's worth of an hourly fill rate
     tickManagers();
+    tickGolden();
     recalcHourlyIncome();
     cash = roundToHundredths(cash + hourlyIncome / 3600);
     if (mars.unlocked) mars.credits = roundToHundredths(mars.credits + marsHourlyIncome / 3600);

@@ -380,6 +380,7 @@ function confirmExchange() {
     toast(`Sent ${formatCredits(amount)} to Earth. ${formatMoney(quote.receive)} arrived.`, 'success');
   }
 
+  recordStat('exchanges');
   exchange.useMax = false;
   document.getElementById('exchange-amount').value = '';
   saveProgress();
